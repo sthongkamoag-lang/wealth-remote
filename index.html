@@ -331,32 +331,39 @@
 
         function addToBatch(event, sheetName) {
             event.preventDefault();
-            const ts = new Date().toISOString();
+            
+            // 1. สร้างเวลาตาม Device ปัจจุบัน (เขตเวลาไทย) รูปแบบ YYYY-MM-DD HH:mm:ss
+            const now = new Date();
+            const pad = (n) => String(n).padStart(2, '0');
+            const localTime = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+            
+            // 2. รหัส ID ไม่ซ้ำกันสำหรับระบบตะกร้า
+            const uniqueId = Date.now().toString(); 
             let row = [], displayTxt = "", amt = 0;
 
             if (sheetName === 'Tab_Income') {
                 amt = parseFloat(document.getElementById('inc-amt').value);
-                row = [ ts, document.getElementById('inc-date').value, document.getElementById('inc-quad').value, document.getElementById('inc-type').value, document.getElementById('inc-cat').value, document.getElementById('inc-subacc').value, document.getElementById('inc-asset').value || "-", amt, document.getElementById('inc-note').value || "-" ];
+                row = [ localTime, document.getElementById('inc-date').value, document.getElementById('inc-quad').value, document.getElementById('inc-type').value, document.getElementById('inc-cat').value, document.getElementById('inc-subacc').value, document.getElementById('inc-asset').value || "-", amt, document.getElementById('inc-note').value || "-" ];
                 displayTxt = `${document.getElementById('inc-cat').value} (เข้า: ${document.getElementById('inc-subacc').value})`;
             } 
             else if (sheetName === 'Tab_Expenses') {
                 amt = parseFloat(document.getElementById('exp-amt').value);
-                row = [ ts, document.getElementById('exp-date').value, document.getElementById('exp-vcat').value, document.getElementById('exp-subcat').value, document.getElementById('exp-source').value, amt, document.getElementById('exp-note').value || "-" ];
+                row = [ localTime, document.getElementById('exp-date').value, document.getElementById('exp-vcat').value, document.getElementById('exp-subcat').value, document.getElementById('exp-source').value, amt, document.getElementById('exp-note').value || "-" ];
                 displayTxt = `${document.getElementById('exp-subcat').value} (${document.getElementById('exp-vcat').value})`;
             } 
             else if (sheetName === 'Tab_Journal') {
                 amt = parseFloat(document.getElementById('jou-amt').value);
-                row = [ ts, document.getElementById('jou-date').value, document.getElementById('jou-asset').value, document.getElementById('jou-type').value, amt, parseFloat(document.getElementById('jou-fee').value), document.getElementById('jou-note').value || "-" ];
+                row = [ localTime, document.getElementById('jou-date').value, document.getElementById('jou-asset').value, document.getElementById('jou-type').value, amt, parseFloat(document.getElementById('jou-fee').value), document.getElementById('jou-note').value || "-" ];
                 displayTxt = `${document.getElementById('jou-asset').value} [${document.getElementById('jou-type').value}]`;
             } 
             else if (sheetName === 'Tab_Debts_Delta') {
                 amt = parseFloat(document.getElementById('deb-bal').value);
-                row = [ Date.now().toString(), document.getElementById('deb-name').value, amt, parseFloat(document.getElementById('deb-int').value), parseFloat(document.getElementById('deb-min').value) ];
+                row = [ uniqueId, document.getElementById('deb-name').value, amt, parseFloat(document.getElementById('deb-int').value), parseFloat(document.getElementById('deb-min').value) ];
                 displayTxt = `${document.getElementById('deb-name').value} (ดอก: ${document.getElementById('deb-int').value}%)`;
             }
 
             const formatMoney = (n) => new Intl.NumberFormat('th-TH').format(n);
-            stagingBatch[sheetName].push({ id: ts, data: row, display: displayTxt, amount: `฿${formatMoney(amt)}` });
+            stagingBatch[sheetName].push({ id: uniqueId, data: row, display: displayTxt, amount: `฿${formatMoney(amt)}` });
             saveStaging();
             renderStaging(sheetName);
 
@@ -367,7 +374,8 @@
             btn.classList.add('bg-emerald-100', 'border-emerald-400', 'text-emerald-800');
             
             event.target.reset();
-            event.target.querySelector('input[type="date"]')?.setAttribute('value', ts.split('T')[0]);
+            // คงค่าวันที่ไว้ให้เป็นวันที่ล่าสุดที่เพิ่งกรอก
+            event.target.querySelector('input[type="date"]')?.setAttribute('value', localTime.split(' ')[0]);
             if(sheetName === 'Tab_Income') toggleAssetLink();
 
             setTimeout(() => { btn.innerHTML = originalText; btn.classList.remove('bg-emerald-100', 'border-emerald-400', 'text-emerald-800'); }, 1000);
