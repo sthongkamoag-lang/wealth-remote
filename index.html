@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wealth Remote (Batch Mode)</title>
+    <title>Wealth Remote (Speed Entry)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- SweetAlert2 -->
@@ -22,6 +22,9 @@
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Quick Tap Buttons */
+        .quick-tap { white-space: nowrap; padding: 0.4rem 0.8rem; background: #e2e8f0; border-radius: 99px; font-size: 0.75rem; font-weight: 600; color: #475569; transition: all 0.2s; border: 1px solid #cbd5e1; }
+        .quick-tap:active { transform: scale(0.95); background: #cbd5e1; }
     </style>
 </head>
 <body class="pb-20">
@@ -59,33 +62,34 @@
                         <div>
                             <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Quadrant</label>
                             <select id="inc-quad" class="input-field" onchange="toggleAssetLink()" required>
-                                <option value="E">E (ลูกจ้าง)</option>
-                                <option value="S">S (ธุรกิจส่วนตัว)</option>
-                                <option value="B">B (เจ้าของธุรกิจ)</option>
-                                <option value="I">I (นักลงทุน)</option>
+                                <option value="E">E (ลูกจ้าง)</option><option value="S">S (ธุรกิจส่วนตัว)</option><option value="B">B (เจ้าของธุรกิจ)</option><option value="I">I (นักลงทุน)</option>
                             </select>
                         </div>
                         <div>
                             <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">ประเภท</label>
                             <select id="inc-type" class="input-field" required>
-                                <option value="Fixed">คงที่ (Fixed)</option>
-                                <option value="Variable">แปรผัน (Variable)</option>
-                                <option value="Gift">ได้เปล่า (Gift)</option>
+                                <option value="Fixed">คงที่ (Fixed)</option><option value="Variable">แปรผัน (Variable)</option><option value="Gift">ได้เปล่า (Gift)</option>
                             </select>
                         </div>
                     </div>
+                    
                     <div id="inc-asset-container" class="hidden">
                         <label class="text-[10px] font-bold text-emerald-600 uppercase ml-1">เชื่อมโยงสินทรัพย์ (Asset Link)</label>
-                        <select id="inc-asset" class="input-field asset-dropdown"></select>
+                        <!-- เปลี่ยน Select เป็น Input + Datalist (Autocomplete) -->
+                        <input type="text" id="inc-asset" list="list-assets" placeholder="พิมพ์ค้นหาหรือเลือก..." class="input-field">
                     </div>
+                    
                     <div>
-                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">หมวดหมู่รายได้</label>
-                        <select id="inc-cat" class="input-field income-cat-dropdown" required></select>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">หมวดหมู่รายได้ (พิมพ์หาได้เลย)</label>
+                        <!-- เปลี่ยน Select เป็น Input + Datalist (Autocomplete) -->
+                        <input type="text" id="inc-cat" list="list-income-cat" placeholder="เช่น เงินเดือน, OT..." class="input-field" required autocomplete="off">
                     </div>
+                    
                     <div>
                         <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">เข้าถังเงิน (Sub-Account)</label>
                         <select id="inc-subacc" class="input-field subacc-dropdown" required></select>
                     </div>
+                    
                     <input type="number" id="inc-amt" placeholder="จำนวนเงิน (฿)" step="0.01" class="input-field text-lg font-bold text-emerald-600" required>
                     <input type="text" id="inc-note" placeholder="หมายเหตุ (Optional)" class="input-field">
 
@@ -93,21 +97,33 @@
                 </form>
             </div>
             
-            <!-- Staging Area (Cart) -->
+            <!-- Staging Area -->
             <div id="staging-Tab_Income" class="hidden bg-emerald-50 border border-emerald-200 p-4 rounded-2xl shadow-inner">
                 <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-sm font-bold text-emerald-800">รายการรอส่งขึ้น Cloud</h3>
+                    <h3 class="text-sm font-bold text-emerald-800">รายการรอส่ง</h3>
                     <span id="badge-Tab_Income" class="bg-emerald-200 text-emerald-800 text-xs font-bold px-2 py-1 rounded-full">0</span>
                 </div>
                 <ul id="list-Tab_Income" class="space-y-2 mb-4"></ul>
-                <button onclick="uploadBatch('Tab_Income')" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-emerald-200 flex justify-center items-center gap-2">☁️ บันทึกข้อมูลทั้งหมด</button>
+                <button onclick="uploadBatch('Tab_Income')" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-emerald-200 flex justify-center items-center gap-2">☁️ บันทึกข้อมูลขึ้น Cloud</button>
             </div>
         </section>
 
         <!-- ================= TAB: EXPENSE ================= -->
         <section id="tab-expense" class="tab-content hidden space-y-4">
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-                <h2 class="font-bold text-lg mb-4 text-blue-700">บันทึกรายจ่าย (Expense)</h2>
+                <div class="flex justify-between items-end mb-3">
+                    <h2 class="font-bold text-lg text-blue-700">บันทึกรายจ่าย</h2>
+                </div>
+
+                <!-- 🔥 NEW: Quick Tap Buttons เติมข้อมูลด่วน 🔥 -->
+                <div class="flex gap-2 overflow-x-auto hide-scroll mb-4 pb-1">
+                    <button type="button" onclick="quickFillExp('Needs', 'ค่าอาหาร')" class="quick-tap">🍜 อาหาร</button>
+                    <button type="button" onclick="quickFillExp('Needs', 'ค่าเดินทาง')" class="quick-tap">🚆 เดินทาง</button>
+                    <button type="button" onclick="quickFillExp('Wants', 'กาแฟ/ของหวาน')" class="quick-tap">☕ กาแฟ</button>
+                    <button type="button" onclick="quickFillExp('Wants', 'ช้อปปิ้ง')" class="quick-tap">🛍️ ช้อปปิ้ง</button>
+                    <button type="button" onclick="quickFillExp('Needs', 'ค่าน้ำ/ค่าไฟ')" class="quick-tap">💡 ค่าน้ำ/ไฟ</button>
+                </div>
+
                 <form id="form-expense" onsubmit="addToBatch(event, 'Tab_Expenses')" class="space-y-4">
                     <input type="date" id="exp-date" required class="input-field">
                     <div>
@@ -119,31 +135,33 @@
                         </select>
                     </div>
                     <div>
-                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">รายการย่อย</label>
-                        <select id="exp-subcat" class="input-field expense-cat-dropdown" required></select>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">รายการย่อย (พิมพ์หา หรือพิมพ์ใหม่ได้เลย)</label>
+                        <!-- เปลี่ยน Select เป็น Input + Datalist (Autocomplete) -->
+                        <input type="text" id="exp-subcat" list="list-expense-cat" placeholder="เช่น ค่าอาหาร, ค่าเทอม..." class="input-field" required autocomplete="off">
                     </div>
                     <div>
                         <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">ดึงจากถังเงิน (Source Account)</label>
                         <select id="exp-source" class="input-field subacc-dropdown" required></select>
                     </div>
                     <input type="number" id="exp-amt" placeholder="จำนวนเงิน (฿)" step="0.01" class="input-field text-lg font-bold text-blue-600" required>
-                    <input type="text" id="exp-note" placeholder="หมายเหตุ (Optional)" class="input-field">
+                    <input type="text" id="exp-note" placeholder="หมายเหตุ (#แฮชแท็ก ได้)" class="input-field">
 
                     <button type="submit" class="btn-add bg-blue-50 text-blue-700 border-blue-300 hover:bg-blue-100">➕ เพิ่มลงรายการเตรียมส่ง</button>
                 </form>
             </div>
             
-            <!-- Staging Area (Cart) -->
+            <!-- Staging Area -->
             <div id="staging-Tab_Expenses" class="hidden bg-blue-50 border border-blue-200 p-4 rounded-2xl shadow-inner">
                 <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-sm font-bold text-blue-800">รายการรอส่งขึ้น Cloud</h3>
+                    <h3 class="text-sm font-bold text-blue-800">รายการรอส่ง</h3>
                     <span id="badge-Tab_Expenses" class="bg-blue-200 text-blue-800 text-xs font-bold px-2 py-1 rounded-full">0</span>
                 </div>
                 <ul id="list-Tab_Expenses" class="space-y-2 mb-4"></ul>
-                <button onclick="uploadBatch('Tab_Expenses')" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-200 flex justify-center items-center gap-2">☁️ บันทึกข้อมูลทั้งหมด</button>
+                <button onclick="uploadBatch('Tab_Expenses')" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-200 flex justify-center items-center gap-2">☁️ บันทึกข้อมูลขึ้น Cloud</button>
             </div>
         </section>
 
+        <!-- (TAB JOURNAL & DEBT remain functionally the same, but using datalist for assets) -->
         <!-- ================= TAB: JOURNAL ================= -->
         <section id="tab-journal" class="tab-content hidden space-y-4">
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
@@ -152,42 +170,34 @@
                     <input type="date" id="jou-date" required class="input-field">
                     <div>
                         <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">สินทรัพย์</label>
-                        <select id="jou-asset" class="input-field asset-dropdown" required></select>
+                        <input type="text" id="jou-asset" list="list-assets" placeholder="พิมพ์ชื่อสินทรัพย์..." class="input-field" required autocomplete="off">
                     </div>
                     <div>
                         <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">ประเภทธุรกรรม</label>
                         <select id="jou-type" class="input-field" required>
-                            <option value="BUY">ซื้อ (Buy)</option>
-                            <option value="SELL">ขาย (Sell)</option>
-                            <option value="DIVIDEND">รับปันผล (Dividend)</option>
-                            <option value="PRINCIPAL_REPAYMENT">รับคืนเงินต้น (ลูกหนี้)</option>
+                            <option value="BUY">ซื้อ (Buy)</option><option value="SELL">ขาย (Sell)</option>
+                            <option value="DIVIDEND">รับปันผล (Dividend)</option><option value="PRINCIPAL_REPAYMENT">รับคืนเงินต้น (ลูกหนี้)</option>
                         </select>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <input type="number" id="jou-amt" placeholder="ยอดรวม (฿)" step="0.01" class="input-field text-indigo-600 font-bold" required>
-                        <input type="number" id="jou-fee" placeholder="ค่าธรรมเนียม (฿)" step="0.01" value="0" class="input-field" required>
+                        <input type="number" id="jou-fee" placeholder="ค่าธรรมเนียม" step="0.01" value="0" class="input-field" required>
                     </div>
                     <input type="text" id="jou-note" placeholder="เหตุผล / หมายเหตุ" class="input-field">
-
                     <button type="submit" class="btn-add bg-indigo-50 text-indigo-700 border-indigo-300 hover:bg-indigo-100">➕ เพิ่มลงรายการเตรียมส่ง</button>
                 </form>
             </div>
-            
-            <!-- Staging Area (Cart) -->
             <div id="staging-Tab_Journal" class="hidden bg-indigo-50 border border-indigo-200 p-4 rounded-2xl shadow-inner">
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-sm font-bold text-indigo-800">รายการรอส่งขึ้น Cloud</h3>
-                    <span id="badge-Tab_Journal" class="bg-indigo-200 text-indigo-800 text-xs font-bold px-2 py-1 rounded-full">0</span>
-                </div>
+                <div class="flex justify-between items-center mb-3"><h3 class="text-sm font-bold text-indigo-800">รายการรอส่ง</h3><span id="badge-Tab_Journal" class="bg-indigo-200 text-indigo-800 text-xs font-bold px-2 py-1 rounded-full">0</span></div>
                 <ul id="list-Tab_Journal" class="space-y-2 mb-4"></ul>
-                <button onclick="uploadBatch('Tab_Journal')" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-200 flex justify-center items-center gap-2">☁️ บันทึกข้อมูลทั้งหมด</button>
+                <button onclick="uploadBatch('Tab_Journal')" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-200 flex justify-center items-center gap-2">☁️ บันทึกข้อมูลขึ้น Cloud</button>
             </div>
         </section>
 
         <!-- ================= TAB: DEBT ================= -->
         <section id="tab-debt" class="tab-content hidden space-y-4">
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-                <h2 class="font-bold text-lg mb-4 text-rose-700">เพิ่มหนี้สินใหม่ (Debt Delta)</h2>
+                <h2 class="font-bold text-lg mb-4 text-rose-700">เพิ่มหนี้สินใหม่</h2>
                 <form id="form-debt" onsubmit="addToBatch(event, 'Tab_Debts_Delta')" class="space-y-4">
                     <input type="text" id="deb-name" placeholder="ชื่อเจ้าหนี้ / บัตร" class="input-field" required>
                     <input type="number" id="deb-bal" placeholder="ยอดคงเหลือ (฿)" step="0.01" class="input-field text-lg font-bold text-rose-600" required>
@@ -198,33 +208,27 @@
                     <button type="submit" class="btn-add bg-rose-50 text-rose-700 border-rose-300 hover:bg-rose-100">➕ เพิ่มลงรายการเตรียมส่ง</button>
                 </form>
             </div>
-            
-            <!-- Staging Area (Cart) -->
             <div id="staging-Tab_Debts_Delta" class="hidden bg-rose-50 border border-rose-200 p-4 rounded-2xl shadow-inner">
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-sm font-bold text-rose-800">รายการรอส่งขึ้น Cloud</h3>
-                    <span id="badge-Tab_Debts_Delta" class="bg-rose-200 text-rose-800 text-xs font-bold px-2 py-1 rounded-full">0</span>
-                </div>
+                <div class="flex justify-between items-center mb-3"><h3 class="text-sm font-bold text-rose-800">รายการรอส่ง</h3><span id="badge-Tab_Debts_Delta" class="bg-rose-200 text-rose-800 text-xs font-bold px-2 py-1 rounded-full">0</span></div>
                 <ul id="list-Tab_Debts_Delta" class="space-y-2 mb-4"></ul>
-                <button onclick="uploadBatch('Tab_Debts_Delta')" class="w-full bg-rose-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-rose-200 flex justify-center items-center gap-2">☁️ บันทึกข้อมูลทั้งหมด</button>
+                <button onclick="uploadBatch('Tab_Debts_Delta')" class="w-full bg-rose-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-rose-200 flex justify-center items-center gap-2">☁️ บันทึกข้อมูลขึ้น Cloud</button>
             </div>
         </section>
 
     </main>
 
+    <!-- 🔥 DATALISTS FOR AUTOCOMPLETE (Invisible elements that hold the list data) 🔥 -->
+    <datalist id="list-income-cat"></datalist>
+    <datalist id="list-expense-cat"></datalist>
+    <datalist id="list-assets"></datalist>
+
     <!-- Settings Modal -->
     <div id="modal-settings" class="fixed inset-0 bg-slate-900/60 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-            <h3 class="font-bold text-lg mb-4 flex items-center gap-2">⚙️ ตั้งค่าระบบเชื่อมต่อ (Tier 2)</h3>
+            <h3 class="font-bold text-lg mb-4 flex items-center gap-2">⚙️ ตั้งค่าระบบเชื่อมต่อ</h3>
             <div class="space-y-4">
-                <div>
-                    <label class="text-xs font-bold text-slate-500">Google Web App URL</label>
-                    <input type="text" id="cfg-url" placeholder="https://script.google.com/macros/s/.../exec" class="input-field mt-1">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-500">Secret Token</label>
-                    <input type="text" id="cfg-token" value="wealth_master_2026" class="input-field mt-1">
-                </div>
+                <div><label class="text-xs font-bold text-slate-500">Google Web App URL</label><input type="text" id="cfg-url" class="input-field mt-1"></div>
+                <div><label class="text-xs font-bold text-slate-500">Secret Token</label><input type="text" id="cfg-token" class="input-field mt-1"></div>
                 <div class="flex gap-2 pt-2">
                     <button onclick="saveSettings()" class="flex-1 bg-slate-800 text-white font-bold py-2 rounded-xl">บันทึก & ซิงค์</button>
                     <button onclick="closeSettings()" class="flex-1 bg-slate-200 text-slate-700 font-bold py-2 rounded-xl">ปิด</button>
@@ -235,31 +239,18 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        const SYS_CONFIG = 'WM_API_CONFIG';
-        const SYS_QUEUE = 'WM_OFFLINE_QUEUE';
-        const SYS_META = 'WM_METADATA';
-        const SYS_STAGING = 'WM_STAGING_BATCH';
-
+        const SYS_CONFIG = 'WM_API_CONFIG'; const SYS_QUEUE = 'WM_OFFLINE_QUEUE'; const SYS_META = 'WM_METADATA'; const SYS_STAGING = 'WM_STAGING_BATCH';
         let config = JSON.parse(localStorage.getItem(SYS_CONFIG)) || { url: '', token: 'wealth_master_2026' };
         let offlineQueue = JSON.parse(localStorage.getItem(SYS_QUEUE)) || [];
-        let metadata = JSON.parse(localStorage.getItem(SYS_META)) || { incomeCategories: ['-'], expenseCategories: ['-'], subAccounts: ['-'], assets: ['-'] };
+        let metadata = JSON.parse(localStorage.getItem(SYS_META)) || { incomeCategories: [], expenseCategories: [], subAccounts: [], assets: [] };
         let stagingBatch = JSON.parse(localStorage.getItem(SYS_STAGING)) || { Tab_Income: [], Tab_Expenses: [], Tab_Journal: [], Tab_Debts_Delta: [] };
 
         window.onload = () => {
             document.querySelectorAll('input[type="date"]').forEach(el => el.valueAsDate = new Date());
-            populateDropdowns();
-            renderAllStaging();
-            updateSyncStatus();
-
+            populateDropdowns(); renderAllStaging(); updateSyncStatus();
             window.addEventListener('online', () => { updateSyncStatus(); processQueue(); });
             window.addEventListener('offline', updateSyncStatus);
-
-            if (config.url) {
-                fetchMetadata();
-                processQueue();
-            } else {
-                openSettings();
-            }
+            if (config.url) { fetchMetadata(); processQueue(); } else { openSettings(); }
         };
 
         function switchTab(tabId) {
@@ -273,57 +264,46 @@
             const quad = document.getElementById('inc-quad').value;
             const container = document.getElementById('inc-asset-container');
             const input = document.getElementById('inc-asset');
-            if (quad === 'I') {
-                container.classList.remove('hidden');
-                input.required = true;
-            } else {
-                container.classList.add('hidden');
-                input.required = false;
-                input.value = "";
-            }
+            if (quad === 'I') { container.classList.remove('hidden'); input.required = true; } 
+            else { container.classList.add('hidden'); input.required = false; input.value = ""; }
+        }
+
+        // 🔥 Quick Fill Function สำหรับปุ่มลัด
+        function quickFillExp(vcat, subcat) {
+            document.getElementById('exp-vcat').value = vcat;
+            document.getElementById('exp-subcat').value = subcat;
+            document.getElementById('exp-amt').focus(); // เด้งไปช่องพิมพ์ตัวเลขทันที
         }
 
         // --- Metadata Management ---
-        function openSettings() {
-            document.getElementById('cfg-url').value = config.url;
-            document.getElementById('cfg-token').value = config.token;
-            document.getElementById('modal-settings').classList.remove('hidden');
-        }
+        function openSettings() { document.getElementById('cfg-url').value = config.url; document.getElementById('cfg-token').value = config.token; document.getElementById('modal-settings').classList.remove('hidden'); }
         function closeSettings() { document.getElementById('modal-settings').classList.add('hidden'); }
-        function saveSettings() {
-            config.url = document.getElementById('cfg-url').value.trim();
-            config.token = document.getElementById('cfg-token').value.trim();
-            localStorage.setItem(SYS_CONFIG, JSON.stringify(config));
-            closeSettings();
-            if (config.url) fetchMetadata();
-            else Swal.fire('แจ้งเตือน', 'กรุณาระบุ URL ของ Web App', 'warning');
-        }
+        function saveSettings() { config.url = document.getElementById('cfg-url').value.trim(); config.token = document.getElementById('cfg-token').value.trim(); localStorage.setItem(SYS_CONFIG, JSON.stringify(config)); closeSettings(); if (config.url) fetchMetadata(); }
 
         async function fetchMetadata() {
             if (!navigator.onLine || !config.url) return;
             updateStatusUI('yellow', 'Syncing Meta...');
             try {
-                const separator = config.url.includes('?') ? '&' : '?';
-                const response = await fetch(`${config.url}${separator}action=getMetadata&token=${encodeURIComponent(config.token)}`);
-                const result = await response.json();
-                
+                const sep = config.url.includes('?') ? '&' : '?';
+                const res = await fetch(`${config.url}${sep}action=getMetadata&token=${encodeURIComponent(config.token)}`);
+                const result = await res.json();
                 if (result.status === 'success') {
-                    metadata = result.data;
-                    localStorage.setItem(SYS_META, JSON.stringify(metadata));
-                    populateDropdowns();
-                    updateStatusUI('green', 'Synced');
-                } else throw new Error(result.message);
-            } catch (error) {
-                updateStatusUI('red', 'Meta Sync Failed');
-            }
+                    metadata = result.data; localStorage.setItem(SYS_META, JSON.stringify(metadata)); populateDropdowns(); updateStatusUI('green', 'Synced');
+                } else throw new Error();
+            } catch (err) { updateStatusUI('red', 'Meta Sync Failed'); }
         }
 
+        // 🔥 เปลี่ยนจากการเติม <select> มาเป็นเติม <datalist>
         function populateDropdowns() {
-            const buildOpts = (arr) => arr && arr.length ? arr.map(i => `<option value="${i}">${i}</option>`).join('') : '<option value="-">-</option>';
-            document.querySelectorAll('.income-cat-dropdown').forEach(el => el.innerHTML = buildOpts(metadata.incomeCategories));
-            document.querySelectorAll('.expense-cat-dropdown').forEach(el => el.innerHTML = buildOpts(metadata.expenseCategories));
-            document.querySelectorAll('.subacc-dropdown').forEach(el => el.innerHTML = buildOpts(metadata.subAccounts));
-            document.querySelectorAll('.asset-dropdown').forEach(el => el.innerHTML = buildOpts(metadata.assets));
+            const buildOpts = (arr) => arr && arr.length ? arr.map(i => `<option value="${i}">`).join('') : ''; // Datalist ใช้แค่นี้
+            const buildSelect = (arr) => arr && arr.length ? arr.map(i => `<option value="${i}">${i}</option>`).join('') : '<option value="-">-</option>';
+            
+            document.getElementById('list-income-cat').innerHTML = buildOpts(metadata.incomeCategories);
+            document.getElementById('list-expense-cat').innerHTML = buildOpts(metadata.expenseCategories);
+            document.getElementById('list-assets').innerHTML = buildOpts(metadata.assets);
+            
+            // Sub Accounts ยังใช้ Select ปกติเพราะเป็นเรื่องบัญชีที่ตายตัว
+            document.querySelectorAll('.subacc-dropdown').forEach(el => el.innerHTML = buildSelect(metadata.subAccounts));
         }
 
         // --- Batch & Staging Logic ---
@@ -332,13 +312,11 @@
         function addToBatch(event, sheetName) {
             event.preventDefault();
             
-            // 1. สร้างเวลาตาม Device ปัจจุบัน (เขตเวลาไทย) รูปแบบ YYYY-MM-DD HH:mm:ss
             const now = new Date();
             const pad = (n) => String(n).padStart(2, '0');
             const localTime = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-            
-            // 2. รหัส ID ไม่ซ้ำกันสำหรับระบบตะกร้า
             const uniqueId = Date.now().toString(); 
+            
             let row = [], displayTxt = "", amt = 0;
 
             if (sheetName === 'Tab_Income') {
@@ -364,133 +342,67 @@
 
             const formatMoney = (n) => new Intl.NumberFormat('th-TH').format(n);
             stagingBatch[sheetName].push({ id: uniqueId, data: row, display: displayTxt, amount: `฿${formatMoney(amt)}` });
-            saveStaging();
-            renderStaging(sheetName);
+            saveStaging(); renderStaging(sheetName);
 
-            // Visual feedback & Reset Form (Keep Date)
             const btn = event.target.querySelector('.btn-add');
             const originalText = btn.innerHTML;
-            btn.innerHTML = '✅ เพิ่มลงคิวสำเร็จ';
-            btn.classList.add('bg-emerald-100', 'border-emerald-400', 'text-emerald-800');
+            btn.innerHTML = '✅ ลงคิวแล้ว'; btn.classList.add('bg-emerald-100', 'border-emerald-400', 'text-emerald-800');
             
             event.target.reset();
-            // คงค่าวันที่ไว้ให้เป็นวันที่ล่าสุดที่เพิ่งกรอก
             event.target.querySelector('input[type="date"]')?.setAttribute('value', localTime.split(' ')[0]);
             if(sheetName === 'Tab_Income') toggleAssetLink();
 
-            setTimeout(() => { btn.innerHTML = originalText; btn.classList.remove('bg-emerald-100', 'border-emerald-400', 'text-emerald-800'); }, 1000);
+            setTimeout(() => { btn.innerHTML = originalText; btn.classList.remove('bg-emerald-100', 'border-emerald-400', 'text-emerald-800'); }, 800);
         }
 
-        function removeFromBatch(sheetName, id) {
-            stagingBatch[sheetName] = stagingBatch[sheetName].filter(item => item.id !== id);
-            saveStaging();
-            renderStaging(sheetName);
-        }
-
+        function removeFromBatch(sheetName, id) { stagingBatch[sheetName] = stagingBatch[sheetName].filter(i => i.id !== id); saveStaging(); renderStaging(sheetName); }
         function renderAllStaging() { ['Tab_Income', 'Tab_Expenses', 'Tab_Journal', 'Tab_Debts_Delta'].forEach(renderStaging); }
 
         function renderStaging(sheetName) {
-            const list = stagingBatch[sheetName] || [];
-            const container = document.getElementById(`staging-${sheetName}`);
-            const ul = document.getElementById(`list-${sheetName}`);
-            const badge = document.getElementById(`badge-${sheetName}`);
-
-            if (list.length === 0) {
-                container.classList.add('hidden');
-                return;
-            }
-
-            container.classList.remove('hidden');
-            badge.innerText = list.length;
-            
-            ul.innerHTML = list.map(item => `
-                <li class="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-100 text-sm shadow-sm">
-                    <div class="flex flex-col">
-                        <span class="font-bold text-slate-700">${item.display}</span>
-                        <span class="text-xs text-slate-500">${item.amount}</span>
-                    </div>
-                    <button type="button" onclick="removeFromBatch('${sheetName}', '${item.id}')" class="text-rose-400 hover:text-rose-600 p-2 text-lg">🗑️</button>
-                </li>
-            `).join('');
+            const list = stagingBatch[sheetName] || []; const container = document.getElementById(`staging-${sheetName}`);
+            const ul = document.getElementById(`list-${sheetName}`); const badge = document.getElementById(`badge-${sheetName}`);
+            if (list.length === 0) { container.classList.add('hidden'); return; }
+            container.classList.remove('hidden'); badge.innerText = list.length;
+            ul.innerHTML = list.map(i => `<li class="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-100 text-sm"><div class="flex flex-col"><span class="font-bold text-slate-700">${i.display}</span><span class="text-xs text-slate-500">${i.amount}</span></div><button type="button" onclick="removeFromBatch('${sheetName}', '${i.id}')" class="text-rose-400 hover:text-rose-600 p-2">🗑️</button></li>`).join('');
         }
 
         // --- Upload Batch to GAS ---
         async function uploadBatch(sheetName) {
-            if (!config.url) return Swal.fire('ข้อผิดพลาด', 'กรุณาตั้งค่า URL ก่อน', 'error');
-            const items = stagingBatch[sheetName];
-            if (items.length === 0) return;
-
-            // Extract only the raw data arrays
-            const rowsData = items.map(item => item.data);
+            if (!config.url) return Swal.fire('ข้อผิดพลาด', 'กรุณาตั้งค่า URL', 'error');
+            const items = stagingBatch[sheetName]; if (items.length === 0) return;
+            const rowsData = items.map(i => i.data);
             const payload = { token: config.token, action: 'appendRows', sheetName: sheetName, data: rowsData };
 
-            Swal.fire({ title: `กำลังส่ง ${items.length} รายการ...`, allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
+            Swal.fire({ title: `ส่ง ${items.length} รายการ...`, allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
 
             if (navigator.onLine) {
                 try {
-                    const res = await sendToGAS(payload);
+                    const res = await fetch(config.url, { method: 'POST', body: JSON.stringify(payload) }).then(r=>r.json());
                     if (res.status === 'success') {
-                        stagingBatch[sheetName] = []; // Clear Cart
-                        saveStaging();
-                        renderStaging(sheetName);
-                        Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: `บันทึก ${items.length} รายการขึ้น Cloud เรียบร้อย`, timer: 1500, showConfirmButton: false });
-                    } else throw new Error(res.message);
-                } catch (error) {
-                    queuePayload(payload);
-                    stagingBatch[sheetName] = []; saveStaging(); renderStaging(sheetName);
-                    Swal.fire({ icon: 'warning', title: 'ขัดข้อง', text: 'ข้อมูลถูกเก็บไว้ในคิวรอส่งอัตโนมัติ', timer: 2000, showConfirmButton: false });
-                }
-            } else {
-                queuePayload(payload);
-                stagingBatch[sheetName] = []; saveStaging(); renderStaging(sheetName);
-                Swal.fire({ icon: 'info', title: 'ออฟไลน์', text: 'ระบบจะส่งข้อมูลอัตโนมัติเมื่อต่ออินเทอร์เน็ต', timer: 2000, showConfirmButton: false });
-            }
+                        stagingBatch[sheetName] = []; saveStaging(); renderStaging(sheetName);
+                        Swal.fire({ icon: 'success', title: 'สำเร็จ!', timer: 1500, showConfirmButton: false });
+                    } else throw new Error();
+                } catch (e) { queuePayload(payload); stagingBatch[sheetName] = []; saveStaging(); renderStaging(sheetName); Swal.fire({ icon: 'warning', title: 'รอส่ง', timer: 1500, showConfirmButton: false }); }
+            } else { queuePayload(payload); stagingBatch[sheetName] = []; saveStaging(); renderStaging(sheetName); Swal.fire({ icon: 'info', title: 'ออฟไลน์', timer: 1500, showConfirmButton: false }); }
             updateSyncStatus();
         }
 
-        async function sendToGAS(payload) {
-            const res = await fetch(config.url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
-            return await res.json();
-        }
-
-        // --- Offline Queue Handling ---
-        function queuePayload(payload) {
-            offlineQueue.push(payload);
-            localStorage.setItem(SYS_QUEUE, JSON.stringify(offlineQueue));
-        }
-
+        function queuePayload(payload) { offlineQueue.push(payload); localStorage.setItem(SYS_QUEUE, JSON.stringify(offlineQueue)); }
         async function processQueue() {
             if (!navigator.onLine || offlineQueue.length === 0 || !config.url) return;
-            
-            updateStatusUI('yellow', `Syncing ${offlineQueue.length}...`);
+            updateStatusUI('yellow', 'Syncing...');
             let failedQueue = [];
-            
-            for (let payload of offlineQueue) {
-                try {
-                    const res = await sendToGAS(payload);
-                    if (res.status !== 'success') failedQueue.push(payload);
-                } catch (e) {
-                    failedQueue.push(payload);
-                }
-            }
-            
-            offlineQueue = failedQueue;
-            localStorage.setItem(SYS_QUEUE, JSON.stringify(offlineQueue));
-            updateSyncStatus();
+            for (let p of offlineQueue) { try { const r = await fetch(config.url, { method: 'POST', body: JSON.stringify(p) }).then(res=>res.json()); if(r.status!=='success') failedQueue.push(p); } catch(e){ failedQueue.push(p); } }
+            offlineQueue = failedQueue; localStorage.setItem(SYS_QUEUE, JSON.stringify(offlineQueue)); updateSyncStatus();
         }
 
         function updateSyncStatus() {
-            if (!config.url) updateStatusUI('red', 'Missing URL');
-            else if (!navigator.onLine) updateStatusUI('red', `Offline (${offlineQueue.length})`);
-            else if (offlineQueue.length > 0) updateStatusUI('yellow', `Pending (${offlineQueue.length})`);
-            else updateStatusUI('green', 'Online');
+            if (!config.url) updateStatusUI('red', 'No URL'); else if (!navigator.onLine) updateStatusUI('red', `Offline (${offlineQueue.length})`);
+            else if (offlineQueue.length > 0) updateStatusUI('yellow', `Pending (${offlineQueue.length})`); else updateStatusUI('green', 'Online');
         }
-
         function updateStatusUI(color, text) {
-            const dot = document.getElementById('status-dot');
-            const txt = document.getElementById('status-text');
-            txt.innerText = text;
-            dot.className = `w-2 h-2 rounded-full ${color === 'green' ? 'bg-emerald-500' : color === 'yellow' ? 'bg-amber-500 animate-pulse' : 'bg-rose-500'}`;
+            const d = document.getElementById('status-dot'); document.getElementById('status-text').innerText = text;
+            d.className = `w-2 h-2 rounded-full ${color==='green'?'bg-emerald-500':color==='yellow'?'bg-amber-500 animate-pulse':'bg-rose-500'}`;
         }
     </script>
 </body>
