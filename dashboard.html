@@ -20,8 +20,6 @@
         .glow-text { text-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
         .time-btn { padding: 0.25rem 0.75rem; font-size: 0.75rem; border-radius: 9999px; transition: all 0.2s; background: rgba(51, 65, 85, 0.5); color: #94a3b8; cursor: pointer; }
         .time-btn.active { background: #38bdf8; color: #0f172a; font-weight: bold; }
-        
-        /* Range Slider Styling */
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: #38bdf8; cursor: pointer; margin-top: -8px; box-shadow: 0 0 10px rgba(56,189,248,0.5); }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: #334155; border-radius: 3px; }
@@ -35,7 +33,7 @@
             <span class="text-3xl">🧠</span>
             <div>
                 <h1 class="text-xl font-bold glow-text">Strategic Command Center</h1>
-                <p class="text-xs text-slate-400">Masterpiece Edition v3.0</p>
+                <p class="text-xs text-slate-400">Masterpiece Edition v3.1</p>
             </div>
         </div>
         
@@ -45,10 +43,8 @@
             <button onclick="switchTab('richdad')" id="nav-richdad" class="tab-btn px-2 py-1 whitespace-nowrap">งบดุล/ESBI</button>
             <button onclick="switchTab('delta')" id="nav-delta" class="tab-btn px-2 py-1 whitespace-nowrap">🔥 ปลดหนี้</button>
             <div class="h-6 w-px bg-slate-600 mx-1 hidden md:block"></div>
-            <!-- New Features Tabs -->
             <button onclick="switchTab('giving')" id="nav-giving" class="tab-btn px-2 py-1 whitespace-nowrap">💖 สายบุญ & สังคม</button>
             <button onclick="switchTab('scenario')" id="nav-scenario" class="tab-btn px-2 py-1 whitespace-nowrap">🔮 จำลองอนาคต</button>
-            
             <div class="h-6 w-px bg-slate-600 mx-1 hidden md:block"></div>
             <button onclick="syncData()" id="btn-sync" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/30">
                 <span>🔄</span> ซิงค์ข้อมูล
@@ -65,12 +61,10 @@
             <p class="text-slate-400 animate-pulse">กำลังดึงข้อมูลและประมวลผลกลยุทธ์...</p>
         </div>
 
-        <!-- Rebalancer Alert (Injected by JS) -->
         <div id="rebalancer-alert" class="hidden mb-6"></div>
 
         <!-- ================= TAB: OVERVIEW ================= -->
         <section id="tab-overview" class="tab-content space-y-6">
-            <!-- KPI Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="glass-panel p-5 rounded-2xl">
                     <p class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">ความมั่งคั่งสุทธิ (Net Worth)</p>
@@ -95,9 +89,7 @@
                 </div>
             </div>
 
-            <!-- Charts Row -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Wealth Timeline -->
                 <div class="glass-panel p-6 rounded-2xl">
                     <div class="flex justify-between items-start mb-4">
                         <h3 class="font-bold text-lg flex items-center gap-2"><span>📈</span> Wealth Timeline</h3>
@@ -110,7 +102,6 @@
                     <div class="h-[280px] w-full relative"><canvas id="chart-wealth-timeline"></canvas></div>
                 </div>
 
-                <!-- Investment Timeline -->
                 <div class="glass-panel p-6 rounded-2xl">
                     <div class="flex justify-between items-start mb-4">
                         <h3 class="font-bold text-lg flex items-center gap-2"><span>🏛️</span> Investment Timeline</h3>
@@ -124,7 +115,6 @@
                 </div>
             </div>
 
-            <!-- Virtual Accounts & Themes -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="glass-panel p-6 rounded-2xl lg:col-span-2">
                     <h3 class="font-bold text-lg mb-4">สถานะเงินหลายถัง (Virtual Envelopes)</h3>
@@ -171,7 +161,6 @@
         <!-- ================= TAB: RICH DAD ================= -->
         <section id="tab-richdad" class="tab-content hidden space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Quadrant -->
                 <div class="glass-panel p-6 rounded-2xl lg:col-span-1 flex flex-col items-center justify-center">
                     <h3 class="font-bold text-lg mb-6">Cashflow Quadrant</h3>
                     <div class="grid grid-cols-2 gap-4 w-full max-w-[280px] aspect-square relative pb-8">
@@ -199,7 +188,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- Balance Sheet -->
                 <div class="glass-panel p-6 rounded-2xl lg:col-span-2 flex flex-col">
                     <h3 class="font-bold text-xl mb-6">Personal Balance Sheet</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1">
@@ -216,20 +204,34 @@
             </div>
         </section>
 
-        <!-- ================= TAB: DELTA (Debt Simulator) ================= -->
+        <!-- ================= TAB: DELTA (Debt Simulator + Interest Tracker) ================= -->
         <section id="tab-delta" class="tab-content hidden space-y-6">
             <div class="glass-panel p-6 rounded-2xl">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                     <div>
                         <h3 class="font-bold text-xl flex items-center gap-2 text-rose-400"><span>🔥</span> Debt Simulator</h3>
-                        <p class="text-sm text-slate-400">ระบบจัดลำดับการชำระหนี้</p>
+                        <p class="text-sm text-slate-400">ระบบจัดลำดับหนี้สิน และติดตามดอกเบี้ยที่จ่ายไป</p>
                     </div>
-                    <!-- Feature 1: Toggle Snowball vs Avalanche -->
                     <div class="bg-slate-800 p-1 rounded-xl flex gap-1 border border-slate-700">
-                        <button onclick="setDebtMode('avalanche')" id="btn-mode-ava" class="px-4 py-2 rounded-lg text-sm font-bold bg-rose-600 text-white shadow-lg transition-all">Avalanche (ดอกแพงสุดก่อน)</button>
-                        <button onclick="setDebtMode('snowball')" id="btn-mode-sno" class="px-4 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-white transition-all">Snowball (ยอดน้อยสุดก่อน)</button>
+                        <button onclick="setDebtMode('avalanche')" id="btn-mode-ava" class="px-4 py-2 rounded-lg text-sm font-bold bg-rose-600 text-white shadow-lg transition-all">Avalanche (ดอกแพงสุด)</button>
+                        <button onclick="setDebtMode('snowball')" id="btn-mode-sno" class="px-4 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-white transition-all">Snowball (ยอดน้อยสุด)</button>
                     </div>
                 </div>
+
+                <!-- 🔥 NEW: Interest Leakage Tracker 🔥 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <div class="bg-rose-500/10 border border-rose-500/20 p-5 rounded-2xl text-center relative overflow-hidden">
+                        <div class="absolute left-0 top-0 w-2 h-full bg-rose-500"></div>
+                        <p class="text-xs text-rose-300 font-bold uppercase tracking-widest mb-1">ดอกเบี้ยที่เสียให้ธนาคาร (ปีนี้)</p>
+                        <p class="text-3xl font-black text-rose-400" id="interest-this-year">฿0</p>
+                    </div>
+                    <div class="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl text-center relative overflow-hidden">
+                        <div class="absolute left-0 top-0 w-2 h-full bg-slate-500"></div>
+                        <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">ดอกเบี้ยที่เสียไปทั้งหมด (สะสม)</p>
+                        <p class="text-3xl font-black text-white" id="interest-all-time">฿0</p>
+                    </div>
+                </div>
+
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
                         <thead class="bg-slate-800 text-slate-300 text-xs uppercase tracking-wider">
@@ -265,9 +267,7 @@
                         <p class="text-4xl font-black text-white" id="give-all-time">฿0</p>
                     </div>
                 </div>
-                <div class="h-[300px] w-full relative">
-                    <canvas id="chart-giving"></canvas>
-                </div>
+                <div class="h-[300px] w-full relative"><canvas id="chart-giving"></canvas></div>
             </div>
         </section>
 
@@ -285,10 +285,7 @@
                         <span>นำไปลงทุนเพิ่ม: <span id="slider-money" class="text-emerald-400 text-lg">+฿0 / เดือน</span></span>
                     </div>
                     <input type="range" id="sim-slider" min="0" max="100" value="0" step="5" oninput="updateScenario()">
-                    <div class="flex justify-between text-xs text-slate-500 mt-2">
-                        <span>0% (ไม่ปรับพฤติกรรม)</span>
-                        <span>100% (งด Wants เด็ดขาด)</span>
-                    </div>
+                    <div class="flex justify-between text-xs text-slate-500 mt-2"><span>0% (ไม่ปรับพฤติกรรม)</span><span>100% (งด Wants เด็ดขาด)</span></div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -303,9 +300,7 @@
                     </div>
                 </div>
 
-                <div class="h-[350px] w-full relative">
-                    <canvas id="chart-scenario"></canvas>
-                </div>
+                <div class="h-[350px] w-full relative"><canvas id="chart-scenario"></canvas></div>
                 <p class="text-[10px] text-slate-500 text-center mt-4">* คำนวณด้วยสมการทบต้น (Compound Interest) อัตราผลตอบแทนเฉลี่ย 8% ต่อปี (ทบต้นรายเดือน)</p>
             </div>
         </section>
@@ -329,15 +324,10 @@
 
     <!-- MAIN LOGIC -->
     <script>
-        // --- Core ---
         const SYS_CONFIG = 'WM_API_CONFIG';
         let config = JSON.parse(localStorage.getItem(SYS_CONFIG)) || { url: '', token: 'wealth_master_2026' };
         
-        let rawData = null;
-        let charts = {};
-        let stateTimeframes = { wealth: 'month', invest: 'month' };
-        let debtSortMode = 'avalanche'; 
-        
+        let rawData = null; let charts = {}; let stateTimeframes = { wealth: 'month', invest: 'month' }; let debtSortMode = 'avalanche'; 
         let parsedIncomes = [], parsedExpenses = [], parsedJournal = [], parsedDebts = [];
         let simData = { monthlyWants: 0, monthlyFuture: 0 };
 
@@ -353,18 +343,13 @@
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('tab-active'));
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
             document.getElementById(`nav-${tabId}`).classList.add('tab-active');
-            if(tabId === 'scenario' && rawData) updateScenario(); // Trigger slider update
+            if(tabId === 'scenario' && rawData) updateScenario();
         }
 
-        // --- Settings ---
         function openSettings() { document.getElementById('cfg-url').value = config.url; document.getElementById('cfg-token').value = config.token; document.getElementById('modal-settings').classList.remove('hidden'); }
         function closeSettings() { document.getElementById('modal-settings').classList.add('hidden'); }
-        function saveSettings() {
-            config.url = document.getElementById('cfg-url').value.trim(); config.token = document.getElementById('cfg-token').value.trim();
-            localStorage.setItem(SYS_CONFIG, JSON.stringify(config)); closeSettings(); syncData();
-        }
+        function saveSettings() { config.url = document.getElementById('cfg-url').value.trim(); config.token = document.getElementById('cfg-token').value.trim(); localStorage.setItem(SYS_CONFIG, JSON.stringify(config)); closeSettings(); syncData(); }
 
-        // --- API Sync ---
         async function syncData() {
             if (!config.url) return Swal.fire('แจ้งเตือน', 'กรุณาตั้งค่า URL ก่อน', 'warning');
             const btn = document.getElementById('btn-sync'); const loader = document.getElementById('loading-state');
@@ -375,18 +360,15 @@
                 const reqUrl = `${config.url}${config.url.includes('?') ? '&' : '?'}action=getAllData&token=${encodeURIComponent(config.token)}`;
                 const response = await fetch(reqUrl);
                 const result = await response.json();
-
                 if (result.status === 'success') {
-                    rawData = result.data;
-                    processAndRender(rawData);
+                    rawData = result.data; processAndRender(rawData);
                     const activeTab = document.querySelector('.tab-active').id.replace('nav-', 'tab-');
                     document.getElementById(activeTab).classList.remove('hidden');
-                } else throw new Error(result.message);
+                } else throw new Error();
             } catch (error) { Swal.fire('Error', 'ตรวจสอบ URL หรือการเชื่อมต่อ', 'error'); document.getElementById('tab-overview').classList.remove('hidden'); } 
             finally { btn.innerHTML = `<span>🔄</span> ซิงค์ข้อมูล`; loader.classList.add('hidden'); }
         }
 
-        // --- Main Data Processor ---
         function processAndRender(db) {
             if(!db) return;
             parsedIncomes = db.Tab_Income || []; parsedExpenses = db.Tab_Expenses || []; 
@@ -395,10 +377,12 @@
             let sumE=0, sumS=0, sumB=0, sumI=0, totalIncome=0;
             let sumNeeds=0, sumWants=0, sumFuture=0, totalExpense=0;
             let virtualAccounts = {};
+            
+            // New Variables for Tracking
             let givingDataByYear = {}; let totalGivenAllTime = 0; let totalGivenThisYear = 0;
+            let totalInterestThisYear = 0; let totalInterestAllTime = 0;
+            
             const currentYear = new Date().getFullYear();
-
-            // Calculate Date range for Monthly Averages (for Simulator)
             let minDate = new Date(); let maxDate = new Date(0);
 
             // Incomes
@@ -410,21 +394,27 @@
                 if(inc.Date) { const d = new Date(inc.Date); if(d < minDate) minDate=d; if(d > maxDate) maxDate=d; }
             });
 
-            // Expenses & Giving
+            // Expenses, Giving & Interest
             parsedExpenses.forEach(exp => {
                 const amt = Number(exp.Amount) || 0; totalExpense += amt;
                 if(exp.Category_Vivian === 'Needs') sumNeeds += amt; if(exp.Category_Vivian === 'Wants') sumWants += amt; if(exp.Category_Vivian === 'Future') sumFuture += amt;
                 if(exp.Source_Sub_Account && exp.Source_Sub_Account !== '-') virtualAccounts[exp.Source_Sub_Account] = (virtualAccounts[exp.Source_Sub_Account] || 0) - amt;
                 if(exp.Date) { const d = new Date(exp.Date); if(d < minDate) minDate=d; if(d > maxDate) maxDate=d; }
                 
-                // 💖 Feature 2: Giving Extraction
                 const text = (exp.Sub_Category + " " + exp.Note).toLowerCase();
+                const expYear = new Date(exp.Date).getFullYear();
+
+                // 💖 Giving Tracker
                 if(text.includes('พ่อ') || text.includes('แม่') || text.includes('ทำบุญ') || text.includes('ลูก') || text.includes('ให้') || text.includes('บริจาค') || exp.Category_Vivian === 'Giving') {
-                    const y = new Date(exp.Date).getFullYear();
-                    if(!givingDataByYear[y]) givingDataByYear[y] = 0;
-                    givingDataByYear[y] += amt;
-                    totalGivenAllTime += amt;
-                    if(y === currentYear) totalGivenThisYear += amt;
+                    if(!givingDataByYear[expYear]) givingDataByYear[expYear] = 0;
+                    givingDataByYear[expYear] += amt; totalGivenAllTime += amt;
+                    if(expYear === currentYear) totalGivenThisYear += amt;
+                }
+
+                // 🔥 Interest Tracker (ดักจับดอกเบี้ยจ่าย)
+                if(text.includes('ดอกเบี้ย')) {
+                    totalInterestAllTime += amt;
+                    if(expYear === currentYear) totalInterestThisYear += amt;
                 }
             });
 
@@ -446,22 +436,21 @@
                 }
             }
 
-            // ⚠️ Feature 4: Disciplined Rebalancer Alert
             checkRebalancer(themeVal, totalAssets, assetArray);
 
-            // Assets HTML
             let bsAssetsHtml = '';
             assetArray.sort((a,b)=>b.val-a.val).forEach(a => {
                 bsAssetsHtml += `<div class="flex justify-between text-sm border-b border-slate-700/50 pb-2"><span class="text-slate-300">${a.name}</span><div class="text-right"><span class="text-emerald-400 font-bold block">฿${fmt(a.val)}</span><span class="text-[10px] text-slate-500">${totalAssets>0?((a.val/totalAssets)*100).toFixed(1):0}%</span></div></div>`;
             });
 
-            // Debts logic is moved to `renderDebtsTable()` to handle toggles.
+            // Update Interest Tracker UI
+            document.getElementById('interest-this-year').innerText = `฿${fmt(totalInterestThisYear)}`;
+            document.getElementById('interest-all-time').innerText = `฿${fmt(totalInterestAllTime)}`;
 
             // Build KPIs
             document.getElementById('kpi-ffr').innerText = `${fmt(((sumI + totalDividend) / ((sumNeeds + sumWants) || 1)) * 100)}%`;
             document.getElementById('kpi-cash').innerText = `฿${fmt(totalIncome - totalExpense)}`;
             
-            // Rich Dad
             document.getElementById('rd-e').innerText = `฿${fmt(sumE)}`; document.getElementById('rd-s').innerText = `฿${fmt(sumS)}`;
             document.getElementById('rd-b').innerText = `฿${fmt(sumB)}`; document.getElementById('rd-i').innerText = `฿${fmt(sumI + totalDividend)}`;
             const tES = sumE+sumS, tBI = sumB+sumI+totalDividend, tESBI = tES+tBI||1;
@@ -469,10 +458,8 @@
             document.getElementById('bar-ratio-active').style.width = `${((tES/tESBI)*100)}%`; document.getElementById('bar-ratio-passive').style.width = `${((tBI/tESBI)*100)}%`;
             document.getElementById('bs-asset-total').innerText = `฿${fmt(totalAssets)}`; document.getElementById('bs-assets').innerHTML = bsAssetsHtml || '-';
             
-            // Virtual Accounts
             document.getElementById('virtual-accounts-container').innerHTML = Object.entries(virtualAccounts).map(([acc, val]) => `<div class="bg-slate-800/50 border border-slate-700 p-3 rounded-xl"><p class="text-[10px] text-slate-400 uppercase truncate">${acc}</p><p class="text-lg font-bold ${val>=0?'text-blue-300':'text-rose-400'} mt-1">฿${fmt(val)}</p></div>`).join('');
 
-            // Vivian
             const esBase = tES||1;
             ['needs', 'wants', 'future'].forEach((key, idx) => {
                 const actual = [sumNeeds, sumWants, sumFuture][idx], target = esBase * [0.5, 0.3, 0.2][idx];
@@ -482,20 +469,16 @@
                 document.getElementById(`text-${key}`).innerHTML = `<span>฿${fmt(actual)}</span><span>เป้า: ฿${fmt(target)}</span>`;
             });
 
-            // Prepare Simulator Data
             let mDiff = (maxDate.getFullYear() - minDate.getFullYear())*12 + (maxDate.getMonth() - minDate.getMonth()) + 1;
             if(isNaN(mDiff) || mDiff < 1) mDiff = 1;
             simData.monthlyWants = sumWants / mDiff;
             simData.monthlyFuture = sumFuture / mDiff;
 
-            // Render Modules
-            renderDebtsTable(totalAssets);
-            renderThemeChart(themeVal);
+            renderDebtsTable(totalAssets); renderThemeChart(themeVal);
             renderTimeline(stateTimeframes.wealth, 'wealth'); renderTimeline(stateTimeframes.invest, 'invest');
             renderGiving(givingDataByYear, totalGivenThisYear, totalGivenAllTime);
         }
 
-        // --- Feature 1: Debt Simulator (Snowball vs Avalanche) ---
         function setDebtMode(mode) {
             debtSortMode = mode;
             document.getElementById('btn-mode-ava').className = mode === 'avalanche' ? 'px-4 py-2 rounded-lg text-sm font-bold bg-rose-600 text-white shadow-lg transition-all' : 'px-4 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-white transition-all';
@@ -507,9 +490,8 @@
             let totalDebt = 0, badDebt = 0, bsDebtsHtml = '', deltaHtml = '';
             let sortedDebts = [...parsedDebts];
             
-            // The Sorting Logic
-            if(debtSortMode === 'avalanche') sortedDebts.sort((a,b) => Number(b.Interest_Rate) - Number(a.Interest_Rate)); // ดอกแพงสุดก่อน
-            else sortedDebts.sort((a,b) => Number(a.Balance) - Number(b.Balance)); // ยอดน้อยสุดก่อน (Snowball)
+            if(debtSortMode === 'avalanche') sortedDebts.sort((a,b) => Number(b.Interest_Rate) - Number(a.Interest_Rate)); 
+            else sortedDebts.sort((a,b) => Number(a.Balance) - Number(b.Balance)); 
 
             sortedDebts.forEach(d => { totalDebt += Number(d.Balance)||0; if((Number(d.Interest_Rate)||0)>7) badDebt += Number(d.Balance)||0; });
             
@@ -521,7 +503,7 @@
                 bsDebtsHtml += `<div class="flex justify-between text-sm border-b border-slate-700/50 pb-2"><span class="text-slate-300">${d.Name}</span><div class="text-right"><span class="text-rose-400 font-bold block">฿${fmt(bal)}</span><span class="text-[10px] text-slate-500">${pct}%</span></div></div>`;
 
                 let action = rate > 7 ? '<span class="text-rose-400 font-bold bg-rose-500/10 px-2 py-1 rounded">หยุดลงทุน โปะด่วน!</span>' : '<span class="text-emerald-400">ผ่อนตามปกติ</span>';
-                if(rank === 1) action = `<span class="text-white font-bold bg-blue-600 px-2 py-1 rounded shadow-lg animate-pulse">🎯 เป้าหมายอันดับ 1</span>`;
+                if(rank === 1 && bal > 0) action = `<span class="text-white font-bold bg-blue-600 px-2 py-1 rounded shadow-lg animate-pulse">🎯 เป้าหมายอันดับ 1</span>`;
 
                 deltaHtml += `<tr class="hover:bg-slate-800/50"><td class="p-4 font-bold text-slate-200"><span class="text-slate-500 mr-2">#${rank}</span>${rate>7?'🔥':''}${d.Name}</td><td class="p-4 text-right text-rose-300">฿${fmt(bal)}</td><td class="p-4 text-center"><span class="px-2 py-1 rounded text-xs font-bold ${rate>7?'bg-rose-500/20 text-rose-400':'bg-slate-700 text-slate-300'}">${rate}%</span></td><td class="p-4 text-right text-slate-400">฿${fmt(d.Min_Payment)}</td><td class="p-4 text-right">${action}</td></tr>`;
                 rank++;
@@ -530,95 +512,56 @@
             document.getElementById('bs-debt-total').innerText = `฿${fmt(totalDebt)}`; document.getElementById('bs-debts').innerHTML = bsDebtsHtml || '-';
             document.getElementById('table-delta').innerHTML = deltaHtml || '<tr><td colspan="5" class="text-center p-4">ไม่มีข้อมูลหนี้สิน</td></tr>';
             document.getElementById('kpi-bad-debt').innerText = `฿${fmt(badDebt)}`;
-            
-            // Only update Net Worth if totalAssets was passed (initial render)
             if(totalAssetsCache !== undefined) document.getElementById('kpi-networth').innerText = `฿${fmt(totalAssetsCache - totalDebt)}`;
         }
 
-        // --- Feature 2: Giving Dashboard ---
         function renderGiving(dataByYear, thisYear, allTime) {
             document.getElementById('give-this-year').innerText = `฿${fmt(thisYear)}`;
             document.getElementById('give-all-time').innerText = `฿${fmt(allTime)}`;
-
-            const labels = Object.keys(dataByYear).sort();
-            const data = labels.map(k => dataByYear[k]);
-
+            const labels = Object.keys(dataByYear).sort(); const data = labels.map(k => dataByYear[k]);
             if(charts.giving) charts.giving.destroy();
-            charts.giving = new Chart(document.getElementById('chart-giving').getContext('2d'), {
-                type: 'bar',
-                data: { labels: labels, datasets: [{ label: 'ยอดการให้ (บาท)', data: data, backgroundColor: '#f472b6', borderRadius: 6 }] },
-                options: { maintainAspectRatio: false, scales: { y: { grid: { color: '#334155' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } }
-            });
+            charts.giving = new Chart(document.getElementById('chart-giving').getContext('2d'), { type: 'bar', data: { labels: labels, datasets: [{ label: 'ยอดการให้ (บาท)', data: data, backgroundColor: '#f472b6', borderRadius: 6 }] }, options: { maintainAspectRatio: false, scales: { y: { grid: { color: '#334155' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } } });
         }
 
-        // --- Feature 3: Scenario Simulator ---
         function updateScenario() {
             const pct = document.getElementById('sim-slider').value;
             document.getElementById('slider-val').innerText = `${pct}%`;
-            
             const savedWants = simData.monthlyWants * (pct / 100);
             document.getElementById('slider-money').innerText = `+฿${fmt(savedWants)} / เดือน`;
 
-            const currentMonthly = simData.monthlyFuture || 0;
-            const newMonthly = currentMonthly + savedWants;
-            const rate = 0.08 / 12; // 8% annual
-            const months = 120; // 10 years
-
-            // Future Value Formula: FV = P * (((1 + r)^n - 1) / r)
+            const currentMonthly = simData.monthlyFuture || 0; const newMonthly = currentMonthly + savedWants;
+            const rate = 0.08 / 12; const months = 120;
             const calcFV = (pmt) => pmt * ((Math.pow(1 + rate, months) - 1) / rate);
             
             document.getElementById('sim-current-fv').innerText = `฿${fmt(calcFV(currentMonthly))}`;
             document.getElementById('sim-new-fv').innerText = `฿${fmt(calcFV(newMonthly))}`;
 
-            // Generate Chart Data
             let labels = [], d1 = [], d2 = [];
             for(let y=1; y<=10; y++) {
                 labels.push(`ปีที่ ${y}`);
-                d1.push(calcFV(currentMonthly, y*12)); // Assuming calcFV could take dynamic periods, inline calculation below:
-                d1[y-1] = currentMonthly * ((Math.pow(1+rate, y*12)-1)/rate);
+                d1.push(currentMonthly * ((Math.pow(1+rate, y*12)-1)/rate));
                 d2.push(newMonthly * ((Math.pow(1+rate, y*12)-1)/rate));
             }
 
             if(charts.sim) charts.sim.destroy();
-            charts.sim = new Chart(document.getElementById('chart-scenario').getContext('2d'), {
-                type: 'line',
-                data: { labels: labels, datasets: [
-                    { label: 'แผนปัจจุบัน', data: d1, borderColor: '#94a3b8', borderDash: [5,5], tension: 0.4 },
-                    { label: 'แผนลด Wants', data: d2, borderColor: '#a78bfa', backgroundColor: 'rgba(167, 139, 250, 0.2)', fill: true, tension: 0.4 }
-                ]},
-                options: { maintainAspectRatio: false, interaction: { mode: 'index' } }
-            });
+            charts.sim = new Chart(document.getElementById('chart-scenario').getContext('2d'), { type: 'line', data: { labels: labels, datasets: [{ label: 'แผนปัจจุบัน', data: d1, borderColor: '#94a3b8', borderDash: [5,5], tension: 0.4 }, { label: 'แผนลด Wants', data: d2, borderColor: '#a78bfa', backgroundColor: 'rgba(167, 139, 250, 0.2)', fill: true, tension: 0.4 }]}, options: { maintainAspectRatio: false, interaction: { mode: 'index' } } });
         }
 
-        // --- Feature 4: The Disciplined Rebalancer ---
         function checkRebalancer(themeVal, totalAssets, assetArray) {
             const alertBox = document.getElementById('rebalancer-alert');
             if (totalAssets === 0) return alertBox.classList.add('hidden');
-
-            const growthPct = (themeVal['Growth'] || 0) / totalAssets;
-            const cfPct = (themeVal['Cash Flow'] || 0) / totalAssets;
+            const growthPct = (themeVal['Growth'] || 0) / totalAssets; const cfPct = (themeVal['Cash Flow'] || 0) / totalAssets;
             let msg = '';
 
             if (growthPct > 0.6) {
-                // Find top growth asset
                 const topGrowth = assetArray.filter(a => a.type !== 'Bank' && a.type !== 'Debt_Owner').sort((a,b)=>b.val-a.val)[0];
-                const assetName = topGrowth ? topGrowth.name : 'สินทรัพย์เสี่ยง';
-                msg = `<div class="bg-amber-500/20 border border-amber-500/50 p-4 rounded-xl flex items-start gap-4 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
-                        <div class="text-3xl">⚖️</div>
-                        <div><h4 class="text-amber-400 font-bold">Disciplined Rebalancer Alert</h4>
-                        <p class="text-sm text-slate-300 mt-1">สัดส่วนพอร์ต <b>Growth สูงถึง ${(growthPct*100).toFixed(1)}%</b> (เกินเป้าหมายสมดุลที่ 50%) แนะนำให้พิจารณาขายทำกำไรสินทรัพย์ที่โตแรง (เช่น <b>${assetName}</b>) เพื่อย้ายเงินมาซื้อสินทรัพย์ฝั่ง Cash Flow รักษาวินัยการลงทุนครับ</p></div></div>`;
+                msg = `<div class="bg-amber-500/20 border border-amber-500/50 p-4 rounded-xl flex items-start gap-4 shadow-[0_0_15px_rgba(245,158,11,0.2)]"><div class="text-3xl">⚖️</div><div><h4 class="text-amber-400 font-bold">Disciplined Rebalancer Alert</h4><p class="text-sm text-slate-300 mt-1">สัดส่วนพอร์ต <b>Growth สูงถึง ${(growthPct*100).toFixed(1)}%</b> (เกินเป้าหมายที่ 50%) แนะนำให้พิจารณาขายทำกำไรสินทรัพย์ที่โตแรง (เช่น <b>${topGrowth?topGrowth.name:'สินทรัพย์เสี่ยง'}</b>) เพื่อซื้อสินทรัพย์ฝั่ง Cash Flow รักษาวินัยการลงทุนครับ</p></div></div>`;
             } else if (cfPct > 0.8) {
-                msg = `<div class="bg-blue-500/20 border border-blue-500/50 p-4 rounded-xl flex items-start gap-4">
-                        <div class="text-3xl">🛡️</div>
-                        <div><h4 class="text-blue-400 font-bold">Safe but Slow Alert</h4>
-                        <p class="text-sm text-slate-300 mt-1">พอร์ตของคุณมี <b>Cash Flow สูงถึง ${(cfPct*100).toFixed(1)}%</b> ปลอดภัยมาก แต่ระวังเงินเฟ้อกินมูลค่า แนะนำให้แบ่งเงินบางส่วนไปเสี่ยงในฝั่ง Growth เพื่อเพิ่มผลตอบแทนทบต้นระยะยาวครับ</p></div></div>`;
+                msg = `<div class="bg-blue-500/20 border border-blue-500/50 p-4 rounded-xl flex items-start gap-4"><div class="text-3xl">🛡️</div><div><h4 class="text-blue-400 font-bold">Safe but Slow Alert</h4><p class="text-sm text-slate-300 mt-1">พอร์ตของคุณมี <b>Cash Flow สูงถึง ${(cfPct*100).toFixed(1)}%</b> ปลอดภัยมาก แต่ระวังเงินเฟ้อกินมูลค่า แนะนำให้แบ่งเงินบางส่วนไปเสี่ยงในฝั่ง Growth เพื่อเพิ่มผลตอบแทนทบต้นระยะยาวครับ</p></div></div>`;
             }
-
-            if (msg) { alertBox.innerHTML = msg; alertBox.classList.remove('hidden'); } 
-            else { alertBox.classList.add('hidden'); }
+            if (msg) { alertBox.innerHTML = msg; alertBox.classList.remove('hidden'); } else { alertBox.classList.add('hidden'); }
         }
 
-        // --- Other Chart Renderers ---
         function renderThemeChart(themeVal) {
             const tot = (themeVal['Cash Flow'] || 0) + (themeVal['Growth'] || 0) || 1;
             if(charts.t) charts.t.destroy();
@@ -627,8 +570,7 @@
         }
 
         function changeTimeframe(type, tf) {
-            stateTimeframes[type] = tf;
-            const pfx = type==='wealth'?'btn-wl-':'btn-inv-';
+            stateTimeframes[type] = tf; const pfx = type==='wealth'?'btn-wl-':'btn-inv-';
             ['year','quarter','month'].forEach(t => document.getElementById(`${pfx}${t}`).className = t===tf?'time-btn active':'time-btn');
             renderTimeline(tf, type);
         }
@@ -636,7 +578,6 @@
         function renderTimeline(tf, type) {
             const getKey = (d) => { const y=d.getFullYear(),m=d.getMonth(); return tf==='year'?`${y}`:tf==='quarter'?`${y}-Q${Math.floor(m/3)+1}`:`${y}-${String(m+1).padStart(2,'0')}`; };
             let pd = {};
-
             if(type === 'wealth') {
                 parsedIncomes.forEach(i=>{ if(!i.Date)return; const d=new Date(i.Date); if(isNaN(d))return; const k=getKey(d); if(!pd[k])pd[k]={a:0,b:0}; pd[k].a+=Number(i.Amount)||0; });
                 parsedExpenses.forEach(i=>{ if(!i.Date)return; const d=new Date(i.Date); if(isNaN(d))return; const k=getKey(d); if(!pd[k])pd[k]={a:0,b:0}; pd[k].b+=Number(i.Amount)||0; });
@@ -644,9 +585,7 @@
                 parsedJournal.forEach(j=>{ if(!j.Date||j.Transaction_Type==='DIVIDEND'||j.Transaction_Type==='INTEREST')return; const d=new Date(j.Date); if(isNaN(d))return; const k=getKey(d); if(!pd[k])pd[k]={a:0,b:0}; const amt=Number(j.Amount)||0; if(j.Transaction_Type==='BUY')pd[k].a+=amt; else pd[k].a-=amt; });
                 parsedDebts.forEach(d=>{ const dt=new Date(Number(d.Debt_ID)||Date.now()); const k=getKey(dt); if(!pd[k])pd[k]={a:0,b:0}; pd[k].b+=Number(d.Balance)||0; });
             }
-
-            const labels = Object.keys(pd).sort();
-            let d1=[], d2=[];
+            const labels = Object.keys(pd).sort(); let d1=[], d2=[];
             if(type === 'wealth') { d1=labels.map(k=>pd[k].a); d2=labels.map(k=>pd[k].b); } 
             else { let cA=0,cB=0; labels.forEach(k=>{cA+=pd[k].a; cB+=pd[k].b; d1.push(cA); d2.push(cB);}); }
 
