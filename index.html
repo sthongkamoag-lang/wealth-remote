@@ -338,8 +338,8 @@
         // ------------------------------------------------------------------
         // ⚠️ โฟกัสจุดนี้: นำ Web App URL ของ Google Apps Script มาใส่ที่นี่
         // ------------------------------------------------------------------
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzyXbBvxyURx5gfWNsktooLkC5CbCjXKUKaNPfZ6KEW/dev"; 
-
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyxxi2c7-cBjD2czHrUVrogHva3ngrUmP8m60PMXDdNQyId_hplS4IPDWgefwOW-TSyIQ/exec"; 
+        
         const BUFFER_KEY = 'wm_offline_buffer';
 
         // ตั้งค่าวันที่ปัจจุบันให้ทุกช่องที่เป็น type="date"
@@ -431,6 +431,19 @@
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
             submitBtn.disabled = true;
 
+            // --- เพิ่มระบบป้องกันลืมใส่ URL ---
+            if (GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE" || !GAS_WEB_APP_URL.startsWith("http")) {
+                Swal.fire({
+                    icon: 'error', title: 'ยังไม่ได้เชื่อมต่อระบบหลังบ้าน!',
+                    text: 'กรุณานำ Web App URL ที่ได้จาก Google Apps Script มาวางแทนที่ตัวแปร GAS_WEB_APP_URL ในโค้ดก่อนครับ',
+                    background: '#1e293b', color: '#f8fafc'
+                });
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                return;
+            }
+            // -----------------------------
+
             try {
                 // เช็คสถานะอินเทอร์เน็ตเบื้องต้น
                 if (!navigator.onLine) throw new Error('Offline Mode');
@@ -510,6 +523,13 @@
                 return;
             }
 
+            // --- เพิ่มระบบป้องกันลืมใส่ URL ---
+            if (GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE" || !GAS_WEB_APP_URL.startsWith("http")) {
+                Swal.fire({ icon: 'error', title: 'การเชื่อมต่อผิดพลาด', text: 'กรุณาตั้งค่า GAS_WEB_APP_URL ให้ถูกต้องก่อนทำการซิงค์', background: '#1e293b', color: '#fff' });
+                return;
+            }
+            // -----------------------------
+
             let buffer = JSON.parse(localStorage.getItem(BUFFER_KEY) || '[]');
             if (buffer.length === 0) return;
 
@@ -558,4 +578,3 @@
     </script>
 </body>
 </html>
-
