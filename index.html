@@ -42,23 +42,24 @@
 <body class="flex flex-col h-screen relative">
 
     <!-- ================= DATALIST FOR AUTOCOMPLETE ================= -->
+    <!-- ข้อมูลเบื้องต้น (Fallback) เผื่ออินเทอร์เน็ตหลุดตอนเปิดแอป -->
     <datalist id="list-sub-accounts">
         <option value="บัญชีหลัก SCB"></option>
         <option value="กระเป๋าเงินสด"></option>
-        <option value="กระเป๋าฉุกเฉิน"></option>
         <option value="บัตรเครดิต KTC"></option>
     </datalist>
     <datalist id="list-categories">
         <option value="Food / Groceries"></option>
         <option value="Transport / Gas"></option>
         <option value="Shopping"></option>
-        <option value="Utility Bills"></option>
         <option value="Interest & Fees"></option>
     </datalist>
     <datalist id="list-assets">
         <option value="หุ้น PTT"></option>
         <option value="กองทุน K-S&P500"></option>
-        <option value="KTC Credit Card (Liability)"></option>
+    </datalist>
+    <datalist id="list-debts">
+        <option value="บัตรเครดิต KTC"></option>
     </datalist>
     <!-- =========================================================== -->
 
@@ -66,8 +67,10 @@
     <header class="bg-slate-950 border-b border-slate-800 p-4 sticky top-0 z-40">
         <div class="flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center">
+                <div class="w-8 h-8 rounded bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center relative">
                     <i class="fa-solid fa-bolt text-white text-sm"></i>
+                    <!-- จุดแจ้งเตือนการโหลด Autocomplete -->
+                    <span id="data-sync-dot" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-yellow-500 rounded-full animate-ping hidden"></span>
                 </div>
                 <h1 class="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-400">Wealth Master</h1>
             </div>
@@ -99,33 +102,25 @@
     <main class="flex-1 overflow-y-auto p-4 pb-32">
         
         <!-- ============================================== -->
-        <!-- TAB 2: EXPENSE (ตั้งเป็นค่าเริ่มต้นเพราะใช้บ่อยสุด) -->
+        <!-- TAB 2: EXPENSE -->
         <!-- ============================================== -->
         <div id="tab_expense" class="tab-content active">
             <h2 class="text-xl font-bold mb-4 text-red-400"><i class="fa-solid fa-cart-shopping mr-2"></i>บันทึกรายจ่าย</h2>
             
-            <!-- Quick Tap -->
             <div class="mb-5">
                 <span class="text-xs text-slate-400 font-bold uppercase">Quick Tap (ปุ่มลัด)</span>
                 <div class="flex flex-wrap gap-2 mt-2">
                     <button onclick="quickFill('expense', '50-Needs', 'Food / Groceries', 'กระเป๋าเงินสด')" class="px-3 py-1.5 bg-slate-800 rounded border border-slate-700 text-sm hover:bg-slate-700"><i class="fa-solid fa-utensils text-orange-400 mr-1"></i> ข้าว/น้ำ</button>
                     <button onclick="quickFill('expense', '50-Needs', 'Transport / Gas', 'บัญชีหลัก SCB')" class="px-3 py-1.5 bg-slate-800 rounded border border-slate-700 text-sm hover:bg-slate-700"><i class="fa-solid fa-car text-blue-400 mr-1"></i> เดินทาง/น้ำมัน</button>
                     <button onclick="quickFill('expense', '30-Wants', 'Shopping', 'บัตรเครดิต KTC')" class="px-3 py-1.5 bg-slate-800 rounded border border-slate-700 text-sm hover:bg-slate-700"><i class="fa-solid fa-bag-shopping text-pink-400 mr-1"></i> รูดช้อปปิ้ง</button>
-                    <button onclick="quickFill('expense', '50-Needs', 'Interest & Fees (ดอกเบี้ย)', 'บัญชีหลัก SCB')" class="px-3 py-1.5 bg-slate-800 rounded border border-slate-700 text-sm hover:bg-slate-700 text-red-300"><i class="fa-solid fa-percent mr-1"></i> ดอกเบี้ยบัตร</button>
                 </div>
             </div>
 
             <form id="form_expense" onsubmit="submitForm(event, 'Tab_Expenses')">
                 <div class="space-y-4">
                     <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="wm-label">วันที่</label>
-                            <input type="date" name="date" class="wm-input" required>
-                        </div>
-                        <div>
-                            <label class="wm-label">จำนวนเงิน (฿)</label>
-                            <input type="number" name="amount" step="0.01" class="wm-input text-red-400 font-bold" required placeholder="0.00">
-                        </div>
+                        <div><label class="wm-label">วันที่</label><input type="date" name="date" class="wm-input" required></div>
+                        <div><label class="wm-label">จำนวนเงิน (฿)</label><input type="number" name="amount" step="0.01" class="wm-input text-red-400 font-bold" required placeholder="0.00"></div>
                     </div>
                     <div>
                         <label class="wm-label">Vivian Rule</label>
@@ -136,18 +131,9 @@
                             <option value="20-Future">20-Future (อนาคต/ลดความเสี่ยง)</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="wm-label">หมวดหมู่ (พิมพ์ค้นหาได้)</label>
-                        <input type="text" name="category" list="list-categories" class="wm-input" required placeholder="เช่น Food, Shopping...">
-                    </div>
-                    <div>
-                        <label class="wm-label">จ่ายจากกระเป๋า/บัตร</label>
-                        <input type="text" name="target" list="list-sub-accounts" class="wm-input" required placeholder="เช่น บัญชีหลัก, บัตรเครดิต">
-                    </div>
-                    <div>
-                        <label class="wm-label">บันทึกช่วยจำ (Note)</label>
-                        <input type="text" name="note" class="wm-input" placeholder="รายละเอียดเพิ่มเติม...">
-                    </div>
+                    <div><label class="wm-label">หมวดหมู่ (พิมพ์ค้นหาได้)</label><input type="text" name="category" list="list-categories" class="wm-input" required placeholder="เช่น Food, Shopping..."></div>
+                    <div><label class="wm-label">จ่ายจากกระเป๋า/บัตร</label><input type="text" name="target" list="list-sub-accounts" class="wm-input" required placeholder="เช่น บัญชีหลัก, บัตรเครดิต"></div>
+                    <div><label class="wm-label">บันทึกช่วยจำ (Note)</label><input type="text" name="note" class="wm-input" placeholder="รายละเอียดเพิ่มเติม..."></div>
                     
                     <div class="grid grid-cols-2 gap-3 mt-4">
                         <button type="button" onclick="addToQueue('form_expense', 'Tab_Expenses')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700 transition-colors"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้ก่อน</button>
@@ -162,15 +148,12 @@
         <!-- ============================================== -->
         <div id="tab_income" class="tab-content">
             <h2 class="text-xl font-bold mb-4 text-green-400"><i class="fa-solid fa-hand-holding-dollar mr-2"></i>บันทึกรายรับ</h2>
-            
             <div class="mb-5">
                 <span class="text-xs text-slate-400 font-bold uppercase">Quick Tap</span>
                 <div class="flex flex-wrap gap-2 mt-2">
                     <button onclick="quickFill('income', 'E (Employee)', 'Salary', 'บัญชีหลัก SCB')" class="px-3 py-1.5 bg-slate-800 rounded border border-slate-700 text-sm"><i class="fa-solid fa-briefcase text-green-400 mr-1"></i> เงินเดือน</button>
-                    <button onclick="quickFill('income', 'I (Investor)', 'Dividend / Interest', 'บัญชีหลัก SCB')" class="px-3 py-1.5 bg-slate-800 rounded border border-slate-700 text-sm"><i class="fa-solid fa-chart-line text-blue-400 mr-1"></i> ปันผล/ดอกเบี้ย</button>
                 </div>
             </div>
-
             <form id="form_income" onsubmit="submitForm(event, 'Tab_Income')">
                 <div class="space-y-4">
                     <div class="grid grid-cols-2 gap-4">
@@ -186,10 +169,9 @@
                             <option value="I (Investor)">I - นักลงทุน (ปันผล, ดอกเบี้ย, ค่าเช่า)</option>
                         </select>
                     </div>
-                    <div><label class="wm-label">หมวดหมู่</label><input type="text" name="category" class="wm-input" required placeholder="เช่น Salary, Bonus, Freelance"></div>
+                    <div><label class="wm-label">หมวดหมู่</label><input type="text" name="category" list="list-categories" class="wm-input" required placeholder="เช่น Salary, Bonus, Freelance"></div>
                     <div><label class="wm-label">เข้ากระเป๋า</label><input type="text" name="account" list="list-sub-accounts" class="wm-input" required></div>
                     <div><label class="wm-label">Note</label><input type="text" name="note" class="wm-input"></div>
-                    
                     <div class="grid grid-cols-2 gap-3 mt-4">
                         <button type="button" onclick="addToQueue('form_income', 'Tab_Income')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700 transition-colors"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้ก่อน</button>
                         <button type="submit" class="py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg shadow-lg shadow-green-900/50 transition-colors">บันทึกทันที</button>
@@ -206,7 +188,7 @@
             <form id="form_journal" onsubmit="submitForm(event, 'Tab_Journal')">
                 <div class="space-y-4">
                     <div><label class="wm-label">วันที่</label><input type="date" name="date" class="wm-input" required></div>
-                    <div><label class="wm-label">อ้างอิงสินทรัพย์/เจ้าหนี้ (พิมพ์ค้นหา)</label><input type="text" name="asset" list="list-assets" class="wm-input" required placeholder="เช่น หุ้น PTT, บัตรเครดิต KTC"></div>
+                    <div><label class="wm-label">อ้างอิงสินทรัพย์/กระเป๋า (พิมพ์ค้นหา)</label><input type="text" name="asset" list="list-assets" class="wm-input" required placeholder="เช่น หุ้น PTT, บัตรเครดิต KTC"></div>
                     <div>
                         <label class="wm-label">ประเภทรายการ (Event)</label>
                         <select name="event" class="wm-input" required>
@@ -218,12 +200,11 @@
                     </div>
                     <div class="grid grid-cols-3 gap-2">
                         <div><label class="wm-label">จำนวน (Qty)</label><input type="number" name="qty" id="j_qty" value="1" step="0.00001" class="wm-input" oninput="calcTotal()" required></div>
-                        <div><label class="wm-label">ราคาต่อหน่วย</label><input type="number" name="price" id="j_price" step="0.01" class="wm-input" oninput="calcTotal()" required></div>
+                        <div><label class="wm-label">ราคา/หน่วย</label><input type="number" name="price" id="j_price" step="0.01" class="wm-input" oninput="calcTotal()" required></div>
                         <div><label class="wm-label">ค่าธรรมเนียม</label><input type="number" name="fee" id="j_fee" value="0" step="0.01" class="wm-input" oninput="calcTotal()"></div>
                     </div>
                     <div><label class="wm-label">ยอดรวมสุทธิ (Total)</label><input type="number" name="total" id="j_total" step="0.01" class="wm-input text-blue-400 font-bold bg-slate-950" readonly required></div>
                     <div><label class="wm-label">Note</label><input type="text" name="note" class="wm-input"></div>
-                    
                     <div class="grid grid-cols-2 gap-3 mt-4">
                         <button type="button" onclick="addToQueue('form_journal', 'Tab_Journal')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700 transition-colors"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้ก่อน</button>
                         <button type="submit" class="py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-lg shadow-blue-900/50 transition-colors">บันทึกทันที</button>
@@ -249,7 +230,7 @@
                         </div>
                         <div><label class="wm-label">หมวดหมู่</label><input type="text" name="assetClass" class="wm-input" placeholder="เช่น Stock, Real Estate" required></div>
                     </div>
-                    <div><label class="wm-label">ชื่อรายการ (พิมพ์ค้นหา)</label><input type="text" name="name" class="wm-input" required placeholder="เช่น หุ้น AOT, สมชาย ใจดี"></div>
+                    <div><label class="wm-label">ชื่อรายการ (ตั้งชื่อใหม่)</label><input type="text" name="name" class="wm-input" required placeholder="เช่น หุ้น AOT, สมชาย ใจดี"></div>
                     <div class="grid grid-cols-2 gap-4">
                         <div><label class="wm-label">ต้นทุน/ยอดกู้</label><input type="number" name="buyPrice" step="0.01" class="wm-input" required></div>
                         <div><label class="wm-label">มูลค่าปัจจุบัน</label><input type="number" name="curValue" step="0.01" class="wm-input" required></div>
@@ -257,10 +238,9 @@
                     <div class="grid grid-cols-3 gap-2">
                         <div><label class="wm-label">Theme</label><input type="text" name="theme" class="wm-input" placeholder="-"></div>
                         <div><label class="wm-label">ดอกเบี้ย(%)</label><input type="number" name="interest" step="0.01" class="wm-input" placeholder="-"></div>
-                        <div><label class="wm-label">วันกำหนดคืน</label><input type="text" name="due" class="wm-input" placeholder="-"></div>
+                        <div><label class="wm-label">กำหนดคืน</label><input type="text" name="due" class="wm-input" placeholder="-"></div>
                     </div>
                     <div><label class="wm-label">Note</label><input type="text" name="note" class="wm-input"></div>
-                    
                     <div class="grid grid-cols-2 gap-3 mt-4">
                         <button type="button" onclick="addToQueue('form_asset', 'Tab_Assets_Receivables')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700 transition-colors"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้ก่อน</button>
                         <button type="submit" class="py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg shadow-lg shadow-purple-900/50 transition-colors">ลงทะเบียน</button>
@@ -276,7 +256,7 @@
             <h2 class="text-xl font-bold mb-4 text-orange-400"><i class="fa-solid fa-credit-card mr-2"></i>ตั้งทะเบียนหนี้สิน</h2>
             <form id="form_debt" onsubmit="submitForm(event, 'Tab_Debts')">
                 <div class="space-y-4">
-                    <div><label class="wm-label">ชื่อเจ้าหนี้</label><input type="text" name="creditor" class="wm-input" required placeholder="เช่น บัตร KTC, ธอส."></div>
+                    <div><label class="wm-label">ชื่อเจ้าหนี้</label><input type="text" name="creditor" list="list-debts" class="wm-input" required placeholder="เช่น บัตร KTC, ธอส."></div>
                     <div class="grid grid-cols-2 gap-4">
                         <div><label class="wm-label">ประเภทหนี้</label><input type="text" name="type" class="wm-input" required placeholder="เช่น Credit Card"></div>
                         <div><label class="wm-label">ดอกเบี้ย (%)</label><input type="number" name="rate" step="0.01" class="wm-input" required></div>
@@ -288,7 +268,6 @@
                     </div>
                     <div><label class="wm-label">ยอดผ่อนขั้นต่ำ/เดือน</label><input type="number" name="minPay" step="0.01" class="wm-input" required></div>
                     <div><label class="wm-label">Note</label><input type="text" name="note" class="wm-input"></div>
-                    
                     <div class="grid grid-cols-2 gap-3 mt-4">
                         <button type="button" onclick="addToQueue('form_debt', 'Tab_Debts')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700 transition-colors"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้ก่อน</button>
                         <button type="submit" class="py-3 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-lg shadow-lg shadow-orange-900/50 transition-colors">ตั้งหนี้สิน</button>
@@ -322,7 +301,6 @@
                         <div><label class="wm-label">เป้าหมายที่อยากเก็บ</label><input type="number" name="target" step="0.01" class="wm-input" value="0"></div>
                     </div>
                     <div><label class="wm-label">Note</label><input type="text" name="note" class="wm-input"></div>
-                    
                     <div class="grid grid-cols-2 gap-3 mt-4">
                         <button type="button" onclick="addToQueue('form_bucket', 'Tab_Sub_Accounts')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700 transition-colors"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้ก่อน</button>
                         <button type="submit" class="py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg shadow-lg shadow-cyan-900/50 transition-colors">สร้างกระเป๋า</button>
@@ -339,7 +317,7 @@
             <form id="form_update" onsubmit="submitForm(event, 'Tab_Recv_Update')">
                 <div class="space-y-4">
                     <div><label class="wm-label">วันที่</label><input type="date" name="date" class="wm-input" required></div>
-                    <div><label class="wm-label">อ้างอิงชื่อลูกหนี้ (ที่ลงทะเบียนไว้)</label><input type="text" name="recv" class="wm-input" required placeholder="เช่น สมชาย ใจดี"></div>
+                    <div><label class="wm-label">อ้างอิงชื่อลูกหนี้ (พิมพ์ค้นหา)</label><input type="text" name="recv" list="list-assets" class="wm-input" required placeholder="เช่น สมชาย ใจดี"></div>
                     <div><label class="wm-label">ยอดที่คืน (฿)</label><input type="number" name="pay" step="0.01" class="wm-input text-yellow-400 font-bold" required></div>
                     <div>
                         <label class="wm-label">สถานะล่าสุด</label>
@@ -350,7 +328,6 @@
                         </select>
                     </div>
                     <div><label class="wm-label">Note</label><input type="text" name="note" class="wm-input" placeholder="โอนเข้าบัญชีไหน?"></div>
-                    
                     <div class="grid grid-cols-2 gap-3 mt-4">
                         <button type="button" onclick="addToQueue('form_update', 'Tab_Recv_Update')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700 transition-colors"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้ก่อน</button>
                         <button type="submit" class="py-3 bg-yellow-600 hover:bg-yellow-500 text-white font-bold rounded-lg shadow-lg shadow-yellow-900/50 transition-colors">บันทึกรับเงินคืน</button>
@@ -374,19 +351,68 @@
     <!-- JS Logic -->
     <script>
         // ------------------------------------------------------------------
-        // ⚠️ โฟกัสจุดนี้: นำ Web App URL ของ Google Apps Script มาใส่ที่นี่
+        // ⚠️ โฟกัสจุดนี้: ใส่ Web App URL ให้ถูกต้อง
         // ------------------------------------------------------------------
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyxxi2c7-cBjD2czHrUVrogHva3ngrUmP8m60PMXDdNQyId_hplS4IPDWgefwOW-TSyIQ/exec"; 
+        const GAS_WEB_APP_URL = "YOUR_GAS_WEB_APP_URL_HERE"; 
         
         const BUFFER_KEY = 'wm_offline_buffer';
-        let batchQueue = []; // ตัวแปรสำหรับเก็บรายการเหมาเข่งในหน่วยความจำ
+        let batchQueue = []; 
 
-        // ตั้งค่าวันที่ปัจจุบันให้ทุกช่องที่เป็น type="date"
         document.addEventListener('DOMContentLoaded', () => {
             const today = new Date().toISOString().split('T')[0];
             document.querySelectorAll('input[type="date"]').forEach(el => el.value = today);
             updateOfflineBadge();
+            
+            // เรียกฟังก์ชันดึงข้อมูล Autocomplete ทันทีที่เปิดแอป
+            fetchAutocompleteData();
         });
+
+        // ==========================================
+        // FETCH AUTOCOMPLETE DATA FROM GAS (ใหม่ล่าสุด!)
+        // ==========================================
+        async function fetchAutocompleteData() {
+            if (GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE" || !GAS_WEB_APP_URL.startsWith("http")) return;
+
+            const syncDot = document.getElementById('data-sync-dot');
+            syncDot.classList.remove('hidden'); // โชว์ไฟกระพริบกำลังโหลด
+
+            try {
+                // ยิง GET Request ไปที่ API แบบเงียบๆ พื้นหลัง
+                const response = await fetch(GAS_WEB_APP_URL + "?action=getMetadata");
+                const result = await response.json();
+
+                if (result.status === "success" && result.data) {
+                    const data = result.data;
+
+                    // เติมข้อมูลลง Datalist กระเป๋าเงิน
+                    if(data.subAccounts && data.subAccounts.length > 0) {
+                        document.getElementById('list-sub-accounts').innerHTML = 
+                            data.subAccounts.map(item => `<option value="${item}"></option>`).join('');
+                    }
+
+                    // เติมข้อมูลลง Datalist หมวดหมู่
+                    if(data.categories && data.categories.length > 0) {
+                        document.getElementById('list-categories').innerHTML = 
+                            data.categories.map(item => `<option value="${item}"></option>`).join('');
+                    }
+
+                    // เติมข้อมูลลง Datalist ทรัพย์สินและลูกหนี้ (ใช้ร่วมกันใน Tab Journal, Asset, Update)
+                    if(data.assets && data.assets.length > 0) {
+                        document.getElementById('list-assets').innerHTML = 
+                            data.assets.map(item => `<option value="${item}"></option>`).join('');
+                        
+                        // ก๊อปปี้ไปใส่ให้รายชื่อเจ้าหนี้ด้วยเผื่อไว้
+                        document.getElementById('list-debts').innerHTML = 
+                            data.assets.map(item => `<option value="${item}"></option>`).join('');
+                    }
+                    console.log("🔥 Autocomplete loaded successfully!");
+                }
+            } catch (error) {
+                console.error("Failed to fetch autocomplete data. Using fallback lists.", error);
+            } finally {
+                syncDot.classList.add('hidden'); // ปิดไฟกระพริบ
+            }
+        }
 
         // ==========================================
         // UI & NAVIGATION LOGIC
@@ -440,7 +466,6 @@
             const formData = new FormData(form);
             const payload = Object.fromEntries(formData.entries());
 
-            // บังคับแปลงตัวเลขเป็น Float (ถ้ามีฟิลด์นั้นๆ)
             const numberFields = ['amount', 'qty', 'price', 'fee', 'total', 'buyPrice', 'curValue', 'interest', 'principal', 'rate', 'minPay', 'balance', 'target', 'pay'];
             numberFields.forEach(field => {
                 if (payload[field] !== undefined && payload[field] !== "") {
@@ -448,7 +473,6 @@
                 }
             });
 
-            // ตรวจสอบการลง "ผิดแท็บ"
             if (targetSheet === 'Tab_Income' && payload.category.toLowerCase().includes('คืน')) {
                 Swal.fire({ icon: 'error', title: 'แจ้งเตือน!', text: 'เงินที่รับคืน ไม่ใช่รายรับ กรุณาใช้แท็บ "รับเงินคืน" แทนครับ', background: '#1e293b', color: '#f8fafc' });
                 return null;
@@ -457,33 +481,21 @@
         }
 
         // ==========================================
-        // BATCH QUEUE LOGIC (ฟังก์ชันเพิ่มลงคิว)
+        // BATCH QUEUE LOGIC
         // ==========================================
         function addToQueue(formId, targetSheet) {
             const form = document.getElementById(formId);
-            
-            // สั่งเช็ค Validate ของ HTML5 ก่อน (เช่น ช่องบังคับกรอก)
-            if(!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
+            if(!form.checkValidity()) { form.reportValidity(); return; }
 
             const payload = parseFormData(form, targetSheet);
-            if(!payload) return; // ถ้าดัก Validate ไม่ผ่านให้หยุด
+            if(!payload) return; 
 
             batchQueue.push({ targetSheet: targetSheet, payload: payload });
-            
-            // รีเซ็ตฟอร์มให้กรอกต่อได้ทันที
             form.reset();
             form.querySelector('input[type="date"]').value = new Date().toISOString().split('T')[0];
-            
             updateQueueUI();
             
-            Swal.fire({
-                toast: true, position: 'top-end', icon: 'success', 
-                title: `เก็บลงคิวแล้ว (${batchQueue.length} รายการ)`,
-                showConfirmButton: false, timer: 1500, background: '#1e293b', color: '#fff'
-            });
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `เก็บลงคิวแล้ว (${batchQueue.length} รายการ)`, showConfirmButton: false, timer: 1500, background: '#1e293b', color: '#fff' });
         }
 
         function updateQueueUI() {
@@ -496,7 +508,6 @@
             }
         }
 
-        // กดปุ่ม "ส่งทีเดียว" จาก Floating Bar
         async function submitQueue() {
             if (GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE" || !GAS_WEB_APP_URL.startsWith("http")) {
                 Swal.fire({ icon: 'error', title: 'ยังไม่ได้เชื่อมต่อ!', text: 'กรุณาใส่ Web App URL ในโค้ดก่อนครับ', background: '#1e293b', color: '#f8fafc' });
@@ -504,7 +515,6 @@
             }
 
             if (!navigator.onLine) {
-                // ถ้าเน็ตหลุดตอนกดส่งคิว ให้ย้ายของในคิวไปเข้า Local Buffer แทน
                 batchQueue.forEach(item => saveToBuffer(item));
                 batchQueue = [];
                 updateQueueUI();
@@ -516,7 +526,6 @@
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ส่งข้อมูล...';
             btn.disabled = true;
 
-            // จัดกลุ่มข้อมูลแยกตาม Sheet เพื่อยิง POST แยกตามปลายทาง
             const groupedData = {};
             batchQueue.forEach(item => {
                 if(!groupedData[item.targetSheet]) groupedData[item.targetSheet] = [];
@@ -530,32 +539,31 @@
                 try {
                     const batchRequest = { targetSheet: sheet, payload: payloadsArray };
                     await fetch(GAS_WEB_APP_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
+                        method: 'POST', mode: 'no-cors',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(batchRequest)
                     });
                     successCount += payloadsArray.length;
-                } catch (err) {
-                    console.error("Queue submit error", err);
-                    hasError = true;
-                }
+                } catch (err) { console.error("Queue submit error", err); hasError = true; }
             }
 
             btn.innerHTML = '<i class="fa-solid fa-paper-plane mr-1"></i> ส่งทีเดียว';
             btn.disabled = false;
 
             if(!hasError) {
-                batchQueue = []; // ล้างคิว
+                batchQueue = []; 
                 updateQueueUI();
                 Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', text: `ส่งข้อมูลแบบเหมาเข่ง ${successCount} รายการเรียบร้อย`, background: '#1e293b', color: '#fff' });
+                
+                // โหลด Autocomplete ใหม่อีกรอบ เผื่อมีชื่อใหม่เพิ่งถูกส่งไป
+                fetchAutocompleteData();
             } else {
                 Swal.fire({ icon: 'error', title: 'มีข้อผิดพลาด', text: 'การเชื่อมต่อขัดข้อง กรุณาลองใหม่', background: '#1e293b', color: '#fff' });
             }
         }
 
         // ==========================================
-        // SUBMIT SINGLE ITEM LOGIC (ส่งทันที 1 รายการ)
+        // SUBMIT SINGLE ITEM LOGIC
         // ==========================================
         async function submitForm(e, targetSheet) {
             e.preventDefault(); 
@@ -569,7 +577,7 @@
             submitBtn.disabled = true;
 
             if (GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE" || !GAS_WEB_APP_URL.startsWith("http")) {
-                Swal.fire({ icon: 'error', title: 'ยังไม่ได้เชื่อมต่อระบบหลังบ้าน!', text: 'กรุณานำ Web App URL มาวางแทนที่ตัวแปร GAS_WEB_APP_URL', background: '#1e293b', color: '#f8fafc' });
+                Swal.fire({ icon: 'error', title: 'ยังไม่ได้เชื่อมต่อระบบหลังบ้าน!', text: 'กรุณานำ Web App URL มาวาง', background: '#1e293b', color: '#f8fafc' });
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
                 return;
@@ -581,13 +589,15 @@
                 if (!navigator.onLine) throw new Error('Offline Mode');
 
                 await fetch(GAS_WEB_APP_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
+                    method: 'POST', mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(requestData)
                 });
 
                 showSuccess(form, originalText, targetSheet);
+                
+                // โหลด Autocomplete ใหม่อีกรอบ
+                setTimeout(fetchAutocompleteData, 2000); 
 
             } catch (error) {
                 saveToBuffer(requestData);
@@ -610,14 +620,11 @@
                 btn.disabled = false;
             }, 1500);
 
-            Swal.fire({
-                toast: true, position: 'top-end', icon: 'success', title: `บันทึกลง ${sheetName} สำเร็จ`,
-                showConfirmButton: false, timer: 2000, background: '#1e293b', color: '#fff'
-            });
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `บันทึกลง ${sheetName} สำเร็จ`, showConfirmButton: false, timer: 2000, background: '#1e293b', color: '#fff' });
         }
 
         // ==========================================
-        // OFFLINE BUFFER LOGIC (เมื่อเน็ตหลุด)
+        // OFFLINE BUFFER LOGIC
         // ==========================================
         function saveToBuffer(requestData) {
             let buffer = JSON.parse(localStorage.getItem(BUFFER_KEY) || '[]');
@@ -642,14 +649,8 @@
         }
 
         async function syncBuffer() {
-            if (!navigator.onLine) {
-                Swal.fire({ icon: 'error', title: 'ยังออฟไลน์อยู่', text: 'กรุณาเชื่อมต่ออินเทอร์เน็ตก่อนทำการซิงค์', background: '#1e293b', color: '#fff' });
-                return;
-            }
-            if (GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE" || !GAS_WEB_APP_URL.startsWith("http")) {
-                Swal.fire({ icon: 'error', title: 'การเชื่อมต่อผิดพลาด', text: 'กรุณาตั้งค่า GAS_WEB_APP_URL', background: '#1e293b', color: '#fff' });
-                return;
-            }
+            if (!navigator.onLine) { Swal.fire({ icon: 'error', title: 'ยังออฟไลน์อยู่', text: 'กรุณาเชื่อมต่ออินเทอร์เน็ต', background: '#1e293b', color: '#fff' }); return; }
+            if (GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE" || !GAS_WEB_APP_URL.startsWith("http")) { Swal.fire({ icon: 'error', title: 'การเชื่อมต่อผิดพลาด', text: 'กรุณาตั้งค่า GAS_WEB_APP_URL', background: '#1e293b', color: '#fff' }); return; }
 
             let buffer = JSON.parse(localStorage.getItem(BUFFER_KEY) || '[]');
             if (buffer.length === 0) return;
@@ -680,10 +681,11 @@
             updateOfflineBadge();
             syncBtn.innerHTML = '<i class="fa-solid fa-rotate mr-1"></i> ซิงค์ (0)';
             
-            Swal.fire({ icon: 'success', title: 'ซิงค์ข้อมูลสำเร็จ!', text: `ส่งรายการที่ค้างอยู่ ${successCount} รายการเรียบร้อย`, background: '#1e293b', color: '#fff' });
+            Swal.fire({ icon: 'success', title: 'ซิงค์ข้อมูลสำเร็จ!', text: `ส่งรายการค้าง ${successCount} รายการเรียบร้อย`, background: '#1e293b', color: '#fff' });
+            fetchAutocompleteData(); // อัปเดตรายชื่อใหม่หลังซิงค์
         }
 
-        window.addEventListener('online',  () => { updateOfflineBadge(); });
+        window.addEventListener('online',  () => { updateOfflineBadge(); fetchAutocompleteData(); });
         window.addEventListener('offline', () => { updateOfflineBadge(); });
 
     </script>
