@@ -39,7 +39,7 @@
         .wm-label { display: block; font-size: 0.875rem; font-weight: 500; color: #94a3b8; margin-bottom: 0.25rem; }
     </style>
 </head>
-<body class="flex flex-col h-screen">
+<body class="flex flex-col h-screen relative">
 
     <!-- ================= DATALIST FOR AUTOCOMPLETE ================= -->
     <datalist id="list-sub-accounts">
@@ -63,7 +63,7 @@
     <!-- =========================================================== -->
 
     <!-- Header -->
-    <header class="bg-slate-950 border-b border-slate-800 p-4 sticky top-0 z-50">
+    <header class="bg-slate-950 border-b border-slate-800 p-4 sticky top-0 z-40">
         <div class="flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center">
@@ -78,7 +78,7 @@
                     <i class="fa-solid fa-wifi/slash mr-1"></i>Offline
                 </div>
                 <button onclick="syncBuffer()" id="btn-sync" class="hidden relative px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded text-xs font-bold transition-colors">
-                    <i class="fa-solid fa-cloud-arrow-up mr-1"></i> ซิงค์ (<span id="sync-count">0</span>)
+                    <i class="fa-solid fa-rotate mr-1"></i> ซิงค์ (<span id="sync-count">0</span>)
                 </button>
             </div>
         </div>
@@ -96,7 +96,7 @@
     </header>
 
     <!-- Main Content Area -->
-    <main class="flex-1 overflow-y-auto p-4 pb-24">
+    <main class="flex-1 overflow-y-auto p-4 pb-32">
         
         <!-- ============================================== -->
         <!-- TAB 2: EXPENSE (ตั้งเป็นค่าเริ่มต้นเพราะใช้บ่อยสุด) -->
@@ -148,7 +148,11 @@
                         <label class="wm-label">บันทึกช่วยจำ (Note)</label>
                         <input type="text" name="note" class="wm-input" placeholder="รายละเอียดเพิ่มเติม...">
                     </div>
-                    <button type="submit" class="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg mt-4 shadow-lg shadow-red-900/50">บันทึกรายจ่าย</button>
+                    
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <button type="button" onclick="addToQueue('form_expense', 'Tab_Expenses')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700 transition-colors"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้ก่อน</button>
+                        <button type="submit" class="py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg shadow-lg shadow-red-900/50 transition-colors">บันทึกทันที</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -185,7 +189,11 @@
                     <div><label class="wm-label">หมวดหมู่</label><input type="text" name="category" class="wm-input" required placeholder="เช่น Salary, Bonus, Freelance"></div>
                     <div><label class="wm-label">เข้ากระเป๋า</label><input type="text" name="account" list="list-sub-accounts" class="wm-input" required></div>
                     <div><label class="wm-label">Note</label><input type="text" name="note" class="wm-input"></div>
-                    <button type="submit" class="w-full py-3 bg-green-600 text-white font-bold rounded-lg shadow-lg shadow-green-900/50">บันทึกรายรับ</button>
+                    
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <button type="button" onclick="addToQueue('form_income', 'Tab_Income')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700 transition-colors"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้ก่อน</button>
+                        <button type="submit" class="py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg shadow-lg shadow-green-900/50 transition-colors">บันทึกทันที</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -215,7 +223,11 @@
                     </div>
                     <div><label class="wm-label">ยอดรวมสุทธิ (Total)</label><input type="number" name="total" id="j_total" step="0.01" class="wm-input text-blue-400 font-bold bg-slate-950" readonly required></div>
                     <div><label class="wm-label">Note</label><input type="text" name="note" class="wm-input"></div>
-                    <button type="submit" class="w-full py-3 bg-blue-600 text-white font-bold rounded-lg shadow-lg shadow-blue-900/50">บันทึกรายการ</button>
+                    
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <button type="button" onclick="addToQueue('form_journal', 'Tab_Journal')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700 transition-colors"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้ก่อน</button>
+                        <button type="submit" class="py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-lg shadow-blue-900/50 transition-colors">บันทึกทันที</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -248,7 +260,11 @@
                         <div><label class="wm-label">วันกำหนดคืน</label><input type="text" name="due" class="wm-input" placeholder="-"></div>
                     </div>
                     <div><label class="wm-label">Note</label><input type="text" name="note" class="wm-input"></div>
-                    <button type="submit" class="w-full py-3 bg-purple-600 text-white font-bold rounded-lg shadow-lg shadow-purple-900/50">ลงทะเบียน</button>
+                    
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <button type="button" onclick="addToQueue('form_asset', 'Tab_Assets_Receivables')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700 transition-colors"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้ก่อน</button>
+                        <button type="submit" class="py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg shadow-lg shadow-purple-900/50 transition-colors">ลงทะเบียน</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -272,7 +288,11 @@
                     </div>
                     <div><label class="wm-label">ยอดผ่อนขั้นต่ำ/เดือน</label><input type="number" name="minPay" step="0.01" class="wm-input" required></div>
                     <div><label class="wm-label">Note</label><input type="text" name="note" class="wm-input"></div>
-                    <button type="submit" class="w-full py-3 bg-orange-600 text-white font-bold rounded-lg shadow-lg shadow-orange-900/50">ตั้งหนี้สิน</button>
+                    
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <button type="button" onclick="addToQueue('form_debt', 'Tab_Debts')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700 transition-colors"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้ก่อน</button>
+                        <button type="submit" class="py-3 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-lg shadow-lg shadow-orange-900/50 transition-colors">ตั้งหนี้สิน</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -302,7 +322,11 @@
                         <div><label class="wm-label">เป้าหมายที่อยากเก็บ</label><input type="number" name="target" step="0.01" class="wm-input" value="0"></div>
                     </div>
                     <div><label class="wm-label">Note</label><input type="text" name="note" class="wm-input"></div>
-                    <button type="submit" class="w-full py-3 bg-cyan-600 text-white font-bold rounded-lg shadow-lg shadow-cyan-900/50">สร้างกระเป๋า</button>
+                    
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <button type="button" onclick="addToQueue('form_bucket', 'Tab_Sub_Accounts')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700 transition-colors"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้ก่อน</button>
+                        <button type="submit" class="py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg shadow-lg shadow-cyan-900/50 transition-colors">สร้างกระเป๋า</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -326,12 +350,26 @@
                         </select>
                     </div>
                     <div><label class="wm-label">Note</label><input type="text" name="note" class="wm-input" placeholder="โอนเข้าบัญชีไหน?"></div>
-                    <button type="submit" class="w-full py-3 bg-yellow-600 text-white font-bold rounded-lg shadow-lg shadow-yellow-900/50">บันทึกรับเงินคืน</button>
+                    
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <button type="button" onclick="addToQueue('form_update', 'Tab_Recv_Update')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700 transition-colors"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้ก่อน</button>
+                        <button type="submit" class="py-3 bg-yellow-600 hover:bg-yellow-500 text-white font-bold rounded-lg shadow-lg shadow-yellow-900/50 transition-colors">บันทึกรับเงินคืน</button>
+                    </div>
                 </div>
             </form>
         </div>
 
     </main>
+
+    <!-- ================= FLOATING QUEUE BAR ================= -->
+    <div id="queue-fab" class="hidden fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-blue-600/90 backdrop-blur-md text-white px-5 py-3 rounded-full shadow-[0_10px_25px_rgba(37,99,235,0.5)] flex items-center gap-4 z-50 border border-blue-400">
+        <div class="font-bold text-sm whitespace-nowrap">
+            <i class="fa-solid fa-layer-group mr-1"></i> ตะกร้า: <span id="queue-count" class="bg-white text-blue-600 px-2.5 py-0.5 rounded-full text-xs ml-1">0</span>
+        </div>
+        <button onclick="submitQueue()" id="btn-submit-queue" class="bg-blue-800 hover:bg-blue-900 px-4 py-2 rounded-full text-xs font-bold transition-colors shadow-inner whitespace-nowrap">
+            <i class="fa-solid fa-paper-plane mr-1"></i> ส่งทีเดียว
+        </button>
+    </div>
 
     <!-- JS Logic -->
     <script>
@@ -341,6 +379,7 @@
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyxxi2c7-cBjD2czHrUVrogHva3ngrUmP8m60PMXDdNQyId_hplS4IPDWgefwOW-TSyIQ/exec"; 
         
         const BUFFER_KEY = 'wm_offline_buffer';
+        let batchQueue = []; // ตัวแปรสำหรับเก็บรายการเหมาเข่งในหน่วยความจำ
 
         // ตั้งค่าวันที่ปัจจุบันให้ทุกช่องที่เป็น type="date"
         document.addEventListener('DOMContentLoaded', () => {
@@ -353,16 +392,13 @@
         // UI & NAVIGATION LOGIC
         // ==========================================
         function switchTab(tabId, btnElement) {
-            // ซ่อนฟอร์มทั้งหมด
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
 
-            // รีเซ็ตปุ่มเมนูทั้งหมด
             document.querySelectorAll('#tab-menu button').forEach(btn => {
                 btn.className = "shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-slate-800 text-slate-400 border border-slate-700";
             });
 
-            // ไฮไลต์ปุ่มที่ถูกคลิกตามสีประจำแท็บ
             const colors = {
                 'tab_expense': 'bg-red-500/20 text-red-400 border border-red-500/50',
                 'tab_income': 'bg-green-500/20 text-green-400 border border-green-500/50',
@@ -375,7 +411,6 @@
             btnElement.className = `shrink-0 px-4 py-2 rounded-full text-sm font-medium ${colors[tabId]}`;
         }
 
-        // Quick Tap Fill Function
         function quickFill(formPrefix, field1, field2, field3) {
             const form = document.getElementById(`form_${formPrefix}`);
             if(formPrefix === 'expense') {
@@ -391,7 +426,6 @@
             }
         }
 
-        // Auto Calc for Journal
         function calcTotal() {
             const qty = parseFloat(document.getElementById('j_qty').value) || 0;
             const price = parseFloat(document.getElementById('j_price').value) || 0;
@@ -400,12 +434,9 @@
         }
 
         // ==========================================
-        // SUBMIT & API LOGIC
+        // DATA PROCESSING HELPER
         // ==========================================
-        async function submitForm(e, targetSheet) {
-            e.preventDefault(); // ป้องกันการรีเฟรชหน้าเว็บ
-
-            const form = e.target;
+        function parseFormData(form, targetSheet) {
             const formData = new FormData(form);
             const payload = Object.fromEntries(formData.entries());
 
@@ -417,133 +448,83 @@
                 }
             });
 
-            // ตรวจสอบการลง "ผิดแท็บ" (ปัญหาคลาสสิก)
+            // ตรวจสอบการลง "ผิดแท็บ"
             if (targetSheet === 'Tab_Income' && payload.category.toLowerCase().includes('คืน')) {
                 Swal.fire({ icon: 'error', title: 'แจ้งเตือน!', text: 'เงินที่รับคืน ไม่ใช่รายรับ กรุณาใช้แท็บ "รับเงินคืน" แทนครับ', background: '#1e293b', color: '#f8fafc' });
-                return;
+                return null;
             }
-
-            const requestData = { targetSheet: targetSheet, payload: payload };
-            
-            // เปลี่ยนปุ่มเป็น Loading
-            const submitBtn = form.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerText;
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
-            submitBtn.disabled = true;
-
-            // --- เพิ่มระบบป้องกันลืมใส่ URL ---
-            if (GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE" || !GAS_WEB_APP_URL.startsWith("http")) {
-                Swal.fire({
-                    icon: 'error', title: 'ยังไม่ได้เชื่อมต่อระบบหลังบ้าน!',
-                    text: 'กรุณานำ Web App URL ที่ได้จาก Google Apps Script มาวางแทนที่ตัวแปร GAS_WEB_APP_URL ในโค้ดก่อนครับ',
-                    background: '#1e293b', color: '#f8fafc'
-                });
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-                return;
-            }
-            // -----------------------------
-
-            try {
-                // เช็คสถานะอินเทอร์เน็ตเบื้องต้น
-                if (!navigator.onLine) throw new Error('Offline Mode');
-
-                const response = await fetch(GAS_WEB_APP_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // สำคัญมาก สำหรับ GAS เพื่อไม่ให้ติด CORS Block
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(requestData)
-                });
-
-                // สำเร็จ (no-cors จะไม่คืนค่า body แต่ถือว่า request ยิงออกไปได้)
-                showSuccess(form, originalText, targetSheet);
-
-            } catch (error) {
-                // ถ้าออฟไลน์ หรือ Error -> เก็บลง Local Buffer
-                saveToBuffer(requestData);
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-                Swal.fire({
-                    icon: 'warning', title: 'บันทึกออฟไลน์',
-                    text: 'เครื่องของคุณอาจจะไม่ได้ต่อเน็ต ข้อมูลถูกเก็บลงเครื่องแล้ว (อย่าลืมกดซิงค์เมื่อมีเน็ต)',
-                    background: '#1e293b', color: '#f8fafc'
-                });
-            }
+            return payload;
         }
 
-        function showSuccess(form, originalText, sheetName) {
-            const btn = form.querySelector('button[type="submit"]');
-            btn.innerHTML = '<i class="fa-solid fa-check"></i> เรียบร้อย!';
-            btn.classList.replace('bg-red-600', 'bg-green-600'); // เผื่อปุ่มสีอื่น
+        // ==========================================
+        // BATCH QUEUE LOGIC (ฟังก์ชันเพิ่มลงคิว)
+        // ==========================================
+        function addToQueue(formId, targetSheet) {
+            const form = document.getElementById(formId);
             
-            setTimeout(() => {
-                form.reset();
-                // รีเซ็ตวันที่กลับเป็นวันนี้
-                form.querySelector('input[type="date"]').value = new Date().toISOString().split('T')[0];
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }, 1500);
+            // สั่งเช็ค Validate ของ HTML5 ก่อน (เช่น ช่องบังคับกรอก)
+            if(!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
 
-            // Toast แจ้งเตือนเล็กๆ
+            const payload = parseFormData(form, targetSheet);
+            if(!payload) return; // ถ้าดัก Validate ไม่ผ่านให้หยุด
+
+            batchQueue.push({ targetSheet: targetSheet, payload: payload });
+            
+            // รีเซ็ตฟอร์มให้กรอกต่อได้ทันที
+            form.reset();
+            form.querySelector('input[type="date"]').value = new Date().toISOString().split('T')[0];
+            
+            updateQueueUI();
+            
             Swal.fire({
-                toast: true, position: 'top-end', icon: 'success', title: `บันทึกลง ${sheetName} สำเร็จ`,
-                showConfirmButton: false, timer: 2000, background: '#1e293b', color: '#fff'
+                toast: true, position: 'top-end', icon: 'success', 
+                title: `เก็บลงคิวแล้ว (${batchQueue.length} รายการ)`,
+                showConfirmButton: false, timer: 1500, background: '#1e293b', color: '#fff'
             });
         }
 
-        // ==========================================
-        // OFFLINE BUFFER & BATCH SYNC LOGIC
-        // ==========================================
-        function saveToBuffer(requestData) {
-            let buffer = JSON.parse(localStorage.getItem(BUFFER_KEY) || '[]');
-            buffer.push(requestData);
-            localStorage.setItem(BUFFER_KEY, JSON.stringify(buffer));
-            updateOfflineBadge();
-        }
-
-        function updateOfflineBadge() {
-            const buffer = JSON.parse(localStorage.getItem(BUFFER_KEY) || '[]');
-            const count = buffer.length;
-            const badge = document.getElementById('offline-badge');
-            const syncBtn = document.getElementById('btn-sync');
-            
-            if (count > 0) {
-                badge.classList.remove('hidden');
-                syncBtn.classList.remove('hidden');
-                document.getElementById('sync-count').innerText = count;
+        function updateQueueUI() {
+            const fab = document.getElementById('queue-fab');
+            if(batchQueue.length > 0) {
+                fab.classList.remove('hidden');
+                document.getElementById('queue-count').innerText = batchQueue.length;
             } else {
-                badge.classList.add('hidden');
-                syncBtn.classList.add('hidden');
+                fab.classList.add('hidden');
             }
         }
 
-        async function syncBuffer() {
-            if (!navigator.onLine) {
-                Swal.fire({ icon: 'error', title: 'ยังออฟไลน์อยู่', text: 'กรุณาเชื่อมต่ออินเทอร์เน็ตก่อนทำการซิงค์', background: '#1e293b', color: '#fff' });
-                return;
-            }
-
-            // --- เพิ่มระบบป้องกันลืมใส่ URL ---
+        // กดปุ่ม "ส่งทีเดียว" จาก Floating Bar
+        async function submitQueue() {
             if (GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE" || !GAS_WEB_APP_URL.startsWith("http")) {
-                Swal.fire({ icon: 'error', title: 'การเชื่อมต่อผิดพลาด', text: 'กรุณาตั้งค่า GAS_WEB_APP_URL ให้ถูกต้องก่อนทำการซิงค์', background: '#1e293b', color: '#fff' });
+                Swal.fire({ icon: 'error', title: 'ยังไม่ได้เชื่อมต่อ!', text: 'กรุณาใส่ Web App URL ในโค้ดก่อนครับ', background: '#1e293b', color: '#f8fafc' });
                 return;
             }
-            // -----------------------------
 
-            let buffer = JSON.parse(localStorage.getItem(BUFFER_KEY) || '[]');
-            if (buffer.length === 0) return;
+            if (!navigator.onLine) {
+                // ถ้าเน็ตหลุดตอนกดส่งคิว ให้ย้ายของในคิวไปเข้า Local Buffer แทน
+                batchQueue.forEach(item => saveToBuffer(item));
+                batchQueue = [];
+                updateQueueUI();
+                Swal.fire({ icon: 'warning', title: 'ออฟไลน์', text: 'ย้ายรายการในคิวไปเก็บในเครื่องแล้ว (รอซิงค์ตอนมีเน็ต)', background: '#1e293b', color: '#fff' });
+                return;
+            }
 
-            const syncBtn = document.getElementById('btn-sync');
-            syncBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ซิงค์...';
+            const btn = document.getElementById('btn-submit-queue');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ส่งข้อมูล...';
+            btn.disabled = true;
 
-            // จัดกลุ่มข้อมูลตาม TargetSheet เพื่อส่งเป็นเข่ง (Batch)
+            // จัดกลุ่มข้อมูลแยกตาม Sheet เพื่อยิง POST แยกตามปลายทาง
             const groupedData = {};
-            buffer.forEach(item => {
+            batchQueue.forEach(item => {
                 if(!groupedData[item.targetSheet]) groupedData[item.targetSheet] = [];
                 groupedData[item.targetSheet].push(item.payload);
             });
 
             let successCount = 0;
+            let hasError = false;
 
             for (const [sheet, payloadsArray] of Object.entries(groupedData)) {
                 try {
@@ -556,22 +537,152 @@
                     });
                     successCount += payloadsArray.length;
                 } catch (err) {
-                    console.error("Sync error for sheet", sheet, err);
+                    console.error("Queue submit error", err);
+                    hasError = true;
                 }
             }
 
-            // สมมติว่าสำเร็จหมด (เพราะ no-cors ดัก catch ยาก) จะทำการเคลียร์ Buffer
-            localStorage.removeItem(BUFFER_KEY);
-            updateOfflineBadge();
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane mr-1"></i> ส่งทีเดียว';
+            btn.disabled = false;
+
+            if(!hasError) {
+                batchQueue = []; // ล้างคิว
+                updateQueueUI();
+                Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', text: `ส่งข้อมูลแบบเหมาเข่ง ${successCount} รายการเรียบร้อย`, background: '#1e293b', color: '#fff' });
+            } else {
+                Swal.fire({ icon: 'error', title: 'มีข้อผิดพลาด', text: 'การเชื่อมต่อขัดข้อง กรุณาลองใหม่', background: '#1e293b', color: '#fff' });
+            }
+        }
+
+        // ==========================================
+        // SUBMIT SINGLE ITEM LOGIC (ส่งทันที 1 รายการ)
+        // ==========================================
+        async function submitForm(e, targetSheet) {
+            e.preventDefault(); 
+            const form = e.target;
+            const payload = parseFormData(form, targetSheet);
+            if(!payload) return;
+
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerText;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
+            submitBtn.disabled = true;
+
+            if (GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE" || !GAS_WEB_APP_URL.startsWith("http")) {
+                Swal.fire({ icon: 'error', title: 'ยังไม่ได้เชื่อมต่อระบบหลังบ้าน!', text: 'กรุณานำ Web App URL มาวางแทนที่ตัวแปร GAS_WEB_APP_URL', background: '#1e293b', color: '#f8fafc' });
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                return;
+            }
+
+            const requestData = { targetSheet: targetSheet, payload: payload };
+
+            try {
+                if (!navigator.onLine) throw new Error('Offline Mode');
+
+                await fetch(GAS_WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
+                });
+
+                showSuccess(form, originalText, targetSheet);
+
+            } catch (error) {
+                saveToBuffer(requestData);
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                Swal.fire({ icon: 'warning', title: 'บันทึกออฟไลน์', text: 'เครื่องไม่ได้ต่อเน็ต ข้อมูลถูกเก็บลงเครื่องแล้ว (อย่าลืมกดซิงค์)', background: '#1e293b', color: '#f8fafc' });
+            }
+        }
+
+        function showSuccess(form, originalText, sheetName) {
+            const btn = form.querySelector('button[type="submit"]');
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> เรียบร้อย!';
+            btn.classList.replace('bg-red-600', 'bg-green-600'); 
+            btn.classList.replace('bg-blue-600', 'bg-green-600'); 
             
+            setTimeout(() => {
+                form.reset();
+                form.querySelector('input[type="date"]').value = new Date().toISOString().split('T')[0];
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 1500);
+
             Swal.fire({
-                icon: 'success', title: 'ซิงค์ข้อมูลสำเร็จ!',
-                text: `ส่งรายการที่ค้างอยู่ ${successCount} รายการเข้า Sheet เรียบร้อยแล้ว`,
-                background: '#1e293b', color: '#fff'
+                toast: true, position: 'top-end', icon: 'success', title: `บันทึกลง ${sheetName} สำเร็จ`,
+                showConfirmButton: false, timer: 2000, background: '#1e293b', color: '#fff'
             });
         }
 
-        // เช็คสถานะเน็ตตลอดเวลา
+        // ==========================================
+        // OFFLINE BUFFER LOGIC (เมื่อเน็ตหลุด)
+        // ==========================================
+        function saveToBuffer(requestData) {
+            let buffer = JSON.parse(localStorage.getItem(BUFFER_KEY) || '[]');
+            buffer.push(requestData);
+            localStorage.setItem(BUFFER_KEY, JSON.stringify(buffer));
+            updateOfflineBadge();
+        }
+
+        function updateOfflineBadge() {
+            const buffer = JSON.parse(localStorage.getItem(BUFFER_KEY) || '[]');
+            const badge = document.getElementById('offline-badge');
+            const syncBtn = document.getElementById('btn-sync');
+            
+            if (buffer.length > 0) {
+                badge.classList.remove('hidden');
+                syncBtn.classList.remove('hidden');
+                document.getElementById('sync-count').innerText = buffer.length;
+            } else {
+                badge.classList.add('hidden');
+                syncBtn.classList.add('hidden');
+            }
+        }
+
+        async function syncBuffer() {
+            if (!navigator.onLine) {
+                Swal.fire({ icon: 'error', title: 'ยังออฟไลน์อยู่', text: 'กรุณาเชื่อมต่ออินเทอร์เน็ตก่อนทำการซิงค์', background: '#1e293b', color: '#fff' });
+                return;
+            }
+            if (GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE" || !GAS_WEB_APP_URL.startsWith("http")) {
+                Swal.fire({ icon: 'error', title: 'การเชื่อมต่อผิดพลาด', text: 'กรุณาตั้งค่า GAS_WEB_APP_URL', background: '#1e293b', color: '#fff' });
+                return;
+            }
+
+            let buffer = JSON.parse(localStorage.getItem(BUFFER_KEY) || '[]');
+            if (buffer.length === 0) return;
+
+            const syncBtn = document.getElementById('btn-sync');
+            syncBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ซิงค์...';
+
+            const groupedData = {};
+            buffer.forEach(item => {
+                if(!groupedData[item.targetSheet]) groupedData[item.targetSheet] = [];
+                groupedData[item.targetSheet].push(item.payload);
+            });
+
+            let successCount = 0;
+            for (const [sheet, payloadsArray] of Object.entries(groupedData)) {
+                try {
+                    const batchRequest = { targetSheet: sheet, payload: payloadsArray };
+                    await fetch(GAS_WEB_APP_URL, {
+                        method: 'POST', mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(batchRequest)
+                    });
+                    successCount += payloadsArray.length;
+                } catch (err) { console.error("Sync error", err); }
+            }
+
+            localStorage.removeItem(BUFFER_KEY);
+            updateOfflineBadge();
+            syncBtn.innerHTML = '<i class="fa-solid fa-rotate mr-1"></i> ซิงค์ (0)';
+            
+            Swal.fire({ icon: 'success', title: 'ซิงค์ข้อมูลสำเร็จ!', text: `ส่งรายการที่ค้างอยู่ ${successCount} รายการเรียบร้อย`, background: '#1e293b', color: '#fff' });
+        }
+
         window.addEventListener('online',  () => { updateOfflineBadge(); });
         window.addEventListener('offline', () => { updateOfflineBadge(); });
 
