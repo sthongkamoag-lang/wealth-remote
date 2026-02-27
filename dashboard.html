@@ -7,15 +7,15 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome (แทนที่ Lucide Icons) -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- React & ReactDOM (ผ่าน CDN) -->
+    <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Babel (สำหรับแปลง JSX ให้เบราว์เซอร์เข้าใจแบบ Real-time) -->
+    <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <script>
@@ -38,12 +38,11 @@
 <body>
     <div id="root"></div>
 
-    <!-- โค้ด React ทั้งหมดจะถูกเขียนไว้ในนี้ -->
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        // ⚠️ Web App URL ของคุณที่ถูกฝังไว้แล้ว
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyEyXfYLmOI8i0o-jRB-ikO_MB0bc7Ft3mHo2Zdh3bvg9dqgxDig61lH60QFi70m1qCSw/exec";
+        // ⚠️ วาง Web App URL ของคุณตรงนี้
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyEyXfYLmOI8i0o-jRB-ikO_MB0bc7Ft3mHo2Zdh3bvg9dqgxDig61lH60QFi70m1qCSw/exec"; 
 
         // --- CUSTOM SVG LINE CHART COMPONENT ---
         const LineChartSVG = ({ data, xKey, line1Key, line2Key, line1Color, line2Color, isLine2Dashed, legend1, legend2 }) => {
@@ -123,6 +122,9 @@
             setIsLoading(true);
             setError(null);
             try {
+              if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE") {
+                throw new Error("กรุณาใส่ Web App URL ของคุณในโค้ดก่อนครับ");
+              }
               const response = await fetch(`${GAS_WEB_APP_URL}?action=getDashboardData`);
               if (!response.ok) throw new Error("การเชื่อมต่อเครือข่ายมีปัญหา");
               
@@ -153,18 +155,17 @@
           const activeIncome = data ? data.income.E + data.income.S : 0;
           const passiveIncome = data ? data.income.B + data.income.I : 0;
           const ffrPercent = totalExpenses > 0 ? ((passiveIncome / totalExpenses) * 100).toFixed(1) : 0;
-
-            // เปลี่ยนฐานการคำนวณ Vivian Rule เป็น Active Income (E + S) เท่านั้น
-          const baseIncomeForBudget = activeIncome > 0 ? activeIncome : 1; // ป้องกันการหารด้วย 0
-
+          
+          // 🟢 WEALTH BUILDER MODE: คิด Vivian 50/30/20 จากฐาน Active Income เท่านั้น
+          const baseIncomeForBudget = activeIncome > 0 ? activeIncome : 1; // กันหารด้วย 0
+          
           const needsTarget = baseIncomeForBudget * 0.5;
           const wantsTarget = baseIncomeForBudget * 0.3;
           const futureTarget = baseIncomeForBudget * 0.2;
 
-          // เปลี่ยนตัวหารจาก totalIncome เป็น baseIncomeForBudget
-          const needsPct = ((data.expenses.needs / baseIncomeForBudget) * 100).toFixed(1);
-          const wantsPct = ((data.expenses.wants / baseIncomeForBudget) * 100).toFixed(1);
-          const futurePct = ((data.expenses.future / baseIncomeForBudget) * 100).toFixed(1);
+          const needsPct = activeIncome > 0 ? ((data.expenses.needs / baseIncomeForBudget) * 100).toFixed(1) : 0;
+          const wantsPct = activeIncome > 0 ? ((data.expenses.wants / baseIncomeForBudget) * 100).toFixed(1) : 0;
+          const futurePct = activeIncome > 0 ? ((data.expenses.future / baseIncomeForBudget) * 100).toFixed(1) : 0;
 
           const totalEnvelopeBalance = data ? data.envelopes.reduce((sum, env) => sum + env.balance, 0) : 0;
           const availableCash = data ? data.cashTotal - totalEnvelopeBalance : 0;
@@ -254,7 +255,7 @@
                   <div>
                     <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400 flex items-center gap-2">
                       <i className="fa-solid fa-shield-halved text-blue-400" style={{fontSize: 24}}></i>
-                      Strategic Advisor <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full border border-emerald-500/30 ml-2">Live Data</span>
+                      Strategic Advisor <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full border border-emerald-500/30 ml-2">Wealth Builder</span>
                     </h1>
                   </div>
                   <button onClick={fetchDashboardData} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm flex items-center gap-2 text-slate-300 transition-colors">
@@ -310,11 +311,14 @@
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     
-                    {/* VIVIAN RULE */}
+                    {/* VIVIAN RULE (WEALTH BUILDER MODE) */}
                     <Card className="lg:col-span-1">
                       <div className="flex justify-between items-center mb-6">
                         <h3 className="text-lg font-bold flex items-center gap-2"><i className="fa-solid fa-chart-pie text-purple-400" style={{fontSize: 18}}></i> Vivian Rule (50/30/20)</h3>
-                        <span className="text-xs font-medium px-2 py-1 bg-slate-800 rounded text-slate-400">งบประมาณตามรายรับ ({formatMoney(totalIncome)})</span>
+                        {/* 🟢 อัปเดตข้อความให้ชี้เป้า Active Income */}
+                        <span className="text-[10px] md:text-xs font-medium px-2 py-1 bg-slate-800 rounded text-slate-400 border border-slate-700">
+                          งบประมาณตามรายรับ Active (฿{formatMoney(activeIncome)})
+                        </span>
                       </div>
                       
                       <div className="space-y-6">
@@ -349,7 +353,7 @@
                             <div className="h-full rounded-full bg-[#fbbf24] transition-all duration-1000" style={{ width: `${Math.min((data.expenses.future/futureTarget)*20, 100)}%` }}></div>
                             <div className="absolute top-0 bottom-0 left-[20%] w-[2px] bg-slate-500 z-10"></div>
                           </div>
-                          {futurePct < 20 && <p className="text-xs text-amber-400 mt-2 flex items-center gap-1"><i className="fa-solid fa-circle-info" style={{fontSize: 12}}></i> ควรเพิ่มการออม/ลงทุนให้ถึง 20%</p>}
+                          {futurePct < 20 && <p className="text-xs text-amber-400 mt-2 flex items-center gap-1"><i className="fa-solid fa-circle-info" style={{fontSize: 12}}></i> ควรเพิ่มการออม/ลงทุนให้ถึง 20% ของ Active Income</p>}
                         </div>
                       </div>
                     </Card>
@@ -635,5 +639,3 @@
     </script>
 </body>
 </html>
-
-
