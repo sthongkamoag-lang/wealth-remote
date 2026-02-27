@@ -371,50 +371,53 @@
         // ==========================================
         // FETCH AUTOCOMPLETE DATA FROM GAS (ใหม่ล่าสุด!)
         // ==========================================
-        async function fetchAutocompleteData() {
+          async function fetchAutocompleteData() {
             if (GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE" || !GAS_WEB_APP_URL.startsWith("http")) return;
 
             const syncDot = document.getElementById('data-sync-dot');
-            syncDot.classList.remove('hidden'); // โชว์ไฟกระพริบกำลังโหลด
+            if(syncDot) syncDot.classList.remove('hidden');
 
             try {
-                // ยิง GET Request ไปที่ API แบบเงียบๆ พื้นหลัง
                 const response = await fetch(GAS_WEB_APP_URL + "?action=getMetadata");
                 const result = await response.json();
 
                 if (result.status === "success" && result.data) {
                     const data = result.data;
 
-                    // เติมข้อมูลลง Datalist กระเป๋าเงิน
+                    // 1. เติมข้อมูลลง Datalist กระเป๋าเงิน
                     if(data.subAccounts && data.subAccounts.length > 0) {
                         document.getElementById('list-sub-accounts').innerHTML = 
                             data.subAccounts.map(item => `<option value="${item}"></option>`).join('');
                     }
 
-                    // เติมข้อมูลลง Datalist หมวดหมู่
+                    // 2. เติมข้อมูลลง Datalist หมวดหมู่
                     if(data.categories && data.categories.length > 0) {
                         document.getElementById('list-categories').innerHTML = 
                             data.categories.map(item => `<option value="${item}"></option>`).join('');
                     }
 
-                    // เติมข้อมูลลง Datalist ทรัพย์สินและลูกหนี้ (ใช้ร่วมกันใน Tab Journal, Asset, Update)
-                    if(data.assets && data.assets.length > 0) {
+                    // 3. 🌟 [ส่วนที่แก้ไขใหม่] รวมชื่อ "ทรัพย์สิน" และ "กระเป๋าเงิน" เข้าด้วยกัน
+                    let combinedList = [];
+                    if (data.assets) combinedList = combinedList.concat(data.assets);
+                    if (data.subAccounts) combinedList = combinedList.concat(data.subAccounts); // เอากระเป๋าเงินมารวมด้วย!
+
+                    if(combinedList.length > 0) {
+                        // ส่งรายชื่อที่รวมแล้วไปให้ list-assets (ที่ Tab Journal ใช้)
                         document.getElementById('list-assets').innerHTML = 
-                            data.assets.map(item => `<option value="${item}"></option>`).join('');
+                            combinedList.map(item => `<option value="${item}"></option>`).join('');
                         
-                        // ก๊อปปี้ไปใส่ให้รายชื่อเจ้าหนี้ด้วยเผื่อไว้
                         document.getElementById('list-debts').innerHTML = 
-                            data.assets.map(item => `<option value="${item}"></option>`).join('');
+                            combinedList.map(item => `<option value="${item}"></option>`).join('');
                     }
                     console.log("🔥 Autocomplete loaded successfully!");
                 }
             } catch (error) {
                 console.error("Failed to fetch autocomplete data. Using fallback lists.", error);
             } finally {
-                syncDot.classList.add('hidden'); // ปิดไฟกระพริบ
+                if(syncDot) syncDot.classList.add('hidden');
             }
         }
-
+       
         // ==========================================
         // UI & NAVIGATION LOGIC
         // ==========================================
@@ -692,6 +695,7 @@
     </script>
 </body>
 </html>
+
 
 
 
