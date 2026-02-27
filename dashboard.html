@@ -153,14 +153,18 @@
           const activeIncome = data ? data.income.E + data.income.S : 0;
           const passiveIncome = data ? data.income.B + data.income.I : 0;
           const ffrPercent = totalExpenses > 0 ? ((passiveIncome / totalExpenses) * 100).toFixed(1) : 0;
-          
-          const needsTarget = totalIncome * 0.5;
-          const wantsTarget = totalIncome * 0.3;
-          const futureTarget = totalIncome * 0.2;
 
-          const needsPct = totalIncome > 0 ? ((data.expenses.needs / totalIncome) * 100).toFixed(1) : 0;
-          const wantsPct = totalIncome > 0 ? ((data.expenses.wants / totalIncome) * 100).toFixed(1) : 0;
-          const futurePct = totalIncome > 0 ? ((data.expenses.future / totalIncome) * 100).toFixed(1) : 0;
+            // เปลี่ยนฐานการคำนวณ Vivian Rule เป็น Active Income (E + S) เท่านั้น
+          const baseIncomeForBudget = activeIncome > 0 ? activeIncome : 1; // ป้องกันการหารด้วย 0
+
+          const needsTarget = baseIncomeForBudget * 0.5;
+          const wantsTarget = baseIncomeForBudget * 0.3;
+          const futureTarget = baseIncomeForBudget * 0.2;
+
+          // เปลี่ยนตัวหารจาก totalIncome เป็น baseIncomeForBudget
+          const needsPct = ((data.expenses.needs / baseIncomeForBudget) * 100).toFixed(1);
+          const wantsPct = ((data.expenses.wants / baseIncomeForBudget) * 100).toFixed(1);
+          const futurePct = ((data.expenses.future / baseIncomeForBudget) * 100).toFixed(1);
 
           const totalEnvelopeBalance = data ? data.envelopes.reduce((sum, env) => sum + env.balance, 0) : 0;
           const availableCash = data ? data.cashTotal - totalEnvelopeBalance : 0;
@@ -631,4 +635,5 @@
     </script>
 </body>
 </html>
+
 
