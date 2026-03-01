@@ -26,154 +26,124 @@
     </script>
 
     <style>
-        body { background-color: #0f172a; color: #f8fafc; overflow-x: hidden; }
+        body { background-color: #0a0f1d; color: #f8fafc; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; padding-bottom: 100px; /* เผื่อพื้นที่ให้ตะกร้า */ }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* สไตล์สำหรับ Input */
-        .wm-input { width: 100%; background-color: #1e293b; border: 1px solid #334155; border-radius: 0.5rem; padding: 0.75rem 1rem; color: #f8fafc; outline: none; transition: border-color 0.2s; font-size: 16px; /* ป้องกัน iOS Zoom */ }
+        .wm-input {
+            width: 100%; background-color: #1e293b; border: 1px solid #334155; border-radius: 0.75rem;
+            padding: 0.75rem 1rem; color: #f8fafc; font-size: 1rem; outline: none; transition: border-color 0.2s;
+        }
         .wm-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
-        .wm-label { display: block; font-size: 0.875rem; font-weight: 500; color: #94a3b8; margin-bottom: 0.25rem; }
+        .wm-label { display: block; font-size: 0.875rem; font-weight: 600; color: #94a3b8; margin-bottom: 0.5rem; }
     </style>
 </head>
-<body class="flex flex-col h-screen relative">
+<body class="flex flex-col min-h-screen">
 
-    <!-- ================= DATALIST FOR AUTOCOMPLETE ================= -->
-    <!-- ข้อมูลเบื้องต้น (Fallback) เผื่ออินเทอร์เน็ตหลุดตอนเปิดแอป -->
-    <datalist id="list-sub-accounts">
-        <option value="บัญชีหลัก SCB"></option>
-        <option value="กระเป๋าเงินสด"></option>
-        <option value="บัตรเครดิต KTC"></option>
-    </datalist>
-    <datalist id="list-categories">
-        <option value="Food / Groceries"></option>
-        <option value="Transport / Gas"></option>
-        <option value="Shopping"></option>
-        <option value="Interest & Fees"></option>
-    </datalist>
-    <datalist id="list-assets">
-        <option value="หุ้น PTT"></option>
-        <option value="กองทุน K-S&P500"></option>
-    </datalist>
-    <datalist id="list-debts">
-        <option value="บัตรเครดิต KTC"></option>
-    </datalist>
-    <!-- =========================================================== -->
+    <!-- DATA LISTS (For Autocomplete) -->
+    <datalist id="list-sub-accounts"></datalist>
+    <datalist id="list-categories"></datalist>
+    <datalist id="list-assets"></datalist>
+    <datalist id="list-debts"></datalist>
 
-    <!-- Header -->
-    <header class="bg-slate-950 border-b border-slate-800 p-4 sticky top-0 z-40">
-        <div class="flex justify-between items-center">
+    <!-- HEADER -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-md">
+        <div class="flex justify-between items-center p-4">
+            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">
+                <i class="fa-solid fa-gem text-blue-400 mr-2"></i>Wealth Master
+            </h1>
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center relative">
-                    <i class="fa-solid fa-bolt text-white text-sm"></i>
-                    <!-- จุดแจ้งเตือนการโหลด Autocomplete -->
-                    <span id="data-sync-dot" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-yellow-500 rounded-full animate-ping hidden"></span>
-                </div>
-                <h1 class="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-400">Wealth Master</h1>
-            </div>
-            
-            <!-- Sync Status & Button -->
-            <div class="flex items-center gap-2">
-                <div id="offline-badge" class="hidden px-2 py-1 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30 text-[10px] font-bold">
-                    <i class="fa-solid fa-wifi/slash mr-1"></i>Offline
-                </div>
-                <button onclick="syncBuffer()" id="btn-sync" class="hidden relative px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded text-xs font-bold transition-colors">
-                    <i class="fa-solid fa-rotate mr-1"></i> ซิงค์ (<span id="sync-count">0</span>)
+                <span id="data-sync-dot" class="w-3 h-3 bg-green-500 rounded-full animate-pulse hidden"></span>
+                <span id="offline-badge" class="hidden bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold">Offline</span>
+                <button onclick="toggleQueueList()" class="text-slate-300 hover:text-white bg-slate-800 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors">
+                    <i class="fa-solid fa-basket-shopping mr-1 text-blue-400"></i> <span id="header-queue-count">0</span>
                 </button>
             </div>
         </div>
 
-        <!-- Scrollable Tab Menu -->
-        <div class="flex gap-2 mt-4 overflow-x-auto hide-scrollbar pb-1" id="tab-menu">
-            <button onclick="switchTab('tab_expense', this)" class="shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-red-500/20 text-red-400 border border-red-500/50"><i class="fa-solid fa-cart-shopping mr-2"></i>รายจ่าย</button>
-            <button onclick="switchTab('tab_income', this)" class="shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-slate-800 text-slate-400 border border-slate-700"><i class="fa-solid fa-hand-holding-dollar mr-2"></i>รายรับ</button>
-            <button onclick="switchTab('tab_journal', this)" class="shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-slate-800 text-slate-400 border border-slate-700"><i class="fa-solid fa-book mr-2"></i>ลงทุน/โอน/ลดหนี้</button>
-            <button onclick="switchTab('tab_asset', this)" class="shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-slate-800 text-slate-400 border border-slate-700"><i class="fa-solid fa-building-columns mr-2"></i>ตั้งทรัพย์สิน</button>
-            <button onclick="switchTab('tab_debt', this)" class="shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-slate-800 text-slate-400 border border-slate-700"><i class="fa-solid fa-credit-card mr-2"></i>ตั้งหนี้สิน</button>
-            <button onclick="switchTab('tab_bucket', this)" class="shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-slate-800 text-slate-400 border border-slate-700"><i class="fa-solid fa-wallet mr-2"></i>สร้างกระเป๋า</button>
-            <button onclick="switchTab('tab_update', this)" class="shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-slate-800 text-slate-400 border border-slate-700"><i class="fa-solid fa-money-bill-transfer mr-2"></i>รับเงินคืน</button>
-        </div>
+        <!-- TABS NAVIGATION -->
+        <nav class="flex overflow-x-auto hide-scrollbar px-2 pb-2 gap-2 bg-slate-900">
+            <button onclick="openTab('tab_income')" class="tab-btn active px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap bg-emerald-500/20 text-emerald-400 border border-emerald-500/50">รายรับ</button>
+            <button onclick="openTab('tab_expense')" class="tab-btn px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap bg-slate-800 text-slate-400 hover:bg-slate-700">รายจ่าย</button>
+            <button onclick="openTab('tab_journal')" class="tab-btn px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap bg-slate-800 text-slate-400 hover:bg-slate-700">โอน/ลงทุน/หนี้</button>
+            <button onclick="openTab('tab_asset')" class="tab-btn px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap bg-slate-800 text-slate-400 hover:bg-slate-700">จัดการ Asset</button>
+            <button onclick="openTab('tab_debt')" class="tab-btn px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap bg-slate-800 text-slate-400 hover:bg-slate-700">จัดการ หนี้สิน</button>
+            <button onclick="openTab('tab_bucket')" class="tab-btn px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap bg-slate-800 text-slate-400 hover:bg-slate-700">จัดการ กระเป๋า</button>
+            <button onclick="openTab('tab_recv')" class="tab-btn px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap bg-slate-800 text-slate-400 hover:bg-slate-700">รับเงินคืนลูกหนี้</button>
+        </nav>
     </header>
 
-    <!-- Main Content Area -->
-    <main class="flex-1 overflow-y-auto p-4 pb-32">
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 p-4 md:p-6 w-full max-w-3xl mx-auto">
         
         <!-- ============================================== -->
-        <!-- TAB 2: EXPENSE -->
+        <!-- TAB 1: INCOME -->
         <!-- ============================================== -->
-        <div id="tab_expense" class="tab-content active">
-            <h2 class="text-xl font-bold mb-4 text-red-400"><i class="fa-solid fa-cart-shopping mr-2"></i>บันทึกรายจ่าย</h2>
-            
-            <div class="mb-5">
-                <span class="text-xs text-slate-400 font-bold uppercase">Quick Tap (ปุ่มลัด)</span>
-                <div class="flex flex-wrap gap-2 mt-2">
-                    <button type="button" onclick="fillForm('form_expense', {rule: '30-Wants', category: 'Cafe / Snacks', amount: 45, account: 'กินใช้ส่วนตัว', note: 'เต่าบิน'})" class="px-4 py-2 bg-slate-800 rounded-full text-sm font-medium hover:bg-slate-700 whitespace-nowrap">☕ เต่าบิน 45.-</button>   
-                    <button type="button" onclick="fillForm('form_expense', {rule: '30-Wants', category: 'Food / Groceries', amount: 35, account: 'กินใช้ส่วนตัว', note: 'ข้าวกล่อง'})" class="px-4 py-2 bg-slate-800 rounded-full text-sm font-medium hover:bg-slate-700 whitespace-nowrap"> ข้าวกล่อง 35.-</button>                
-                </div>
-            </div>
-
-            <form id="form_expense" onsubmit="submitForm(event, 'Tab_Expenses')">
+        <div id="tab_income" class="tab-content active">
+            <h2 class="text-xl font-bold mb-4 text-emerald-400"><i class="fa-solid fa-money-bill-wave mr-2"></i>บันทึกรายรับใหม่</h2>
+            <form id="form_income" onsubmit="submitForm(event, 'Tab_Income')">
                 <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div><label class="wm-label">วันที่</label><input type="date" name="date" class="wm-input" required></div>
-                        <div><label class="wm-label">จำนวนเงิน (฿)</label><input type="number" name="amount" step="0.01" class="wm-input text-red-400 font-bold" required placeholder="0.00"></div>
-                    </div>
+                    <div><label class="wm-label">วันที่</label><input type="date" name="date" id="i_date" class="wm-input" required></div>
                     <div>
-                        <label class="wm-label">Vivian Rule</label>
-                        <select name="vivian" class="wm-input" required>
-                            <option value="">-- เลือก --</option>
-                            <option value="50-Needs">50-Needs (จำเป็นต้องจ่าย)</option>
-                            <option value="30-Wants">30-Wants (ความสุข/ฟุ่มเฟือย)</option>
-                            <option value="20-Future">20-Future (อนาคต/ลดความเสี่ยง)</option>
+                        <label class="wm-label">ประเภท ESBI</label>
+                        <select name="esbi" class="wm-input" required>
+                            <option value="E (Employee)">E - งานประจำ (Active)</option>
+                            <option value="S (Self-Employed)">S - ฟรีแลนซ์/ธุรกิจส่วนตัว (Active)</option>
+                            <option value="B (Business Owner)">B - เจ้าของกิจการ/ปันผลบริษัท (Passive)</option>
+                            <option value="I (Investor)">I - ปันผลหุ้น/ดอกเบี้ย/ค่าเช่า (Passive)</option>
                         </select>
                     </div>
-                    <div><label class="wm-label">หมวดหมู่ (พิมพ์ค้นหาได้)</label><input type="text" name="category" list="list-categories" class="wm-input" required placeholder="เช่น Food, Shopping..."></div>
-                    <div><label class="wm-label">จ่ายจากกระเป๋า/บัตร</label><input type="text" name="target" list="list-sub-accounts" class="wm-input" required placeholder="เช่น บัญชีหลัก, บัตรเครดิต"></div>
-                    <div><label class="wm-label">บันทึกช่วยจำ (Note)</label><input type="text" name="note" class="wm-input" placeholder="รายละเอียดเพิ่มเติม..."></div>
-                    
+                    <div><label class="wm-label">หมวดหมู่รายรับ</label><input type="text" name="category" list="list-categories" class="wm-input" required placeholder="เช่น เงินเดือน, โบนัส, ปันผลหุ้น"></div>
+                    <div><label class="wm-label">จำนวนเงิน (฿)</label><input type="number" name="amount" step="0.01" class="wm-input text-emerald-400 font-bold text-lg" required></div>
+                    <div><label class="wm-label">เข้ากระเป๋าเงิน (Bucket)</label><input type="text" name="account" list="list-sub-accounts" class="wm-input" required placeholder="เลือกกระเป๋าที่รับเงิน"></div>
+                    <div><label class="wm-label">Note</label><input type="text" name="note" class="wm-input"></div>
                     <div class="grid grid-cols-2 gap-3 mt-4">
-                        <button type="button" onclick="addToQueue('form_expense', 'Tab_Expenses')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700 transition-colors"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้ก่อน</button>
-                        <button type="submit" class="py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg shadow-lg shadow-red-900/50 transition-colors">บันทึกทันที</button>
+                        <button type="button" onclick="addToQueue('form_income', 'Tab_Income')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700 transition-colors"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้ก่อน</button>
+                        <button type="submit" class="py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg shadow-lg shadow-emerald-900/50 transition-colors">บันทึกทันที</button>
                     </div>
                 </div>
             </form>
         </div>
 
         <!-- ============================================== -->
-        <!-- TAB 1: INCOME -->
+        <!-- TAB 2: EXPENSES -->
         <!-- ============================================== -->
-        <div id="tab_income" class="tab-content">
-            <h2 class="text-xl font-bold mb-4 text-green-400"><i class="fa-solid fa-hand-holding-dollar mr-2"></i>บันทึกรายรับ</h2>
-            <div class="mb-5">
-                <span class="text-xs text-slate-400 font-bold uppercase">Quick Tap</span>
-                <div class="flex flex-wrap gap-2 mt-2">
-                    <button onclick="quickFill('income', 'E (Employee)', 'Salary', 'บัญชีหลัก SCB')" class="px-3 py-1.5 bg-slate-800 rounded border border-slate-700 text-sm"><i class="fa-solid fa-briefcase text-green-400 mr-1"></i> เงินเดือน</button>
+        <div id="tab_expense" class="tab-content">
+            <h2 class="text-xl font-bold mb-4 text-rose-400"><i class="fa-solid fa-cart-shopping mr-2"></i>บันทึกรายจ่าย</h2>
+            
+            <!-- Quick Taps (อัปเดตข้อมูลจำลองใหม่) -->
+            <div class="mb-6">
+                <p class="text-xs text-slate-500 mb-2 font-bold uppercase tracking-wider">⚡ Quick Taps (กดปุ๊บกรอกปั๊บ)</p>
+                <div id="quick-taps" class="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
+                    <button type="button" onclick="fillForm('form_expense', {vivian: '30-Wants', category: 'Cafe / Snacks', amount: 45, account: 'กินใช้ส่วนตัว', note: 'เต่าบิน'})" class="px-4 py-2 bg-slate-800 rounded-full text-sm font-medium hover:bg-slate-700 whitespace-nowrap transition-colors border border-slate-700">☕ เต่าบิน 45.-</button>
+                    <button type="button" onclick="fillForm('form_expense', {vivian: '50-Needs', category: 'Food / Groceries', amount: 60, account: 'กินใช้ส่วนตัว', note: 'ข้าวกล่อง'})" class="px-4 py-2 bg-slate-800 rounded-full text-sm font-medium hover:bg-slate-700 whitespace-nowrap transition-colors border border-slate-700">🍱 ข้าวกล่อง 60.-</button>
+                    <button type="button" onclick="fillForm('form_expense', {vivian: '50-Needs', category: 'Gas / Toll fee', amount: 1000, account: 'บัญชีหลัก KTB', note: 'เติมน้ำมัน'})" class="px-4 py-2 bg-slate-800 rounded-full text-sm font-medium hover:bg-slate-700 whitespace-nowrap transition-colors border border-slate-700">⛽ น้ำมัน 1,000.-</button>
+                    <button type="button" onclick="fillForm('form_expense', {vivian: '20-Future', category: 'กบข.', amount: 1000, account: 'บัญชีหลัก KTB', note: 'สะสม'})" class="px-4 py-2 bg-slate-800 rounded-full text-sm font-medium hover:bg-slate-700 whitespace-nowrap transition-colors border border-slate-700">📈 กบข. 1,000.-</button>
                 </div>
             </div>
-            <form id="form_income" onsubmit="submitForm(event, 'Tab_Income')">
+
+            <form id="form_expense" onsubmit="submitForm(event, 'Tab_Expenses')">
                 <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div><label class="wm-label">วันที่</label><input type="date" name="date" class="wm-input" required></div>
-                        <div><label class="wm-label">จำนวนเงิน (฿)</label><input type="number" name="amount" step="0.01" class="wm-input text-green-400 font-bold" required></div>
-                    </div>
+                    <div><label class="wm-label">วันที่</label><input type="date" name="date" id="e_date" class="wm-input" required></div>
                     <div>
-                        <label class="wm-label">ESBI (แหล่งที่มา)</label>
-                        <select name="esbi" class="wm-input" required>
-                            <option value="E (Employee)">E - งานประจำ / ลูกจ้าง</option>
-                            <option value="S (Self-Employed)">S - ฟรีแลนซ์ / ค้าขาย / อาชีพเสริม</option>
-                            <option value="B (Business Owner)">B - ธุรกิจที่มีระบบ / เจ้าของกิจการ</option>
-                            <option value="I (Investor)">I - นักลงทุน (ปันผล, ดอกเบี้ย, ค่าเช่า)</option>
+                        <label class="wm-label">กฎ 50/30/20</label>
+                        <select name="vivian" class="wm-input" required>
+                            <option value="50-Needs">50% Needs (จำเป็นต้องจ่าย)</option>
+                            <option value="30-Wants">30% Wants (ความสุข/ฟุ่มเฟือย)</option>
+                            <option value="20-Future">20% Future (ออม/ลงทุน/โปะหนี้)</option>
+                            <option value="Charity">Giving (ทำบุญ/บริจาค)</option>
                         </select>
                     </div>
-                    <div><label class="wm-label">หมวดหมู่</label><input type="text" name="category" list="list-categories" class="wm-input" required placeholder="เช่น Salary, Bonus, Freelance"></div>
-                    <div><label class="wm-label">เข้ากระเป๋า</label><input type="text" name="account" list="list-sub-accounts" class="wm-input" required></div>
+                    <div><label class="wm-label">หมวดหมู่ (หรือชื่อเจ้าหนี้ถ้าจะโปะ)</label><input type="text" name="category" list="list-categories" class="wm-input" required placeholder="เช่น ค่าอาหาร, ดูหนัง, บัตร KTC"></div>
+                    <div><label class="wm-label">จำนวนเงิน (฿)</label><input type="number" name="amount" step="0.01" class="wm-input text-rose-400 font-bold text-lg" required></div>
+                    <div><label class="wm-label">จ่ายจากกระเป๋า</label><input type="text" name="account" list="list-sub-accounts" class="wm-input" required placeholder="เช่น บัญชีหลัก KTB, กินใช้ส่วนตัว"></div>
                     <div><label class="wm-label">Note</label><input type="text" name="note" class="wm-input"></div>
                     <div class="grid grid-cols-2 gap-3 mt-4">
-                        <button type="button" onclick="addToQueue('form_income', 'Tab_Income')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700 transition-colors"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้ก่อน</button>
-                        <button type="submit" class="py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg shadow-lg shadow-green-900/50 transition-colors">บันทึกทันที</button>
+                        <button type="button" onclick="addToQueue('form_expense', 'Tab_Expenses')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700 transition-colors"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้ก่อน</button>
+                        <button type="submit" class="py-3 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-lg shadow-lg shadow-rose-900/50 transition-colors">บันทึกทันที</button>
                     </div>
                 </div>
             </form>
@@ -183,19 +153,19 @@
         <!-- TAB 3: JOURNAL -->
         <!-- ============================================== -->
         <div id="tab_journal" class="tab-content">
-            <h2 class="text-xl font-bold mb-4 text-blue-400"><i class="fa-solid fa-book mr-2"></i>ลงทุน / โอนย้าย / ลดหนี้</h2>
+            <h2 class="text-xl font-bold mb-4 text-blue-400"><i class="fa-solid fa-book mr-2"></i>ลงทุน / โอนย้าย / ลดหนี้ (เงินเก่า)</h2>
             <form id="form_journal" onsubmit="submitForm(event, 'Tab_Journal')">
                 <div class="space-y-4">
                     <div><label class="wm-label">วันที่</label><input type="date" name="date" class="wm-input" required></div>
-                    <div><label class="wm-label">อ้างอิงสินทรัพย์/กระเป๋า (พิมพ์ค้นหา)</label><input type="text" name="asset" list="list-assets" class="wm-input" required placeholder="เช่น หุ้น PTT, บัตรเครดิต KTC"></div>
+                    <div><label class="wm-label">อ้างอิงสินทรัพย์/กระเป๋า (พิมพ์ค้นหา)</label><input type="text" name="asset" list="list-assets" class="wm-input" required placeholder="เช่น หุ้น PTT, กินใช้ส่วนตัว"></div>
                     <div>
                         <label class="wm-label">ประเภทรายการ (Event)</label>
                         <select name="event" class="wm-input" required>
-                            <option value="Buy (ซื้อสินทรัพย์)">Buy (ซื้อสินทรัพย์)</option>
-                            <option value="Sell (ขายสินทรัพย์)">Sell (ขายสินทรัพย์ / รับคืนจากลูกหนี้)</option> 
-                            <option value="Transfer In (รับโอนเข้า)">Transfer In (รับโอนเข้า / ย้ายกระเป๋า)</option>
-                            <option value="Transfer Out (โอนออก)">Transfer Out (โอนออก / เงินออกจากกระเป๋า)</option>
-                            <option value="Pay Principal (จ่ายเงินต้น/ลดหนี้)" class="text-red-400 font-bold">Pay Principal (จ่ายเงินต้น/ลดหนี้)</option>
+                            <option value="Transfer Out (โอนออก)">Transfer Out (โอนออก / หักเงินจากกระเป๋า)</option>
+                            <option value="Transfer In (รับโอนเข้า)">Transfer In (รับโอนเข้า / เติมเงินลงกระเป๋า)</option>
+                            <option value="Buy (ซื้อสินทรัพย์)">Buy (ซื้อสินทรัพย์เก็บเข้าพอร์ต)</option>
+                            <option value="Sell (ขายสินทรัพย์)">Sell (ขายสินทรัพย์ / รับคืนจากลูกหนี้)</option>
+                            <option value="Pay Principal (จ่ายเงินต้น/ลดหนี้)" class="text-red-400 font-bold">Pay Principal (จ่ายเงินต้น/ลดหนี้ ด้วยเงินเก่า)</option>
                         </select>
                     </div>
                     <div class="grid grid-cols-3 gap-2">
@@ -214,10 +184,10 @@
         </div>
 
         <!-- ============================================== -->
-        <!-- TAB 4: ASSET & RECV -->
+        <!-- TAB 4: ASSETS -->
         <!-- ============================================== -->
         <div id="tab_asset" class="tab-content">
-            <h2 class="text-xl font-bold mb-4 text-purple-400"><i class="fa-solid fa-building-columns mr-2"></i>ตั้งทะเบียนทรัพย์สิน / ลูกหนี้</h2>
+            <h2 class="text-xl font-bold mb-4 text-purple-400"><i class="fa-solid fa-building-columns mr-2"></i>ขึ้นทะเบียนทรัพย์สิน / ลูกหนี้</h2>
             <form id="form_asset" onsubmit="submitForm(event, 'Tab_Assets_Receivables')">
                 <div class="space-y-4">
                     <div class="grid grid-cols-2 gap-4">
@@ -225,112 +195,124 @@
                             <label class="wm-label">ประเภท</label>
                             <select name="recordType" class="wm-input" required>
                                 <option value="Asset (สินทรัพย์)">Asset (สินทรัพย์)</option>
-                                <option value="Receivable (ลูกหนี้)">Receivable (คนยืมเงินเรา)</option>
+                                <option value="Receivable (ลูกหนี้)">Receivable (ลูกหนี้)</option>
                             </select>
                         </div>
-                        <div><label class="wm-label">หมวดหมู่</label><input type="text" name="assetClass" class="wm-input" placeholder="เช่น Stock, Real Estate" required></div>
+                        <div>
+                            <label class="wm-label">Asset Class</label>
+                            <select name="assetClass" class="wm-input" required>
+                                <option value="Cash / Bank">เงินสด / เงินฝาก / สหกรณ์</option>
+                                <option value="Stock / Fund">หุ้น / กองทุน</option>
+                                <option value="Real Estate">อสังหาริมทรัพย์</option>
+                                <option value="Commodity">ทองคำ / สินค้าโภคภัณฑ์</option>
+                                <option value="Cryptocurrency">คริปโต</option>
+                                <option value="Personal Loan">ปล่อยกู้ส่วนบุคคล</option>
+                            </select>
+                        </div>
                     </div>
-                    <div><label class="wm-label">ชื่อรายการ (ตั้งชื่อใหม่)</label><input type="text" name="name" class="wm-input" required placeholder="เช่น หุ้น AOT, สมชาย ใจดี"></div>
+                    <div><label class="wm-label">ชื่อรายการ (ไม่ซ้ำ)</label><input type="text" name="name" class="wm-input" required placeholder="เช่น หุ้น AOT, เงินฝาก KTB, สมชาย(เพื่อน)"></div>
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label class="wm-label">ต้นทุน/ยอดกู้</label><input type="number" name="buyPrice" step="0.01" class="wm-input" required></div>
-                        <div><label class="wm-label">มูลค่าปัจจุบัน</label><input type="number" name="curValue" step="0.01" class="wm-input" required></div>
+                        <div><label class="wm-label">ราคาต้นทุน (ทุนรวม)</label><input type="number" name="buyPrice" step="0.01" class="wm-input" required></div>
+                        <div><label class="wm-label">มูลค่าปัจจุบัน (ถ้ามี)</label><input type="number" name="curValue" step="0.01" class="wm-input"></div>
                     </div>
-                    <div class="grid grid-cols-3 gap-2">
-                        <div><label class="wm-label">Theme</label><input type="text" name="theme" class="wm-input" placeholder="-"></div>
-                        <div><label class="wm-label">ดอกเบี้ย(%)</label><input type="number" name="interest" step="0.01" class="wm-input" placeholder="-"></div>
-                        <div><label class="wm-label">กำหนดคืน</label><input type="text" name="due" class="wm-input" placeholder="-"></div>
-                    </div>
-                    <div><label class="wm-label">Note</label><input type="text" name="note" class="wm-input"></div>
+                    <div><label class="wm-label">Note / Theme (เช่น Dividend)</label><input type="text" name="note" class="wm-input"></div>
                     <div class="grid grid-cols-2 gap-3 mt-4">
-                        <button type="button" onclick="addToQueue('form_asset', 'Tab_Assets_Receivables')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700 transition-colors"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้ก่อน</button>
-                        <button type="submit" class="py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg shadow-lg shadow-purple-900/50 transition-colors">ลงทะเบียน</button>
+                        <button type="button" onclick="addToQueue('form_asset', 'Tab_Assets_Receivables')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้</button>
+                        <button type="submit" class="py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg shadow-lg">บันทึกทันที</button>
                     </div>
                 </div>
             </form>
         </div>
 
         <!-- ============================================== -->
-        <!-- TAB 5: DEBT -->
+        <!-- TAB 5: DEBTS -->
         <!-- ============================================== -->
         <div id="tab_debt" class="tab-content">
-            <h2 class="text-xl font-bold mb-4 text-orange-400"><i class="fa-solid fa-credit-card mr-2"></i>ตั้งทะเบียนหนี้สิน</h2>
+            <h2 class="text-xl font-bold mb-4 text-amber-400"><i class="fa-solid fa-credit-card mr-2"></i>ขึ้นทะเบียนหนี้สิน</h2>
             <form id="form_debt" onsubmit="submitForm(event, 'Tab_Debts')">
                 <div class="space-y-4">
-                    <div><label class="wm-label">ชื่อเจ้าหนี้</label><input type="text" name="creditor" list="list-debts" class="wm-input" required placeholder="เช่น บัตร KTC, ธอส."></div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div><label class="wm-label">ประเภทหนี้</label><input type="text" name="type" class="wm-input" required placeholder="เช่น Credit Card"></div>
-                        <div><label class="wm-label">ดอกเบี้ย (%)</label><input type="number" name="rate" step="0.01" class="wm-input" required></div>
-                    </div>
-                    <div><label class="wm-label">ยอดหนี้เงินต้นตั้งต้น</label><input type="number" name="principal" step="0.01" class="wm-input text-orange-400 font-bold" required></div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div><label class="wm-label">วันที่เริ่มเป็นหนี้</label><input type="date" name="start" class="wm-input" required></div>
-                        <div><label class="wm-label">วันตัดรอบบิล</label><input type="text" name="statement" class="wm-input" required placeholder="เช่น ทุกวันที่ 5"></div>
-                    </div>
-                    <div><label class="wm-label">ยอดผ่อนขั้นต่ำ/เดือน</label><input type="number" name="minPay" step="0.01" class="wm-input" required></div>
-                    <div><label class="wm-label">Note</label><input type="text" name="note" class="wm-input"></div>
-                    <div class="grid grid-cols-2 gap-3 mt-4">
-                        <button type="button" onclick="addToQueue('form_debt', 'Tab_Debts')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700 transition-colors"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้ก่อน</button>
-                        <button type="submit" class="py-3 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-lg shadow-lg shadow-orange-900/50 transition-colors">ตั้งหนี้สิน</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <!-- ============================================== -->
-        <!-- TAB 6: SUB ACCOUNT (BUCKET) -->
-        <!-- ============================================== -->
-        <div id="tab_bucket" class="tab-content">
-            <h2 class="text-xl font-bold mb-4 text-cyan-400"><i class="fa-solid fa-wallet mr-2"></i>สร้างกระเป๋าเงิน (Bucket)</h2>
-            <form id="form_bucket" onsubmit="submitForm(event, 'Tab_Sub_Accounts')">
-                <div class="space-y-4">
-                    <div><label class="wm-label">ชื่อกระเป๋า</label><input type="text" name="name" class="wm-input" required placeholder="เช่น กองทุนฉุกเฉิน, กระเป๋าใช้จ่าย"></div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="wm-label">ประเภท</label>
-                            <select name="type" class="wm-input" required>
-                                <option value="Expense Wallet">Expense (ใช้จ่าย)</option>
-                                <option value="Emergency Fund">Emergency (ฉุกเฉิน)</option>
-                                <option value="Sinking Fund">Sinking Fund (เป้าหมาย)</option>
-                                <option value="Investment">Investment (ลงทุน)</option>
-                            </select>
-                        </div>
-                        <div><label class="wm-label">สีประจำกระเป๋า (Hex)</label><input type="color" name="color" class="w-full h-[46px] rounded bg-slate-900 border border-slate-700 cursor-pointer" value="#22c55e"></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div><label class="wm-label">ยอดยกมาตั้งต้น</label><input type="number" name="balance" step="0.01" class="wm-input" required value="0"></div>
-                        <div><label class="wm-label">เป้าหมายที่อยากเก็บ</label><input type="number" name="target" step="0.01" class="wm-input" value="0"></div>
-                    </div>
-                    <div><label class="wm-label">Note</label><input type="text" name="note" class="wm-input"></div>
-                    <div class="grid grid-cols-2 gap-3 mt-4">
-                        <button type="button" onclick="addToQueue('form_bucket', 'Tab_Sub_Accounts')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700 transition-colors"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้ก่อน</button>
-                        <button type="submit" class="py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg shadow-lg shadow-cyan-900/50 transition-colors">สร้างกระเป๋า</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <!-- ============================================== -->
-        <!-- TAB 7: RECV UPDATE -->
-        <!-- ============================================== -->
-        <div id="tab_update" class="tab-content">
-            <h2 class="text-xl font-bold mb-4 text-yellow-400"><i class="fa-solid fa-money-bill-transfer mr-2"></i>รับเงินคืนจากลูกหนี้</h2>
-            <form id="form_update" onsubmit="submitForm(event, 'Tab_Recv_Update')">
-                <div class="space-y-4">
-                    <div><label class="wm-label">วันที่</label><input type="date" name="date" class="wm-input" required></div>
-                    <div><label class="wm-label">อ้างอิงชื่อลูกหนี้ (พิมพ์ค้นหา)</label><input type="text" name="recv" list="list-assets" class="wm-input" required placeholder="เช่น สมชาย ใจดี"></div>
-                    <div><label class="wm-label">ยอดที่คืน (฿)</label><input type="number" name="pay" step="0.01" class="wm-input text-yellow-400 font-bold" required></div>
+                    <div><label class="wm-label">ชื่อเจ้าหนี้</label><input type="text" name="creditor" class="wm-input" required placeholder="เช่น บัตร KTC, บ้าน ธอส."></div>
                     <div>
-                        <label class="wm-label">สถานะล่าสุด</label>
-                        <select name="status" class="wm-input" required>
-                            <option value="Partial (คืนบางส่วน)">Partial (คืนบางส่วน)</option>
-                            <option value="Fully Paid (ปิดบัญชี)" class="text-green-400">Fully Paid (ได้คืนครบ จบหนี้)</option>
-                            <option value="Bad Debt / Write-off (หนี้สูญ)" class="text-red-400">Bad Debt (หนีหาย ตัดหนี้สูญ)</option>
+                        <label class="wm-label">ประเภทหนี้</label>
+                        <select name="type" class="wm-input" required>
+                            <option value="Credit Card">บัตรเครดิต</option>
+                            <option value="Personal Loan">สินเชื่อบุคคล / บัตรกดเงินสด</option>
+                            <option value="Mortgage">สินเชื่อบ้าน</option>
+                            <option value="Auto Loan">สินเชื่อรถยนต์</option>
+                            <option value="Installment">ผ่อนสินค้า</option>
                         </select>
                     </div>
-                    <div><label class="wm-label">Note</label><input type="text" name="note" class="wm-input" placeholder="โอนเข้าบัญชีไหน?"></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="wm-label">ยอดหนี้คงเหลือ</label><input type="number" name="principal" step="0.01" class="wm-input" required></div>
+                        <div><label class="wm-label">ดอกเบี้ยต่อปี (%)</label><input type="number" name="rate" step="0.01" class="wm-input text-amber-400" required></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="wm-label">วันตัดรอบบิล</label><input type="text" name="statement" class="wm-input" placeholder="เช่น ทุกวันที่ 5"></div>
+                        <div><label class="wm-label">ขั้นต่ำที่ต้องจ่าย</label><input type="number" name="minPay" step="0.01" class="wm-input" required></div>
+                    </div>
+                    <div><label class="wm-label">Note</label><input type="text" name="note" class="wm-input"></div>
                     <div class="grid grid-cols-2 gap-3 mt-4">
-                        <button type="button" onclick="addToQueue('form_update', 'Tab_Recv_Update')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700 transition-colors"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้ก่อน</button>
-                        <button type="submit" class="py-3 bg-yellow-600 hover:bg-yellow-500 text-white font-bold rounded-lg shadow-lg shadow-yellow-900/50 transition-colors">บันทึกรับเงินคืน</button>
+                        <button type="button" onclick="addToQueue('form_debt', 'Tab_Debts')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้</button>
+                        <button type="submit" class="py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-lg shadow-lg">บันทึกทันที</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- TAB 6: BUCKETS (SUB-ACCOUNTS) -->
+        <!-- ============================================== -->
+        <div id="tab_bucket" class="tab-content">
+            <h2 class="text-xl font-bold mb-4 text-cyan-400"><i class="fa-solid fa-wallet mr-2"></i>สร้างกระเป๋าเงิน (Virtual Envelopes)</h2>
+            <form id="form_bucket" onsubmit="submitForm(event, 'Tab_Sub_Accounts')">
+                <div class="space-y-4">
+                    <div><label class="wm-label">ชื่อกระเป๋า</label><input type="text" name="name" class="wm-input" required placeholder="เช่น กินใช้ส่วนตัว, เที่ยวญี่ปุ่น"></div>
+                    <div>
+                        <label class="wm-label">ประเภทกระเป๋า</label>
+                        <select name="type" class="wm-input" required>
+                            <option value="Expense Wallet">ใช้จ่ายทั่วไป (Expense)</option>
+                            <option value="Sinking Fund">เก็บรอจ่าย (Sinking Fund)</option>
+                            <option value="Emergency Fund">ฉุกเฉิน (Emergency)</option>
+                            <option value="Investment">รอลงทุน (Investment)</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="wm-label">ยอดยกมา (ทิ้งว่างได้)</label><input type="number" name="balance" step="0.01" class="wm-input"></div>
+                        <div><label class="wm-label">เป้าหมาย (Target)</label><input type="number" name="target" step="0.01" class="wm-input text-cyan-400" required></div>
+                    </div>
+                    <!-- หมายเหตุ: input type color บนมือถือจะใช้ UI พื้นฐานของเครื่องนั้นๆ -->
+                    <div><label class="wm-label">สีประจำกระเป๋า (HEX)</label><input type="color" name="color" value="#0ea5e9" class="w-full h-12 bg-slate-900 border border-slate-700 rounded cursor-pointer"></div>
+                    <div><label class="wm-label">Note</label><input type="text" name="note" class="wm-input" placeholder="กติกาการใช้กระเป๋านี้"></div>
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <button type="button" onclick="addToQueue('form_bucket', 'Tab_Sub_Accounts')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้</button>
+                        <button type="submit" class="py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg shadow-lg">สร้างกระเป๋า</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- TAB 7: RECEIVABLE UPDATE -->
+        <!-- ============================================== -->
+        <div id="tab_recv" class="tab-content">
+            <h2 class="text-xl font-bold mb-4 text-yellow-400"><i class="fa-solid fa-hand-holding-dollar mr-2"></i>อัปเดตสถานะรับเงินคืนลูกหนี้</h2>
+            <form id="form_recv" onsubmit="submitForm(event, 'Tab_Recv_Update')">
+                <div class="space-y-4">
+                    <div><label class="wm-label">วันที่รับชำระ</label><input type="date" name="date" class="wm-input" required></div>
+                    <div><label class="wm-label">อ้างอิงชื่อลูกหนี้</label><input type="text" name="recv" list="list-assets" class="wm-input" required></div>
+                    <div><label class="wm-label">ยอดเงินที่ได้คืน (฿)</label><input type="number" name="pay" step="0.01" class="wm-input text-yellow-400 font-bold" required></div>
+                    <div>
+                        <label class="wm-label">สถานะหนี้ก้อนนี้</label>
+                        <select name="status" class="wm-input" required>
+                            <option value="Partial (คืนบางส่วน)">ทยอยคืน (Partial)</option>
+                            <option value="Fully Paid (ปิดบัญชี)">คืนครบแล้ว (Fully Paid)</option>
+                            <option value="Bad Debt / Write-off">หนี้สูญ / ตัดจบ (Write-off)</option>
+                        </select>
+                    </div>
+                    <div><label class="wm-label">Note</label><input type="text" name="note" class="wm-input" placeholder="โอนเข้ากระเป๋าไหน?"></div>
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <button type="button" onclick="addToQueue('form_recv', 'Tab_Recv_Update')" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg shadow-lg border border-slate-700"><i class="fa-solid fa-plus text-blue-400 mr-1"></i> ลงคิวไว้</button>
+                        <button type="submit" class="py-3 bg-yellow-600 hover:bg-yellow-500 text-white font-bold rounded-lg shadow-lg">บันทึกอัปเดต</button>
                     </div>
                 </div>
             </form>
@@ -338,41 +320,70 @@
 
     </main>
 
-    <!-- ================= FLOATING QUEUE BAR ================= -->
-    <div id="queue-fab" class="hidden fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-blue-600/90 backdrop-blur-md text-white px-5 py-3 rounded-full shadow-[0_10px_25px_rgba(37,99,235,0.5)] flex items-center gap-4 z-50 border border-blue-400">
-        <div class="font-bold text-sm whitespace-nowrap">
-            <i class="fa-solid fa-layer-group mr-1"></i> ตะกร้า: <span id="queue-count" class="bg-white text-blue-600 px-2.5 py-0.5 rounded-full text-xs ml-1">0</span>
+    <!-- 🛒 FLOATING CART UI (ตะกร้าลอยตัว) -->
+    <div id="sync-queue-container" class="hidden fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl z-[100] flex flex-col max-h-[60vh] transition-all duration-300 transform translate-y-0">
+        <div class="p-4 bg-slate-800 flex justify-between items-center cursor-pointer rounded-t-2xl" onclick="toggleQueueList()">
+            <span class="font-bold text-white"><i class="fa-solid fa-basket-shopping text-blue-400 mr-2"></i>ตะกร้ารอส่ง: <span id="queue-count" class="bg-blue-600 px-2 py-0.5 rounded-full text-xs ml-1">0</span></span>
+            <i class="fa-solid fa-chevron-up text-slate-400 transition-transform" id="queue-toggle-icon"></i>
         </div>
-        <button onclick="submitQueue()" id="btn-submit-queue" class="bg-blue-800 hover:bg-blue-900 px-4 py-2 rounded-full text-xs font-bold transition-colors shadow-inner whitespace-nowrap">
-            <i class="fa-solid fa-paper-plane mr-1"></i> ส่งทีเดียว
-        </button>
+        
+        <!-- รายการในตะกร้า (ซ่อนไว้ก่อน กดแล้วขยาย) -->
+        <div id="queue-list-panel" class="hidden flex-1 overflow-y-auto bg-slate-900 p-4 border-t border-slate-700 space-y-2 hide-scrollbar">
+            <!-- JS จะสร้างรายการตรงนี้ -->
+        </div>
+
+        <div class="p-4 bg-slate-900 border-t border-slate-800 rounded-b-2xl">
+            <button onclick="syncAllQueue()" id="btn-sync-all" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg transition-colors flex justify-center items-center">
+                <i class="fa-solid fa-cloud-arrow-up mr-2"></i> ส่งข้อมูลทั้งหมด
+            </button>
+        </div>
     </div>
 
-    <!-- JS Logic -->
+    <!-- JS LOGIC -->
     <script>
-        // ------------------------------------------------------------------
-        // ⚠️ โฟกัสจุดนี้: ใส่ Web App URL ให้ถูกต้อง
-        // ------------------------------------------------------------------
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyEyXfYLmOI8i0o-jRB-ikO_MB0bc7Ft3mHo2Zdh3bvg9dqgxDig61lH60QFi70m1qCSw/exec"; 
-        
-        const BUFFER_KEY = 'wm_offline_buffer';
-        let batchQueue = []; 
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const today = new Date().toISOString().split('T')[0];
-            document.querySelectorAll('input[type="date"]').forEach(el => el.value = today);
-            updateOfflineBadge();
-            
-            // เรียกฟังก์ชันดึงข้อมูล Autocomplete ทันทีที่เปิดแอป
-            fetchAutocompleteData();
-        });
+        // ⚠️ ใส่ URL ของคุณตรงนี้
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyEyXfYLmOI8i0o-jRB-ikO_MB0bc7Ft3mHo2Zdh3bvg9dqgxDig61lH60QFi70m1qCSw/exec";
 
         // ==========================================
-        // FETCH AUTOCOMPLETE DATA FROM GAS (ใหม่ล่าสุด!)
+        // UI & TABS MANAGEMENT
         // ==========================================
-          async function fetchAutocompleteData() {
+        function openTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('active', 'bg-emerald-500/20', 'text-emerald-400', 'border-emerald-500/50');
+                el.classList.add('bg-slate-800', 'text-slate-400');
+            });
+            document.getElementById(tabId).classList.add('active');
+            const activeBtn = event.currentTarget || document.querySelector(`[onclick="openTab('${tabId}')"]`);
+            activeBtn.classList.remove('bg-slate-800', 'text-slate-400');
+            activeBtn.classList.add('active', 'bg-emerald-500/20', 'text-emerald-400', 'border-emerald-500/50');
+        }
+
+        document.querySelectorAll('input[type="date"]').forEach(el => el.valueAsDate = new Date());
+
+        function calcTotal() {
+            const qty = parseFloat(document.getElementById('j_qty').value) || 0;
+            const price = parseFloat(document.getElementById('j_price').value) || 0;
+            const fee = parseFloat(document.getElementById('j_fee').value) || 0;
+            document.getElementById('j_total').value = ((qty * price) + fee).toFixed(2);
+        }
+
+        function fillForm(formId, data) {
+            const form = document.getElementById(formId);
+            Object.keys(data).forEach(key => {
+                const input = form.elements[key];
+                if (input) input.value = data[key];
+            });
+            // กระพริบขอบเพื่อให้รู้ว่าฟิลด์ถูกเติม
+            form.classList.add('border', 'border-blue-500', 'rounded-xl', 'p-2');
+            setTimeout(() => form.classList.remove('border', 'border-blue-500', 'rounded-xl', 'p-2'), 500);
+        }
+
+        // ==========================================
+        // FETCH AUTOCOMPLETE DATA (แก้มารวม Asset กับ Bucket แล้ว)
+        // ==========================================
+        async function fetchAutocompleteData() {
             if (GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE" || !GAS_WEB_APP_URL.startsWith("http")) return;
-
             const syncDot = document.getElementById('data-sync-dot');
             if(syncDot) syncDot.classList.remove('hidden');
 
@@ -382,164 +393,140 @@
 
                 if (result.status === "success" && result.data) {
                     const data = result.data;
-
-                    // 1. เติมข้อมูลลง Datalist กระเป๋าเงิน
-                    if(data.subAccounts && data.subAccounts.length > 0) {
-                        document.getElementById('list-sub-accounts').innerHTML = 
-                            data.subAccounts.map(item => `<option value="${item}"></option>`).join('');
+                    if(data.subAccounts) {
+                        document.getElementById('list-sub-accounts').innerHTML = data.subAccounts.map(item => `<option value="${item}"></option>`).join('');
                     }
-
-                    // 2. เติมข้อมูลลง Datalist หมวดหมู่
-                    if(data.categories && data.categories.length > 0) {
-                        document.getElementById('list-categories').innerHTML = 
-                            data.categories.map(item => `<option value="${item}"></option>`).join('');
+                    if(data.categories) {
+                        document.getElementById('list-categories').innerHTML = data.categories.map(item => `<option value="${item}"></option>`).join('');
                     }
-
-                    // 3. 🌟 [ส่วนที่แก้ไขใหม่] รวมชื่อ "ทรัพย์สิน" และ "กระเป๋าเงิน" เข้าด้วยกัน
+                    
+                    // 🌟 รวมชื่อ ทรัพย์สิน และ กระเป๋าเงิน เข้าด้วยกันให้ Journal เลือกได้
                     let combinedList = [];
                     if (data.assets) combinedList = combinedList.concat(data.assets);
-                    if (data.subAccounts) combinedList = combinedList.concat(data.subAccounts); // เอากระเป๋าเงินมารวมด้วย!
+                    if (data.subAccounts) combinedList = combinedList.concat(data.subAccounts);
 
                     if(combinedList.length > 0) {
-                        // ส่งรายชื่อที่รวมแล้วไปให้ list-assets (ที่ Tab Journal ใช้)
-                        document.getElementById('list-assets').innerHTML = 
-                            combinedList.map(item => `<option value="${item}"></option>`).join('');
-                        
-                        document.getElementById('list-debts').innerHTML = 
-                            combinedList.map(item => `<option value="${item}"></option>`).join('');
+                        document.getElementById('list-assets').innerHTML = combinedList.map(item => `<option value="${item}"></option>`).join('');
+                        document.getElementById('list-debts').innerHTML = combinedList.map(item => `<option value="${item}"></option>`).join(''); // ใช้ตัวเดียวกันได้
                     }
-                    console.log("🔥 Autocomplete loaded successfully!");
                 }
             } catch (error) {
-                console.error("Failed to fetch autocomplete data. Using fallback lists.", error);
+                console.error("Autocomplete fetch failed.", error);
             } finally {
                 if(syncDot) syncDot.classList.add('hidden');
             }
         }
-       
-        // ==========================================
-        // UI & NAVIGATION LOGIC
-        // ==========================================
-        function switchTab(tabId, btnElement) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-
-            document.querySelectorAll('#tab-menu button').forEach(btn => {
-                btn.className = "shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-slate-800 text-slate-400 border border-slate-700";
-            });
-
-            const colors = {
-                'tab_expense': 'bg-red-500/20 text-red-400 border border-red-500/50',
-                'tab_income': 'bg-green-500/20 text-green-400 border border-green-500/50',
-                'tab_journal': 'bg-blue-500/20 text-blue-400 border border-blue-500/50',
-                'tab_asset': 'bg-purple-500/20 text-purple-400 border border-purple-500/50',
-                'tab_debt': 'bg-orange-500/20 text-orange-400 border border-orange-500/50',
-                'tab_bucket': 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/50',
-                'tab_update': 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/50'
-            };
-            btnElement.className = `shrink-0 px-4 py-2 rounded-full text-sm font-medium ${colors[tabId]}`;
-        }
-
-        function quickFill(formPrefix, field1, field2, field3) {
-            const form = document.getElementById(`form_${formPrefix}`);
-            if(formPrefix === 'expense') {
-                form.elements['vivian'].value = field1;
-                form.elements['category'].value = field2;
-                form.elements['target'].value = field3;
-                form.elements['amount'].focus();
-            } else if (formPrefix === 'income') {
-                form.elements['esbi'].value = field1;
-                form.elements['category'].value = field2;
-                form.elements['account'].value = field3;
-                form.elements['amount'].focus();
-            }
-        }
-
-        function calcTotal() {
-            const qty = parseFloat(document.getElementById('j_qty').value) || 0;
-            const price = parseFloat(document.getElementById('j_price').value) || 0;
-            const fee = parseFloat(document.getElementById('j_fee').value) || 0;
-            document.getElementById('j_total').value = ((qty * price) + fee).toFixed(2);
-        }
+        fetchAutocompleteData();
 
         // ==========================================
-        // DATA PROCESSING HELPER
+        // 🛒 QUEUE / CART SYSTEM (อัปเกรดใหม่)
         // ==========================================
-        function parseFormData(form, targetSheet) {
-            const formData = new FormData(form);
-            const payload = Object.fromEntries(formData.entries());
-
-            const numberFields = ['amount', 'qty', 'price', 'fee', 'total', 'buyPrice', 'curValue', 'interest', 'principal', 'rate', 'minPay', 'balance', 'target', 'pay'];
-            numberFields.forEach(field => {
-                if (payload[field] !== undefined && payload[field] !== "") {
-                    payload[field] = parseFloat(payload[field]);
-                }
-            });
-
-            if (targetSheet === 'Tab_Income' && payload.category.toLowerCase().includes('คืน')) {
-                Swal.fire({ icon: 'error', title: 'แจ้งเตือน!', text: 'เงินที่รับคืน ไม่ใช่รายรับ กรุณาใช้แท็บ "รับเงินคืน" แทนครับ', background: '#1e293b', color: '#f8fafc' });
-                return null;
-            }
-            return payload;
-        }
-
-        // ==========================================
-        // BATCH QUEUE LOGIC
-        // ==========================================
-        function addToQueue(formId, targetSheet) {
-            const form = document.getElementById(formId);
-            if(!form.checkValidity()) { form.reportValidity(); return; }
-
-            const payload = parseFormData(form, targetSheet);
-            if(!payload) return; 
-
-            batchQueue.push({ targetSheet: targetSheet, payload: payload });
-            form.reset();
-            form.querySelector('input[type="date"]').value = new Date().toISOString().split('T')[0];
-            updateQueueUI();
-            
-            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `เก็บลงคิวแล้ว (${batchQueue.length} รายการ)`, showConfirmButton: false, timer: 1500, background: '#1e293b', color: '#fff' });
-        }
+        let syncQueue = JSON.parse(localStorage.getItem('wm_queue') || '[]');
 
         function updateQueueUI() {
-            const fab = document.getElementById('queue-fab');
-            if(batchQueue.length > 0) {
-                fab.classList.remove('hidden');
-                document.getElementById('queue-count').innerText = batchQueue.length;
+            const container = document.getElementById('sync-queue-container');
+            const countBadge = document.getElementById('queue-count');
+            const headerCount = document.getElementById('header-queue-count');
+            const panel = document.getElementById('queue-list-panel');
+            
+            if (syncQueue.length > 0) {
+                container.classList.remove('hidden');
+                countBadge.innerText = syncQueue.length;
+                headerCount.innerText = syncQueue.length;
+                
+                panel.innerHTML = syncQueue.map((item, index) => {
+                    // ดึงตัวเลขมาโชว์ให้สวยๆ
+                    const amountVal = item.payload.amount || item.payload.total || item.payload.qty || item.payload.balance || item.payload.pay || '0';
+                    const nameVal = item.payload.category || item.payload.event || item.payload.name || item.payload.creditor || item.payload.recv || 'รายการ';
+                    
+                    return `
+                    <div class="flex justify-between items-center bg-slate-800 p-3 rounded-lg border border-slate-700">
+                        <div class="flex flex-col overflow-hidden">
+                            <span class="text-xs text-blue-400 font-bold truncate">${item.targetSheet.replace('Tab_', '')}</span>
+                            <span class="text-sm text-white truncate">฿${amountVal} <span class="text-slate-400 text-xs ml-1">${nameVal}</span></span>
+                        </div>
+                        <button type="button" onclick="removeFromQueue(${index})" class="text-red-400 hover:text-red-300 p-2 ml-2 flex-shrink-0 bg-red-500/10 rounded-md"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                `}).join('');
             } else {
-                fab.classList.add('hidden');
+                container.classList.add('hidden');
+                panel.classList.add('hidden'); 
+                headerCount.innerText = '0';
             }
         }
 
-        async function submitQueue() {
-            if (GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE" || !GAS_WEB_APP_URL.startsWith("http")) {
-                Swal.fire({ icon: 'error', title: 'ยังไม่ได้เชื่อมต่อ!', text: 'กรุณาใส่ Web App URL ในโค้ดก่อนครับ', background: '#1e293b', color: '#f8fafc' });
+        function toggleQueueList() {
+            const panel = document.getElementById('queue-list-panel');
+            const icon = document.getElementById('queue-toggle-icon');
+            // เปิดตะกร้าถ้ามีของ
+            if(syncQueue.length > 0) {
+                panel.classList.toggle('hidden');
+                if(panel.classList.contains('hidden')){
+                    icon.style.transform = 'rotate(0deg)';
+                } else {
+                    icon.style.transform = 'rotate(180deg)';
+                }
+            }
+        }
+
+        function removeFromQueue(index) {
+            syncQueue.splice(index, 1);
+            localStorage.setItem('wm_queue', JSON.stringify(syncQueue));
+            updateQueueUI();
+        }
+
+        function addToQueue(formId, targetSheet) {
+            const form = document.getElementById(formId);
+            if (!form.checkValidity()) {
+                form.reportValidity();
                 return;
             }
 
+            const formData = new FormData(form);
+            const payload = Object.fromEntries(formData.entries());
+            
+            syncQueue.push({ targetSheet, payload });
+            localStorage.setItem('wm_queue', JSON.stringify(syncQueue));
+            updateQueueUI();
+
+            // Effect ปุ่มสีเขียว
+            const btn = event.target.closest('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check text-green-400"></i> ลงคิวแล้ว';
+            btn.classList.replace('bg-slate-800', 'bg-emerald-900/50');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.replace('bg-emerald-900/50', 'bg-slate-800');
+                form.reset();
+                if(formId === 'form_expense' || formId === 'form_income') document.getElementById('e_date').valueAsDate = new Date();
+                if(formId === 'form_journal') document.getElementById('j_qty').value = 1;
+            }, 1000);
+        }
+
+        async function syncAllQueue() {
+            if (syncQueue.length === 0) return;
             if (!navigator.onLine) {
-                batchQueue.forEach(item => saveToBuffer(item));
-                batchQueue = [];
-                updateQueueUI();
-                Swal.fire({ icon: 'warning', title: 'ออฟไลน์', text: 'ย้ายรายการในคิวไปเก็บในเครื่องแล้ว (รอซิงค์ตอนมีเน็ต)', background: '#1e293b', color: '#fff' });
+                Swal.fire({ icon: 'error', title: 'ออฟไลน์', text: 'รอเชื่อมต่อเน็ตก่อนนะครับ', background: '#1e293b', color: '#fff' });
                 return;
             }
 
-            const btn = document.getElementById('btn-submit-queue');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ส่งข้อมูล...';
+            const btn = document.getElementById('btn-sync-all');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> กำลังส่งข้อมูล...';
             btn.disabled = true;
 
+            // จัดกลุ่มข้อมูลตาม Sheet ให้ Tier 2 อ่านง่ายๆ
             const groupedData = {};
-            batchQueue.forEach(item => {
+            syncQueue.forEach(item => {
                 if(!groupedData[item.targetSheet]) groupedData[item.targetSheet] = [];
                 groupedData[item.targetSheet].push(item.payload);
             });
 
             let successCount = 0;
-            let hasError = false;
-
-            for (const [sheet, payloadsArray] of Object.entries(groupedData)) {
-                try {
+            try {
+                // ส่งแยกทีละ Sheet (ตามการทำงานของ doPost เดิม)
+                for (const [sheet, payloadsArray] of Object.entries(groupedData)) {
                     const batchRequest = { targetSheet: sheet, payload: payloadsArray };
                     await fetch(GAS_WEB_APP_URL, {
                         method: 'POST', mode: 'no-cors',
@@ -547,150 +534,91 @@
                         body: JSON.stringify(batchRequest)
                     });
                     successCount += payloadsArray.length;
-                } catch (err) { console.error("Queue submit error", err); hasError = true; }
-            }
+                }
 
-            btn.innerHTML = '<i class="fa-solid fa-paper-plane mr-1"></i> ส่งทีเดียว';
-            btn.disabled = false;
-
-            if(!hasError) {
-                batchQueue = []; 
+                syncQueue = [];
+                localStorage.removeItem('wm_queue');
                 updateQueueUI();
-                Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', text: `ส่งข้อมูลแบบเหมาเข่ง ${successCount} รายการเรียบร้อย`, background: '#1e293b', color: '#fff' });
+                fetchAutocompleteData(); // อัปเดตรายชื่อใหม่เผื่อมีการสร้างใหม่
                 
-                // โหลด Autocomplete ใหม่อีกรอบ เผื่อมีชื่อใหม่เพิ่งถูกส่งไป
-                fetchAutocompleteData();
-            } else {
-                Swal.fire({ icon: 'error', title: 'มีข้อผิดพลาด', text: 'การเชื่อมต่อขัดข้อง กรุณาลองใหม่', background: '#1e293b', color: '#fff' });
+                btn.innerHTML = '<i class="fa-solid fa-check text-green-400 mr-2"></i> ส่งสำเร็จ!';
+                Swal.fire({ icon: 'success', title: 'ส่งข้อมูลเรียบร้อย!', text: `เคลียร์ตะกร้า ${successCount} รายการแล้ว`, background: '#1e293b', color: '#fff' });
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    document.getElementById('queue-list-panel').classList.add('hidden');
+                    document.getElementById('queue-toggle-icon').style.transform = 'rotate(0deg)';
+                }, 2000);
+
+            } catch (error) {
+                console.error(error);
+                btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-red-400 mr-2"></i> ส่งล้มเหลว';
+                Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'ไม่สามารถส่งข้อมูลได้ กรุณาลองใหม่', background: '#1e293b', color: '#fff' });
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }, 2000);
             }
         }
 
         // ==========================================
-        // SUBMIT SINGLE ITEM LOGIC
+        // SINGLE SUBMIT (ส่งทีละรายการแบบเดิม)
         // ==========================================
         async function submitForm(e, targetSheet) {
-            e.preventDefault(); 
-            const form = e.target;
-            const payload = parseFormData(form, targetSheet);
-            if(!payload) return;
-
-            const submitBtn = form.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerText;
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
-            submitBtn.disabled = true;
-
-            if (GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE" || !GAS_WEB_APP_URL.startsWith("http")) {
-                Swal.fire({ icon: 'error', title: 'ยังไม่ได้เชื่อมต่อระบบหลังบ้าน!', text: 'กรุณานำ Web App URL มาวาง', background: '#1e293b', color: '#f8fafc' });
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
+            e.preventDefault();
+            if (!navigator.onLine) {
+                addToQueue(e.target.id, targetSheet); // ถ้าออฟไลน์ให้เข้าตะกร้าอัตโนมัติ
+                Swal.fire({ icon: 'info', title: 'ออฟไลน์', text: 'นำลงตะกร้าให้แล้ว ส่งตอนเน็ตมานะ', background: '#1e293b', color: '#fff', timer: 2000 });
                 return;
             }
 
+            const form = e.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> กำลังบันทึก...';
+            submitBtn.disabled = true;
+
+            const formData = new FormData(form);
+            const payload = Object.fromEntries(formData.entries());
             const requestData = { targetSheet: targetSheet, payload: payload };
 
             try {
-                if (!navigator.onLine) throw new Error('Offline Mode');
-
                 await fetch(GAS_WEB_APP_URL, {
                     method: 'POST', mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(requestData)
                 });
-
-                showSuccess(form, originalText, targetSheet);
                 
-                // โหลด Autocomplete ใหม่อีกรอบ
-                setTimeout(fetchAutocompleteData, 2000); 
+                Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', background: '#1e293b', color: '#fff', timer: 1500, showConfirmButton: false });
+                form.reset();
+                if(form.id === 'form_expense' || form.id === 'form_income') document.getElementById('e_date').valueAsDate = new Date();
+                if(form.id === 'form_journal') document.getElementById('j_qty').value = 1;
+                fetchAutocompleteData(); // อัปเดต Dropdown ใหม่ เผื่อมีการสร้างทรัพย์สิน/กระเป๋าใหม่
 
             } catch (error) {
-                saveToBuffer(requestData);
+                Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: 'กรุณาลองใหม่อีกครั้ง', background: '#1e293b', color: '#fff' });
+            } finally {
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
-                Swal.fire({ icon: 'warning', title: 'บันทึกออฟไลน์', text: 'เครื่องไม่ได้ต่อเน็ต ข้อมูลถูกเก็บลงเครื่องแล้ว (อย่าลืมกดซิงค์)', background: '#1e293b', color: '#f8fafc' });
             }
         }
 
-        function showSuccess(form, originalText, sheetName) {
-            const btn = form.querySelector('button[type="submit"]');
-            btn.innerHTML = '<i class="fa-solid fa-check"></i> เรียบร้อย!';
-            btn.classList.replace('bg-red-600', 'bg-green-600'); 
-            btn.classList.replace('bg-blue-600', 'bg-green-600'); 
-            
-            setTimeout(() => {
-                form.reset();
-                form.querySelector('input[type="date"]').value = new Date().toISOString().split('T')[0];
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }, 1500);
-
-            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `บันทึกลง ${sheetName} สำเร็จ`, showConfirmButton: false, timer: 2000, background: '#1e293b', color: '#fff' });
-        }
-
-        // ==========================================
-        // OFFLINE BUFFER LOGIC
-        // ==========================================
-        function saveToBuffer(requestData) {
-            let buffer = JSON.parse(localStorage.getItem(BUFFER_KEY) || '[]');
-            buffer.push(requestData);
-            localStorage.setItem(BUFFER_KEY, JSON.stringify(buffer));
-            updateOfflineBadge();
-        }
-
+        // เช็คสถานะเน็ต
         function updateOfflineBadge() {
-            const buffer = JSON.parse(localStorage.getItem(BUFFER_KEY) || '[]');
             const badge = document.getElementById('offline-badge');
-            const syncBtn = document.getElementById('btn-sync');
-            
-            if (buffer.length > 0) {
-                badge.classList.remove('hidden');
-                syncBtn.classList.remove('hidden');
-                document.getElementById('sync-count').innerText = buffer.length;
-            } else {
-                badge.classList.add('hidden');
-                syncBtn.classList.add('hidden');
-            }
+            if (navigator.onLine) badge.classList.add('hidden');
+            else badge.classList.remove('hidden');
         }
+        window.addEventListener('online',  updateOfflineBadge);
+        window.addEventListener('offline', updateOfflineBadge);
 
-        async function syncBuffer() {
-            if (!navigator.onLine) { Swal.fire({ icon: 'error', title: 'ยังออฟไลน์อยู่', text: 'กรุณาเชื่อมต่ออินเทอร์เน็ต', background: '#1e293b', color: '#fff' }); return; }
-            if (GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE" || !GAS_WEB_APP_URL.startsWith("http")) { Swal.fire({ icon: 'error', title: 'การเชื่อมต่อผิดพลาด', text: 'กรุณาตั้งค่า GAS_WEB_APP_URL', background: '#1e293b', color: '#fff' }); return; }
-
-            let buffer = JSON.parse(localStorage.getItem(BUFFER_KEY) || '[]');
-            if (buffer.length === 0) return;
-
-            const syncBtn = document.getElementById('btn-sync');
-            syncBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ซิงค์...';
-
-            const groupedData = {};
-            buffer.forEach(item => {
-                if(!groupedData[item.targetSheet]) groupedData[item.targetSheet] = [];
-                groupedData[item.targetSheet].push(item.payload);
-            });
-
-            let successCount = 0;
-            for (const [sheet, payloadsArray] of Object.entries(groupedData)) {
-                try {
-                    const batchRequest = { targetSheet: sheet, payload: payloadsArray };
-                    await fetch(GAS_WEB_APP_URL, {
-                        method: 'POST', mode: 'no-cors',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(batchRequest)
-                    });
-                    successCount += payloadsArray.length;
-                } catch (err) { console.error("Sync error", err); }
-            }
-
-            localStorage.removeItem(BUFFER_KEY);
+        // ทำงานเมื่อโหลดหน้าเสร็จ
+        document.addEventListener('DOMContentLoaded', () => {
+            updateQueueUI();
             updateOfflineBadge();
-            syncBtn.innerHTML = '<i class="fa-solid fa-rotate mr-1"></i> ซิงค์ (0)';
-            
-            Swal.fire({ icon: 'success', title: 'ซิงค์ข้อมูลสำเร็จ!', text: `ส่งรายการค้าง ${successCount} รายการเรียบร้อย`, background: '#1e293b', color: '#fff' });
-            fetchAutocompleteData(); // อัปเดตรายชื่อใหม่หลังซิงค์
-        }
-
-        window.addEventListener('online',  () => { updateOfflineBadge(); fetchAutocompleteData(); });
-        window.addEventListener('offline', () => { updateOfflineBadge(); });
-
+        });
     </script>
 </body>
 </html>
