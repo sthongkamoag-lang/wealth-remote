@@ -41,7 +41,7 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        // ⚠️ วาง Web App URL ของคุณตรงนี้
+        // 🟢 Web App URL ของคุณ (Checkpoint 1)
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyEyXfYLmOI8i0o-jRB-ikO_MB0bc7Ft3mHo2Zdh3bvg9dqgxDig61lH60QFi70m1qCSw/exec"; 
 
         // --- CUSTOM SVG LINE CHART COMPONENT ---
@@ -154,10 +154,12 @@
           
           const activeIncome = data ? data.income.E + data.income.S : 0;
           const passiveIncome = data ? data.income.B + data.income.I : 0;
+          
+          // FFR (Financial Freedom Ratio) คิดจาก Passive Income / Total Expenses (หรือปรับเป็นแค่ Needs ในอนาคตได้)
           const ffrPercent = totalExpenses > 0 ? ((passiveIncome / totalExpenses) * 100).toFixed(1) : 0;
           
           // 🟢 WEALTH BUILDER MODE: คิด Vivian 50/30/20 จากฐาน Active Income เท่านั้น
-          const baseIncomeForBudget = activeIncome > 0 ? activeIncome : 1; // กันหารด้วย 0
+          const baseIncomeForBudget = activeIncome > 0 ? activeIncome : 1; 
           
           const needsTarget = baseIncomeForBudget * 0.5;
           const wantsTarget = baseIncomeForBudget * 0.3;
@@ -315,7 +317,6 @@
                     <Card className="lg:col-span-1">
                       <div className="flex justify-between items-center mb-6">
                         <h3 className="text-lg font-bold flex items-center gap-2"><i className="fa-solid fa-chart-pie text-purple-400" style={{fontSize: 18}}></i> Vivian Rule (50/30/20)</h3>
-                        {/* 🟢 อัปเดตข้อความให้ชี้เป้า Active Income */}
                         <span className="text-[10px] md:text-xs font-medium px-2 py-1 bg-slate-800 rounded text-slate-400 border border-slate-700">
                           งบประมาณตามรายรับ Active (฿{formatMoney(activeIncome)})
                         </span>
