@@ -110,9 +110,8 @@
             <div class="mb-5">
                 <span class="text-xs text-slate-400 font-bold uppercase">Quick Tap (ปุ่มลัด)</span>
                 <div class="flex flex-wrap gap-2 mt-2">
-                    <button onclick="quickFill('expense', '50-Needs', 'Food / Groceries', 'กระเป๋าเงินสด')" class="px-3 py-1.5 bg-slate-800 rounded border border-slate-700 text-sm hover:bg-slate-700"><i class="fa-solid fa-utensils text-orange-400 mr-1"></i> ข้าว/น้ำ</button>
-                    <button onclick="quickFill('expense', '50-Needs', 'Transport / Gas', 'บัญชีหลัก SCB')" class="px-3 py-1.5 bg-slate-800 rounded border border-slate-700 text-sm hover:bg-slate-700"><i class="fa-solid fa-car text-blue-400 mr-1"></i> เดินทาง/น้ำมัน</button>
-                    <button onclick="quickFill('expense', '30-Wants', 'Shopping', 'บัตรเครดิต KTC')" class="px-3 py-1.5 bg-slate-800 rounded border border-slate-700 text-sm hover:bg-slate-700"><i class="fa-solid fa-bag-shopping text-pink-400 mr-1"></i> รูดช้อปปิ้ง</button>
+                    <button type="button" onclick="fillForm('form_expense', {rule: '30-Wants', category: 'Cafe / Snacks', amount: 45, account: 'กินใช้ส่วนตัว', note: 'เต่าบิน'})" class="px-4 py-2 bg-slate-800 rounded-full text-sm font-medium hover:bg-slate-700 whitespace-nowrap">☕ เต่าบิน 45.-</button>   
+                    <button type="button" onclick="fillForm('form_expense', {rule: '30-Wants', category: 'Food / Groceries', amount: 35, account: 'กินใช้ส่วนตัว', note: 'ข้าวกล่อง'})" class="px-4 py-2 bg-slate-800 rounded-full text-sm font-medium hover:bg-slate-700 whitespace-nowrap"> ข้าวกล่อง 35.-</button>                
                 </div>
             </div>
 
@@ -695,8 +694,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
