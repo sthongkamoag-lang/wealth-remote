@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wealth Master - The Cashflow Manual (Sketch Edition)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Prompt', 'sans-serif'] },
+                    colors: {
+                        wm: {
+                            bg: '#0a0f1d',
+                            card: '#131b2f',
+                            border: 'rgba(51, 65, 85, 0.5)'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0a0f1d; color: #f8fafc; overflow-x: hidden; }
+        .cashflow-card { background-color: #131b2f; border: 3px solid #334155; border-radius: 40% 10% 50% 20% / 10% 40% 20% 50%; } /* จำลองเส้นวาดมือ */
+        .glow-green { box-shadow: 0 0 20px rgba(16, 185, 129, 0.1); }
+        .glow-red { box-shadow: 0 0 20px rgba(244, 63, 94, 0.1); }
+        .glow-blue { box-shadow: 0 0 20px rgba(59, 130, 246, 0.1); }
+        .glow-orange { box-shadow: 0 0 20px rgba(245, 158, 11, 0.1); }
+        .flow-line { position: relative; z-index: 0; }
+        .flow-line::after { content: ''; position: absolute; z-index: -1; }
+        .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 9999px; font-size: 0.65rem; font-weight: 700; }
+    </style>
+</head>
+<body class="p-4 md:p-8 font-sans selection:bg-blue-500/30">
+
+    <div class="max-w-6xl mx-auto">
+        
+        <header class="text-center mb-10 md:mb-16 mt-4">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold mb-4 uppercase tracking-widest">
+                <i class="fa-solid fa-circle-check"></i> Checkpoint 1.3 (Auto-Sync)
+            </div>
+            <h1 class="text-3xl md:text-5xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-emerald-400 to-purple-400">
+                The Cashflow Manual (Sketch Edition)
+            </h1>
+            <p class="text-slate-400 text-sm md:text-base max-w-2xl mx-auto">คู่มือบันทึกบัญชีฉบับสมบูรณ์ แปลงทฤษฎีคนรวยให้กลายเป็นระบบ Auto-Sync อัจฉริยะ (อ้างอิง Wealth Master Master Version 1.3)</p>
+        </header>
+
+        <section class="mb-20">
+            <div class="mb-8 p-6 bg-slate-900 border border-slate-800 rounded-3xl glow-blue text-center">
+                <h2 class="text-2xl font-bold text-white mb-2 tracking-wider flex items-center justify-center gap-3"><i class="fa-solid fa-map-location-dot text-blue-400"></i> The Wealth Master Cash Flow Boards</h2>
+                <p class="text-sm text-slate-400 max-w-xl mx-auto">เข้าใจระบบบัญชีผ่านกล่อง 4 ใบ (Rich Dad Diagram) พร้อมกฎเหล็กและคำแนะนำที่สอดคล้องกับ "สมองกล Tier 2"</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative flow-line">
+                <div class="hidden md:block absolute left-1/2 top-0 h-full w-[2px] bg-slate-800 -z-10 transform -translate-x-1/2"></div>
+                <div class="hidden md:flex absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 gap-4 flex-col text-slate-600 text-xl font-bold -z-10">➔<br>➔</div>
+
+                <div class="md:col-span-2 space-y-6">
+                    <div class="text-center p-3 bg-purple-900/30 border border-purple-800 rounded-full glow-blue">
+                        <h2 class="text-sm font-bold text-white tracking-wider">INCOME STATEMENT (งบกระแสเงินสดรายเดือน)</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="cashflow-card p-6 glow-green border-t-8 border-t-emerald-500">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <span class="badge bg-emerald-500 text-white">TAB 1</span>
+                                    <h3 class="text-2xl font-bold text-white mt-1"><i class="fa-solid fa-hand-holding-dollar text-emerald-500 mr-2"></i>INCOME (รายรับ)</h3>
+                                </div>
+                            </div>
+                            <div class="w-full mb-4 overflow-hidden rounded-xl border border-slate-700/50 shadow-inner">
+                                <img src="https://github.com/sthongkamoag-lang/wealth-remote/blob/main/esbi.webp?raw=true" alt="ภาพประกอบ" class="w-full h-auto max-h-48 md:max-h-64 object-cover transition-transform duration-500 hover:scale-105">
+                            </div>
+
+                            <p class="text-xs text-slate-400 mb-4 italic">"จุดเริ่มต้นของทหารโคลน ลงเฉพาะเงินที่ทำให้รวยขึ้นจริง"</p>
+                            <ul class="space-y-2 text-sm text-slate-300">
+                                <li class="flex items-start"><i class="fa-solid fa-check text-emerald-500 mt-1 mr-2"></i> <span><strong class="text-white">กฎข้ามเดือน (Month-Ahead):</strong> รับเงินเดือนช่วงปลายเดือน ลงเป็น "วันที่ 1 เดือนถัดไป"</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-xmark text-rose-500 mt-1 mr-2"></i> <span>ห้ามลงเงินทอน, แคชแบ็ก, เงินเพื่อนคืนที่นี่! (ไปลง Journal)</span></li>
+                            </ul>
+                            <div class="mt-4 p-3 bg-slate-900 rounded-lg text-xs border border-slate-800">
+                                <span class="text-emerald-400 font-bold">ESBI Target:</span> พยายามเพิ่มสัดส่วนรายได้ช่อง B (ธุรกิจ) และ I (ลงทุน)
+                            </div>
+                        </div>
+
+                        <div class="cashflow-card p-6 glow-red border-t-8 border-t-rose-500">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <span class="badge bg-rose-500 text-white">TAB 2</span>
+                                    <h3 class="text-2xl font-bold text-white mt-1"><i class="fa-solid fa-receipt text-rose-500 mr-2"></i>EXPENSES (รายจ่าย)</h3>
+                                </div>
+                            </div>
+                            <div class="w-full mb-4 overflow-hidden rounded-xl border border-slate-700/50 shadow-inner">
+                                <img src="https://github.com/sthongkamoag-lang/wealth-remote/blob/main/Expenses.webp?raw=true" alt="ภาพประกอบ" class="w-full h-auto max-h-48 md:max-h-64 object-cover transition-transform duration-500 hover:scale-105">
+                            </div>
+
+                            <p class="text-xs text-slate-400 mb-4 italic">"ทหารโคลนที่ถูกส่งไปรบ จงแน่ใจว่ามันคุ้มค่า"</p>
+                            <div class="space-y-3 text-sm text-slate-300">
+                                <div class="p-3 bg-slate-900 border border-slate-800 rounded-lg">
+                                    <strong class="text-white">Vivian Rule (50/30/20):</strong>
+                                    <div class="mt-2 space-y-1">
+                                        <div class="flex justify-between"><span><span class="text-rose-400 font-bold">50</span>-Needs ( fixed cost/จำเป็น )</span></div>
+                                        <div class="flex justify-between"><span><span class="text-blue-400 font-bold">30</span>-Wants ( lifestyle/ความสุข )</span></div>
+                                        <div class="flex justify-between"><span><span class="text-amber-400 font-bold">20</span>-Future ( ออม/ลงทุน )</span></div>
+                                    </div>
+                                </div>
+                                <li class="flex items-start"><i class="fa-solid fa-robot text-amber-500 mt-1 mr-2"></i> <span><strong class="text-white">The Budget Router (Auto-Sync 1):</strong> จ่ายเงินใหม่ซื้อสินทรัพย์ (20-Future) พิมพ์ชื่อ Category ให้ตรงกระเป๋าเงิน ระบบจะหักเงินเดือนและโอนโยกไปกระเป๋าเป้าหมายทันที!</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-bolt text-rose-500 mt-1 mr-2"></i> <span><strong class="text-white">จ่ายลดหนี้ด้วยเงินใหม่:</strong> ลงทะเบียนชื่อเจ้าหนี้ให้เป๊ะ ระบบจะวิ่งไปลดยอดหนี้คงเหลือให้อัตโนมัติ</span></li>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 space-y-6 mt-10">
+                    <div class="text-center p-3 bg-blue-900/30 border border-blue-800 rounded-full glow-blue">
+                        <h2 class="text-sm font-bold text-white tracking-wider">BALANCE SHEET (งบความมั่งคั่งสะสม)</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="cashflow-card p-6 glow-blue border-t-8 border-t-blue-500">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <span class="badge bg-blue-500 text-white">TAB 4 / 7</span>
+                                    <h3 class="text-2xl font-bold text-white mt-1"><i class="fa-solid fa-building-columns text-blue-500 mr-2"></i>ASSETS (ทรัพย์สิน)</h3>
+                                </div>
+                                <div class="bg-emerald-500/10 text-emerald-400 text-xs px-2 py-1 rounded border border-emerald-500/20 flex gap-1 items-center">
+                                    <i class="fa-solid fa-arrow-trend-up"></i> สร้าง Cashflow
+                                </div>
+                            </div>
+                            <div class="w-full mb-4 overflow-hidden rounded-xl border border-slate-700/50 shadow-inner">
+                                <img src="https://github.com/sthongkamoag-lang/wealth-remote/blob/main/change.webp?raw=true" alt="ภาพประกอบ" class="w-full h-auto max-h-48 md:max-h-64 object-cover transition-transform duration-500 hover:scale-105">
+                            </div>
+
+                            <p class="text-xs text-slate-400 mb-4 italic">"อะไรที่ใส่เงินเข้ากระเป๋าเรา คือทรัพย์สิน"</p>
+                            <ul class="space-y-2 text-sm text-slate-300">
+                                <li class="flex items-start"><i class="fa-solid fa-egg text-amber-300 mt-1 mr-2"></i> <span><strong class="text-white">Golden Geese:</strong> ลงทะเบียนชื่อทรัพย์สิน (กบข., พอร์ตลงทุน, หุ้น PTT) ตั้งต้นครั้งเดียวที่นี่</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa- robot text-emerald-400 mt-1 mr-2"></i> <span><strong class="text-white">Auto-Sync 2, 3:</strong> ซื้อ/ขายสินทรัพย์ด้วยเงินเก่าใน Journal ระบบจะอัปเดตยอด Current Value ให้อัตโนมัติ</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-handshake-angle text-orange-400 mt-1 mr-2"></i> <span><strong class="text-white">Tab 7 (Recv):</strong> รับคืนจากลูกหนี้ พิมพ์ชื่อให้ตรง ระบบจะลดยอดลูกหนี้ให้อัตโนมัติ</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="cashflow-card p-6 glow-orange border-t-8 border-t-amber-500">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <span class="badge bg-amber-500 text-white">TAB 5</span>
+                                    <h3 class="text-2xl font-bold text-white mt-1"><i class="fa-solid fa-link-slash text-amber-500 mr-2"></i>LIABILITIES (หนี้สิน)</h3>
+                                </div>
+                                <div class="bg-rose-500/10 text-rose-400 text-xs px-2 py-1 rounded border border-rose-500/20 flex gap-1 items-center">
+                                    <i class="fa-solid fa-arrow-trend-down"></i> เอาเงินออกจากกระเป๋า
+                                </div>
+                            </div>
+                            <div class="w-full mb-4 overflow-hidden rounded-xl border border-slate-700/50 shadow-inner">
+                                <img src="https://github.com/sthongkamoag-lang/wealth-remote/blob/main/Debt.webp?raw=true" alt="ภาพประกอบ" class="w-full h-auto max-h-48 md:max-h-64 object-cover transition-transform duration-500 hover:scale-105">
+                            </div>
+
+                            <p class="text-xs text-slate-400 mb-4 italic">"หนี้ไม่ใช่เรื่องน่ากลัว หากเราเห็นตัวเลขที่แท้จริง"</p>
+                            <ul class="space-y-2 text-sm text-slate-300">
+                                <li class="flex items-start"><i class="fa-solid fa-crosshairs text-amber-500 mt-1 mr-2"></i> <span><strong class="text-white">ชื่อต้องเป๊ะ:</strong> ลงทะเบียนชื่อหนี้และดอกเบี้ย (%) ให้ถูกต้อง เพื่อใช้จำลองวันหมดหนี้</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa- robot text-rose-400 mt-1 mr-2"></i> <span><strong class="text-white">Auto-Sync 1.5, 4:</strong> จ่ายลดหนี้ต้นด้วยเงินเก่า/เงินใหม่ ระบบจะวิ่งมาหักลดยอดหนี้ในนี้ให้อัตโนมัติ</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-percent text-slate-500 mt-1 mr-2"></i> <span>ดอกเบี้ยจ่ายถือเป็น <span class="badge bg-slate-800 text-slate-300">Needs</span> ใน Expense ไม่ทำให้หนี้ลด</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <section class="space-y-12 animate-fade-in mb-20">
+            <div class="p-8 bg-slate-900 border border-slate-800 rounded-3xl glow-green text-center">
+                <h2 class="text-3xl font-bold text-emerald-400 mb-3 tracking-wider flex items-center justify-center gap-3"><i class="fa-solid fa-route"></i> Cash Flow Pathway Scenarios</h2>
+                <p class="text-sm text-slate-300 max-w-xl mx-auto">เข้าใจระบบการไหลของเงินและ Auto-Sync ในแต่ละสถานการณ์จริงที่คุณอาจจะเจอ</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative flow-line">
+                 <div class="hidden md:block absolute left-1/2 top-0 h-full w-[2px] bg-slate-800 -z-10 transform -translate-x-1/2"></div>
+                <div class="hidden md:flex absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 gap-10 flex-col text-slate-600 text-4xl font-bold -z-10">➔</div>
+
+                <div class="cashflow-card p-6 glow-red border border-rose-500 relative flex flex-col group overflow-hidden">
+                    <div class="absolute inset-0 bg-rose-500/5 group-hover:bg-rose-500/10 transition-colors pointer-events-none"></div>
+                    <div class="flex justify-between items-start mb-4 relative z-10">
+                        <div>
+                            <span class="badge bg-rose-500 text-white">SCENARIO A</span>
+                            <h3 class="text-xl font-bold text-rose-400 mt-1"><i class="fa-solid fa-person-walking-arrow-right mr-2"></i>Poor Person / Middle Class Pattern</h3>
+                        </div>
+                        <i class="fa-solid fa-arrow-trend-down text-rose-500 text-xl"></i>
+                    </div>
+                    
+                    <p class="text-sm text-slate-300 mb-5 relative z-10"><strong>"Data Path: Income ➔ Envelopes ➔ System Out"</strong></p>
+                    <div class="text-center flex-grow flex justify-center items-center py-6">
+                        <div class="flex items-center gap-2 text-3xl md:text-5xl font-bold text-slate-600">
+                             <span class="text-emerald-400">INCOME</span> ➔ <span class="badge bg-rose-500 text-white p-2">EXPENSE</span> ➔ OUT <span class="text-rose-600">💸</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-4 relative z-10">**ผลลัพธ์:** เงินลอยตัว (Tab 6 Buckets) ลดลงเพื่อจ่าย Tabs 2 (Needs/Wants/Giving) โดยไม่มีเงินก้อนไหนวิ่งไปแตะ Tab 4/5 (Assets/Debts)</p>
+                </div>
+
+                <div class="cashflow-card p-6 glow-green border border-emerald-500 relative flex flex-col group overflow-hidden">
+                    <div class="absolute inset-0 bg-emerald-500/5 group-hover:bg-emerald-500/10 transition-colors pointer-events-none"></div>
+                    <div class="flex justify-between items-start mb-4 relative z-10">
+                        <div>
+                            <span class="badge bg-emerald-500 text-white">SCENARIO B</span>
+                            <h3 class="text-xl font-bold text-emerald-400 mt-1"><i class="fa-solid fa-person-arrow-up-from-line mr-2"></i>Rich Person Pattern (The Wealth Builder)</h3>
+                        </div>
+                        <i class="fa-solid fa-arrow-trend-up text-emerald-500 text-xl"></i>
+                    </div>
+                    <p class="text-sm text-slate-300 mb-5 relative z-10"><strong>"Data Path: Income ➔ Envelopes ➔ Assets ➔ Passive Income"</strong></p>
+                    <div class="text-center flex-grow flex justify-center items-center py-6">
+                        <div class="flex items-center gap-2 text-3xl md:text-5xl font-bold text-slate-600">
+                             <span class="text-emerald-400">INCOME</span> ➔ <span class="badge bg-blue-500 text-white p-2">ASSET</span> <span class="text-emerald-400">➔</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-4 relative z-10">**ผลลัพธ์:** เงินไหลจาก Tab 1/Tab 3 เข้าไปสร้าง Golden Geese ใน Tab 4 จนเกิด Passive Income (Tab 1 I) ทบกลับมา</p>
+                </div>
+            </div>
+
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+                <div class="cashflow-card p-6 glow-blue border-l-4 border-l-cyan-500 flex flex-col group relative overflow-hidden">
+                    <div class="absolute inset-0 bg-cyan-500/5 group-hover:bg-cyan-500/10 transition-colors pointer-events-none"></div>
+                    <div class="flex justify-between items-start mb-4 relative z-10">
+                        <div>
+                            <span class="badge bg-cyan-500 text-white">SCENARIO C</span>
+                            <h3 class="text-xl font-bold text-white mt-1"><i class="fa-solid fa-robot text-blue-400 mr-2"></i>Wealth Builder Mode (Auto-Sync 1)</h3>
+                        </div>
+                         <i class="fa-solid fa-arrow-trend-up text-cyan-400 text-lg"></i>
+                    </div>
+                    <p class="text-sm text-slate-300 mb-6 relative z-10"><strong>"Data Path: Active Income (Tab 2 Future) ➔ System Router ➔ Asset Box (Current Value)"</strong></p>
+                    
+                    <div class="p-5 bg-gradient-to-r from-cyan-950 to-wm-card border border-cyan-800 rounded-xl text-center relative z-10">
+                        <p class="text-3xl font-bold text-cyan-400">INCOME ( Tab 2 )</p>
+                        <p class="text-sm text-slate-500 my-2">-- จ่ายให้ตัวเองก่อน (20%) --</p>
+                        <p class="text-3xl font-bold text-emerald-400">ASSET BOX ( Tab 4 ) <i class="fa-solid fa-bolt text-amber-500 text-xs"></i></p>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-4 relative z-10">**ผลลัพธ์:** บันทึก Expense (20-Future) พิมพ์ชื่อ Category ให้ตรงกระเป๋าเงินเดือนใหม่ ระบบจะหักเงินเดือนและโอนโยกไปกระเป๋าเป้าหมายทันที!</p>
+                </div>
+
+                <div class="cashflow-card p-6 glow-orange border-l-4 border-l-orange-500 flex flex-col group relative overflow-hidden">
+                    <div class="absolute inset-0 bg-orange-500/5 group-hover:bg-orange-500/10 transition-colors pointer-events-none"></div>
+                    <div class="flex justify-between items-start mb-4 relative z-10">
+                        <div>
+                            <span class="badge bg-orange-500 text-white">SCENARIO D</span>
+                            <h3 class="text-xl font-bold text-white mt-1"><i class="fa-solid fa-fire text-amber-500 mr-2"></i>Debt Slayer Mode (Auto-Sync 1.5, 4)</h3>
+                        </div>
+                        <i class="fa-solid fa-arrow-trend-down text-orange-400 text-lg"></i>
+                    </div>
+                    <p class="text-sm text-slate-300 mb-6 relative z-10"><strong>"Data Path: Active Income (Tab 2) / Old Money (Tab 3) ➔ System Router ➔ Liability Box (Principal)"</strong></p>
+                    
+                    <div class="p-5 bg-gradient-to-r from-orange-950 to-wm-card border border-orange-800 rounded-xl text-center relative z-10">
+                        <p class="text-3xl font-bold text-orange-400">INCOME / ASSET ( Tab 2 / 3 )</p>
+                        <p class="text-sm text-slate-500 my-2">-- จ่ายลดเงินต้น --</p>
+                        <p class="text-3xl font-bold text-rose-400">LIABILITY BOX ( Tab 5 ) <i class="fa-solid fa-bolt text-amber-500 text-xs"></i></p>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-4 relative z-10">**ผลลัพธ์:** บันทึกจ่ายลดเงินต้น พิมพ์ชื่อให้ตรง ระบบจะหักเงินและโยกลดมูลค่าคงเหลือของหนี้ใน Tab 5 ทันที!</p>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+
+</body>
+</html>
