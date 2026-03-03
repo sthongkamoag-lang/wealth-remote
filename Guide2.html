@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wealth Master - คู่มือการบันทึกบัญชี หน้า 2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Prompt', 'sans-serif'] },
+                    colors: {
+                        slate: { 50: '#f8fafc', 100: '#f1f5f9', 800: '#1e293b', 900: '#0f172a' },
+                        purple: { 500: '#a855f7', 600: '#9333ea' },
+                        amber: { 500: '#f59e0b', 600: '#d97706' },
+                        cyan: { 500: '#06b6d4', 600: '#0891b2' },
+                        orange: { 500: '#f97316', 600: '#ea580c' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #f1f5f9; color: #1e293b; }
+        .info-card { background-color: #ffffff; border-radius: 1.5rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0; overflow: hidden; }
+        .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-10 bg-slate-900 text-white p-10 rounded-3xl shadow-lg relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 via-amber-500 to-cyan-500"></div>
+            <div class="inline-block bg-white/20 text-white px-4 py-1 rounded-full text-sm font-bold mb-4 backdrop-blur-sm">PAGE 2 / 2</div>
+            <h1 class="text-3xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-cyan-300">Wealth Master: Data Entry Guide</h1>
+            <p class="text-lg md:text-xl text-slate-300 font-light">คู่มือการบันทึกบัญชีฉบับสมบูรณ์ - หมวดบริหารสินทรัพย์และหนี้สิน (Asset & Liability)</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+
+            <div class="info-card flex flex-col">
+                <div class="bg-purple-50 border-b border-purple-100 p-6 flex items-center gap-4">
+                    <div class="w-14 h-14 bg-purple-500 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shadow-purple-500/30">
+                        <i class="fa-solid fa-building-columns"></i>
+                    </div>
+                    <div>
+                        <div class="text-purple-600 font-bold text-sm tracking-wider">STEP 4</div>
+                        <h2 class="text-2xl font-bold text-slate-800">ASSETS (ทรัพย์สิน / ลูกหนี้)</h2>
+                    </div>
+                </div>
+                <div class="w-full mb-4 overflow-hidden rounded-xl border border-slate-700/50 shadow-inner">
+                    <img src="https://github.com/sthongkamoag-lang/wealth-remote/blob/main/Duck%20gold.webp?raw=true" alt="ภาพประกอบ" class="w-full h-auto max-h-48 md:max-h-64 object-cover transition-transform duration-500 hover:scale-105">
+                </div>
+
+                <div class="p-6 flex-grow flex flex-col">
+                    <div class="bg-slate-50 border-l-4 border-purple-400 p-4 rounded-r-lg mb-6 italic text-slate-600 text-sm">
+                        <i class="fa-solid fa-lightbulb text-amber-500 mr-2"></i>"นี่คือบัญชีห่านทองคำของคุณ ไม่ต้องเฝ้าดูทุกวัน แค่ดูแลให้มันเติบโตก็พอ"
+                    </div>
+
+                    <h3 class="font-bold text-slate-800 mb-3 flex items-center"><i class="fa-solid fa-shield-halved text-purple-500 mr-2"></i>กฎเหล็ก (Ironclad Rules)</h3>
+                    <ul class="space-y-3 text-sm text-slate-600 mb-6 flex-grow">
+                        <li class="flex items-start"><i class="fa-solid fa-pen-to-square text-purple-500 mt-1 mr-2"></i><span><strong>ใช้สำหรับ "ตั้งต้น" เท่านั้น:</strong> ลงทะเบียนชื่อสินทรัพย์หรือลูกหนี้ไว้ที่นี่ครั้งเดียว เพื่อให้หน้าอื่นๆ มีชื่อไว้ใช้อ้างอิง (สร้างตัวตนให้ห่านทองคำ)</span></li>
+                        <li class="flex items-start"><i class="fa-solid fa-robot text-blue-500 mt-1 mr-2"></i><span><strong>ปล่อยให้ระบบทำงาน:</strong> ยอดเงิน <u>Current Value</u> จะถูกอัปเดตอัตโนมัติจากหน้า Expense และ Journal หรือใช้สูตร <code class="bg-slate-200 px-1 rounded">GOOGLEFINANCE</code> สำหรับหุ้น</span></li>
+                    </ul>
+
+                    <div class="bg-slate-100 px-4 py-3 rounded-xl border border-slate-200 text-sm">
+                        <div class="font-bold text-slate-700 mb-2"><i class="fa-solid fa-tag text-purple-500 mr-2"></i>ตัวอย่างการตั้งชื่อ (Item Name):</div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-white px-3 py-1 rounded border border-slate-200">กบข.</span>
+                            <span class="bg-white px-3 py-1 rounded border border-slate-200">สหกรณ์ออมทรัพย์</span>
+                            <span class="bg-white px-3 py-1 rounded border border-slate-200">หุ้น PTT</span>
+                            <span class="bg-white px-3 py-1 rounded border border-slate-200">นายพุ่ม (เพื่อนยืมเงิน)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-card flex flex-col">
+                <div class="bg-amber-50 border-b border-amber-100 p-6 flex items-center gap-4">
+                    <div class="w-14 h-14 bg-amber-500 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shadow-amber-500/30">
+                        <i class="fa-solid fa-credit-card"></i>
+                    </div>
+                    <div>
+                        <div class="text-amber-600 font-bold text-sm tracking-wider">STEP 5</div>
+                        <h2 class="text-2xl font-bold text-slate-800">DEBTS (หนี้สิน)</h2>
+                    </div>
+                </div>
+                <div class="w-full mb-4 overflow-hidden rounded-xl border border-slate-700/50 shadow-inner">
+                    <img src="https://github.com/sthongkamoag-lang/wealth-remote/blob/main/Debt.webp?raw=true" alt="ภาพประกอบ" class="w-full h-auto max-h-48 md:max-h-64 object-cover transition-transform duration-500 hover:scale-105">
+                </div>
+
+                <div class="p-6 flex-grow flex flex-col">
+                    <div class="bg-slate-50 border-l-4 border-amber-400 p-4 rounded-r-lg mb-6 italic text-slate-600 text-sm">
+                        <i class="fa-solid fa-lightbulb text-amber-500 mr-2"></i>"หนี้ไม่ใช่เรื่องน่ากลัว หากเราเห็นตัวเลขที่แท้จริงและมีแผนการจัดการที่ชัดเจน"
+                    </div>
+
+                    <h3 class="font-bold text-slate-800 mb-3 flex items-center"><i class="fa-solid fa-shield-halved text-amber-500 mr-2"></i>กฎเหล็ก (Ironclad Rules)</h3>
+                    <ul class="space-y-3 text-sm text-slate-600 mb-6 flex-grow">
+                        <li class="flex items-start"><i class="fa-solid fa-spell-check text-amber-500 mt-1 mr-2"></i><span><strong>ชื่อต้องเป๊ะ:</strong> ตั้งชื่อเจ้าหนี้ที่นี่อย่างไร ตอนไปจ่ายเงินในหน้า Expense/Journal <strong>ต้องพิมพ์ให้เหมือนกันทุกอักษร</strong> เพื่อให้ระบบลดยอดได้ถูกบรรทัด</span></li>
+                        <li class="flex items-start"><i class="fa-solid fa-percent text-rose-500 mt-1 mr-2"></i><span><strong>อย่าลืมใส่ดอกเบี้ย (%):</strong> ใส่ดอกเบี้ยให้ถูกต้อง เพื่อให้ <span class="text-amber-600 font-bold">Debt Simulator</span> ในหน้า Dashboard คำนวณแผนการโปะหนี้ได้อย่างแม่นยำ</span></li>
+                    </ul>
+
+                    <div class="bg-slate-100 px-4 py-3 rounded-xl border border-slate-200 text-sm">
+                        <div class="font-bold text-slate-700 mb-2"><i class="fa-solid fa-tag text-amber-500 mr-2"></i>ตัวอย่างการตั้งชื่อ (Creditor Name):</div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-white px-3 py-1 rounded border border-slate-200">บัตร KTC Platinum</span>
+                            <span class="bg-white px-3 py-1 rounded border border-slate-200">สินเชื่อบ้าน ธอส.</span>
+                            <span class="bg-white px-3 py-1 rounded border border-slate-200">Line BK</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-card flex flex-col">
+                <div class="bg-cyan-50 border-b border-cyan-100 p-6 flex items-center gap-4">
+                    <div class="w-14 h-14 bg-cyan-500 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shadow-cyan-500/30">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <div>
+                        <div class="text-cyan-600 font-bold text-sm tracking-wider">STEP 6</div>
+                        <h2 class="text-2xl font-bold text-slate-800">BUCKETS (สร้างกระเป๋าเงิน)</h2>
+                    </div>
+                </div>
+                <div class="w-full mb-4 overflow-hidden rounded-xl border border-slate-700/50 shadow-inner">
+                    <img src="https://github.com/sthongkamoag-lang/wealth-remote/blob/main/Bags.webp?raw=true" alt="ภาพประกอบ" class="w-full h-auto max-h-48 md:max-h-64 object-cover transition-transform duration-500 hover:scale-105">
+                </div>
+
+                <div class="p-6 flex-grow flex flex-col">
+                    <div class="bg-slate-50 border-l-4 border-cyan-400 p-4 rounded-r-lg mb-6 italic text-slate-600 text-sm">
+                        <i class="fa-solid fa-lightbulb text-amber-500 mr-2"></i>"อย่าปล่อยให้เงินลอยตัว จงให้เป้าหมายกับเงินทุกบาท เพื่อให้มันทำหน้าที่อย่างเต็มประสิทธิภาพ"
+                    </div>
+
+                    <h3 class="font-bold text-slate-800 mb-3 flex items-center"><i class="fa-solid fa-shield-halved text-cyan-500 mr-2"></i>กฎเหล็ก (Ironclad Rules)</h3>
+                    <ul class="space-y-3 text-sm text-slate-600 mb-6 flex-grow">
+                        <li class="flex items-start"><i class="fa-solid fa-crosshairs text-cyan-500 mt-1 mr-2"></i><span><strong>Zero-Based Budgeting:</strong> พยายามใช้หน้า Journal โอนเงิน (Transfer) เข้ากระเป๋าต่างๆ จนกว่า <strong>"เงินลอยตัว (Available Cash)"</strong> จะกลายเป็น 0 </span></li>
+                        <li class="flex items-start"><i class="fa-solid fa-palette text-purple-500 mt-1 mr-2"></i><span><strong>สีมีผลต่อความสวยงาม:</strong> ใส่รหัส <code class="bg-slate-200 px-1 rounded">Color Hex Code</code> (เช่น #3b82f6) เพื่อให้ Dashboard แสดงผลกระเป๋าเงินของคุณได้อย่างมีสีสัน</span></li>
+                    </ul>
+
+                    <div class="bg-slate-100 px-4 py-3 rounded-xl border border-slate-200 text-sm">
+                        <div class="font-bold text-slate-700 mb-2"><i class="fa-solid fa-tag text-cyan-500 mr-2"></i>ตัวอย่างกระเป๋าแนะนำ:</div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-white px-3 py-1 rounded border border-slate-200"><i class="fa-solid fa-circle text-blue-500 text-[10px] mr-1"></i>บัญชีหลัก KTB</span>
+                            <span class="bg-white px-3 py-1 rounded border border-slate-200"><i class="fa-solid fa-circle text-rose-500 text-[10px] mr-1"></i>กินใช้ส่วนตัว</span>
+                            <span class="bg-white px-3 py-1 rounded border border-slate-200"><i class="fa-solid fa-circle text-emerald-500 text-[10px] mr-1"></i>กองทุนฉุกเฉิน</span>
+                            <span class="bg-white px-3 py-1 rounded border border-slate-200"><i class="fa-solid fa-circle text-purple-500 text-[10px] mr-1"></i>พอร์ตลงทุน</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-card flex flex-col">
+                <div class="bg-orange-50 border-b border-orange-100 p-6 flex items-center gap-4">
+                    <div class="w-14 h-14 bg-orange-500 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shadow-orange-500/30">
+                        <i class="fa-solid fa-handshake-angle"></i>
+                    </div>
+                    <div>
+                        <div class="text-orange-600 font-bold text-sm tracking-wider">STEP 7</div>
+                        <h2 class="text-2xl font-bold text-slate-800">RECV (รับเงินคืนจากลูกหนี้)</h2>
+                    </div>
+                </div>
+                <div class="w-full mb-4 overflow-hidden rounded-xl border border-slate-700/50 shadow-inner">
+                     <img src="https://github.com/sthongkamoag-lang/wealth-remote/blob/main/Receive.webp?raw=true" alt="ภาพประกอบ" class="w-full h-auto max-h-48 md:max-h-64 object-cover transition-transform duration-500 hover:scale-105">
+                </div>
+
+                <div class="p-6 flex-grow flex flex-col">
+                    <div class="bg-slate-50 border-l-4 border-orange-400 p-4 rounded-r-lg mb-6 italic text-slate-600 text-sm">
+                        <i class="fa-solid fa-lightbulb text-amber-500 mr-2"></i>"การทวงหนี้ได้ คือการเอาเงินสดตัวเองกลับมา ไม่ใช่รายได้ใหม่ ห้ามนำไปรวมกับงบประจำเดือน"
+                    </div>
+
+                    <h3 class="font-bold text-slate-800 mb-3 flex items-center"><i class="fa-solid fa-shield-halved text-orange-500 mr-2"></i>กฎเหล็ก: บันทึก 2 สเต็ปเสมอ</h3>
+                    <div class="space-y-3 text-sm text-slate-600 mb-6 flex-grow">
+                        <div class="flex gap-3">
+                            <div class="bg-orange-100 text-orange-600 font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0">1</div>
+                            <div><strong>ลดหนี้ให้เพื่อน:</strong> เข้า Tab_Recv_Update กรอกยอดเงินที่ได้คืน (ระบบจะไปลดยอดหนี้คงเหลือของเพื่อนคนนั้นให้ทันที)</div>
+                        </div>
+                        <div class="flex gap-3">
+                            <div class="bg-orange-100 text-orange-600 font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0">2</div>
+                            <div><strong>เอาเงินเข้ากระเป๋าเรา:</strong> เข้า Tab_Journal เลือกบัญชีที่รับเงิน และเลือก Event เป็น <span class="badge bg-blue-100 text-blue-700">Transfer In</span></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                        <div class="bg-slate-100 px-4 py-2 font-bold text-slate-700 text-sm border-b border-slate-200">
+                            <i class="fa-solid fa-list text-orange-500 mr-2"></i>ตัวอย่าง: นายพุ่ม โอนคืน 3,000 บ.
+                        </div>
+                        <div class="p-3 text-sm">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-slate-600">① Tab Recv Update:</span>
+                                <span class="font-bold text-orange-600">นายพุ่ม ➔ 3,000</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-600">② Tab Journal (Transfer In):</span>
+                                <span class="font-bold text-blue-600">เข้าบัญชีหลัก ➔ 3,000</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-900 text-slate-300 p-8 rounded-3xl shadow-xl">
+            
+            <div>
+                <h3 class="text-xl font-bold text-white mb-4 flex items-center"><i class="fa-solid fa-gears text-blue-400 mr-2"></i>ระบบอัจฉริยะ (Auto-Sync)</h3>
+                <div class="space-y-4 text-sm">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                        <span><span class="text-rose-400 font-bold">Expense</span> ➔ ซื้อสินทรัพย์ (20-Future)</span>
+                        <span class="bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded text-xs">เพิ่มยอด Assets</span>
+                    </div>
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                        <span><span class="text-rose-400 font-bold">Expense</span> ➔ จ่ายเงินต้นหนี้สิน</span>
+                        <span class="bg-amber-500/20 text-amber-400 px-2 py-1 rounded text-xs">ลดยอด Debts</span>
+                    </div>
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                        <span><span class="text-emerald-400 font-bold">Journal</span> ➔ Buy / Sell Assets</span>
+                        <span class="bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded text-xs">ปรับยอด Assets</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span><span class="text-emerald-400 font-bold">Journal</span> ➔ Pay Principal</span>
+                        <span class="bg-amber-500/20 text-amber-400 px-2 py-1 rounded text-xs">ลดยอด Debts</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700">
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center"><i class="fa-solid fa-book-open text-amber-400 mr-2"></i>คัมภีร์ 'พ่อรวยสอนลูก' (Mindset)</h3>
+                <ul class="space-y-3 text-sm">
+                    <li class="flex items-start"><i class="fa-solid fa-check text-emerald-400 mt-1 mr-2"></i><strong>Understand Assets vs. Liabilities:</strong> แยกให้ออกว่าอะไรใส่เงินเข้ากระเป๋า (ทรัพย์สิน) และอะไรเอาเงินออก (หนี้สิน)</li>
+                    <li class="flex items-start"><i class="fa-solid fa-check text-emerald-400 mt-1 mr-2"></i><strong>Increase Passive Income:</strong> มุ่งสร้างรายได้ในฝั่ง 'B' และ 'I' (ESBI Quadrant) เพื่ออิสรภาพ</li>
+                    <li class="flex items-start"><i class="fa-solid fa-check text-emerald-400 mt-1 mr-2"></i><strong>Minimize Bad Debt:</strong> ควบคุมและลดหนี้บริโภคที่ไม่ได้สร้างรายได้ (ใช้ Debt Simulator วางแผน)</li>
+                    <li class="flex items-start"><i class="fa-solid fa-check text-emerald-400 mt-1 mr-2"></i><strong>Pay Yourself First:</strong> จ่ายให้ตัวเองก่อนเสมอ (ดึงเงิน 20% เข้า Future) ก่อนนำไปใช้จ่ายอื่นๆ</li>
+                </ul>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
+
