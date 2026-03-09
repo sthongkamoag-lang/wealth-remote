@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wealth Master - คู่มือการบันทึกบัญชี หน้า 1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Prompt', 'sans-serif'] },
+                    colors: {
+                        slate: { 50: '#f8fafc', 100: '#f1f5f9', 800: '#1e293b', 900: '#0f172a' },
+                        blue: { 500: '#3b82f6', 600: '#2563eb' },
+                        rose: { 500: '#f43f5e', 600: '#e11d48' },
+                        emerald: { 500: '#10b981', 600: '#059669' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #f1f5f9; color: #1e293b; }
+        .info-card { background-color: #ffffff; border-radius: 1.5rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0; overflow: hidden; }
+        .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-10 bg-slate-900 text-white p-10 rounded-3xl shadow-lg relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-rose-500 to-emerald-500"></div>
+            <div class="inline-block bg-white/20 text-white px-4 py-1 rounded-full text-sm font-bold mb-4 backdrop-blur-sm">PAGE 1 / 2</div>
+            <h1 class="text-3xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-emerald-300">Wealth Master: Data Entry Guide</h1>
+            <p class="text-lg md:text-xl text-slate-300 font-light">คู่มือการบันทึกบัญชีฉบับสมบูรณ์ - หมวดพื้นฐานการทำรายการ (Transactional)</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <div class="info-card flex flex-col">
+                <div class="bg-blue-50 border-b border-blue-100 p-6 flex items-center gap-4">
+                    <div class="w-14 h-14 bg-blue-500 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shadow-blue-500/30">
+                        <i class="fa-solid fa-hand-holding-dollar"></i>
+                    </div>
+                    <div>
+                        <div class="text-blue-600 font-bold text-sm tracking-wider">STEP 1</div>
+                        <h2 class="text-2xl font-bold text-slate-800">INCOME (รายรับ)</h2>
+                    </div>
+                </div>
+                <div class="w-full mb-4 overflow-hidden rounded-xl border border-slate-700/50 shadow-inner">
+                    <img src="https://github.com/sthongkamoag-lang/wealth-remote/blob/main/esbi.webp?raw=true" alt="ภาพประกอบ" class="w-full h-auto max-h-48 md:max-h-64 object-cover transition-transform duration-500 hover:scale-105">
+                </div>
+
+                <div class="p-6 flex-grow flex flex-col">
+                    <div class="bg-slate-50 border-l-4 border-blue-400 p-4 rounded-r-lg mb-6 italic text-slate-600 text-sm">
+                        <i class="fa-solid fa-lightbulb text-amber-500 mr-2"></i>"รายรับคือจุดเริ่มต้นของกองทัพโคลน บันทึกเฉพาะเงินที่ทำให้ความมั่งคั่งเราเพิ่มขึ้นจริงๆ เท่านั้น"
+                    </div>
+
+                    <h3 class="font-bold text-slate-800 mb-3 flex items-center"><i class="fa-solid fa-shield-halved text-blue-500 mr-2"></i>กฎเหล็ก (Ironclad Rules)</h3>
+                    <ul class="space-y-3 text-sm text-slate-600 mb-8 flex-grow">
+                        <li class="flex items-start"><i class="fa-solid fa-circle-check text-emerald-500 mt-1 mr-2"></i><span><strong>กฎการข้ามเดือน (Month-Ahead):</strong> หากรับเงินเดือนช่วงปลายเดือน (เช่น 24-28) ให้ลงช่องวันที่เป็น <span class="text-blue-600 font-bold">"วันที่ 1 ของเดือนถัดไป"</span> เสมอ เพื่อให้ Dashboard นำไปตั้งเป็นงบเดือนใหม่</span></li>
+                        <li class="flex items-start"><i class="fa-solid fa-ban text-rose-500 mt-1 mr-2"></i><span><strong>ห้ามลงเงินคืนที่นี่:</strong> เงินที่เพื่อนคืนมา, เงินแคชแบ็กบัตรเครดิต, หรือถอนเงินจากพอร์ต <u>ไม่ใช่รายได้</u> ห้ามลงในแท็บนี้!</span></li>
+                    </ul>
+
+                    <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                        <div class="bg-slate-100 px-4 py-2 font-bold text-slate-700 text-sm border-b border-slate-200">
+                            <i class="fa-solid fa-list text-blue-500 mr-2"></i>ตัวอย่างการบันทึก
+                        </div>
+                        <div class="p-4 space-y-4 text-sm">
+                            <div class="pb-3 border-b border-slate-100">
+                                <div class="font-bold text-slate-800">รับเงินเดือน 26 มี.ค.</div>
+                                <div class="flex gap-2 mt-1">
+                                    <span class="badge bg-blue-100 text-blue-700">E (Employee)</span>
+                                    <span class="text-slate-500"><i class="fa-solid fa-arrow-right mx-1"></i>เข้าบัญชีหลัก</span>
+                                </div>
+                            </div>
+                            <div class="pb-3 border-b border-slate-100">
+                                <div class="font-bold text-slate-800">รับงานนอก (ฟรีแลนซ์)</div>
+                                <div class="flex gap-2 mt-1">
+                                    <span class="badge bg-purple-100 text-purple-700">S (Self-Employed)</span>
+                                    <span class="text-slate-500"><i class="fa-solid fa-arrow-right mx-1"></i>กินใช้ส่วนตัว</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="font-bold text-slate-800">เงินปันผลหุ้น PTT</div>
+                                <div class="flex gap-2 mt-1">
+                                    <span class="badge bg-emerald-100 text-emerald-700">I (Investor)</span>
+                                    <span class="text-slate-500"><i class="fa-solid fa-arrow-right mx-1"></i>พอร์ตลงทุน</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-card flex flex-col">
+                <div class="bg-rose-50 border-b border-rose-100 p-6 flex items-center gap-4">
+                    <div class="w-14 h-14 bg-rose-500 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shadow-rose-500/30">
+                        <i class="fa-solid fa-receipt"></i>
+                    </div>
+                    <div>
+                        <div class="text-rose-600 font-bold text-sm tracking-wider">STEP 2</div>
+                        <h2 class="text-2xl font-bold text-slate-800">EXPENSES (รายจ่าย)</h2>
+                    </div>
+                </div>
+                <div class="w-full mb-4 overflow-hidden rounded-xl border border-slate-700/50 shadow-inner">
+                    <img src="https://github.com/sthongkamoag-lang/wealth-remote/blob/main/Expenses.webp?raw=true" alt="ภาพประกอบ" class="w-full h-auto max-h-48 md:max-h-64 object-cover transition-transform duration-500 hover:scale-105">
+                </div>
+
+                <div class="p-6 flex-grow flex flex-col">
+                    <div class="bg-slate-50 border-l-4 border-rose-400 p-4 rounded-r-lg mb-6 italic text-slate-600 text-sm">
+                        <i class="fa-solid fa-lightbulb text-amber-500 mr-2"></i>"ทุกบาทที่จ่ายออกไป คือทหารโคลนที่ถูกส่งไปรบและไม่ได้กลับมา จงแน่ใจว่ามันคุ้มค่า"
+                    </div>
+
+                    <h3 class="font-bold text-slate-800 mb-3 flex items-center"><i class="fa-solid fa-shield-halved text-rose-500 mr-2"></i>กฎเหล็ก (Ironclad Rules)</h3>
+                    <ul class="space-y-3 text-sm text-slate-600 mb-8 flex-grow">
+                        <li class="flex items-start"><i class="fa-solid fa-robot text-indigo-500 mt-1 mr-2"></i><span><strong>ซื้อสินทรัพย์ด้วยเงินใหม่:</strong> ถ้าหักเงินไปลงทุน ให้เลือก <span class="badge bg-amber-100 text-amber-700 mx-1">20-Future</span> และพิมพ์หมวดหมู่ให้เป๊ะ ระบบจะ <b>Auto-Sync</b> บวกทรัพย์สินให้เอง</span></li>
+                        <li class="flex items-start"><i class="fa-solid fa-divide text-rose-500 mt-1 mr-2"></i><span><strong>การจ่ายหนี้ต้องแยกบิล:</strong><br>
+                        • ดอกเบี้ย ➔ 50-Needs (พิมพ์ว่า "ดอกเบี้ย")<br>
+                        • เงินต้น ➔ 50-Needs (พิมพ์ "ชื่อหนี้ให้เป๊ะ" ระบบจะ Auto-Sync ลดยอดหนี้ให้)</span></li>
+                    </ul>
+
+                    <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                        <div class="bg-slate-100 px-4 py-2 font-bold text-slate-700 text-sm border-b border-slate-200">
+                            <i class="fa-solid fa-list text-rose-500 mr-2"></i>ตัวอย่างการบันทึก
+                        </div>
+                        <div class="p-4 space-y-4 text-sm">
+                            <div class="pb-3 border-b border-slate-100 flex justify-between">
+                                <div>
+                                    <div class="font-bold text-slate-800">ซื้อข้าว / กาแฟ</div>
+                                    <div class="text-slate-500 text-xs mt-1">หักจาก: กินใช้ส่วนตัว</div>
+                                </div>
+                                <span class="badge bg-slate-200 text-slate-700 h-fit">50-Needs</span>
+                            </div>
+                            <div class="pb-3 border-b border-slate-100 flex justify-between">
+                                <div>
+                                    <div class="font-bold text-slate-800">ดูหนัง / ซื้อเกม</div>
+                                    <div class="text-slate-500 text-xs mt-1">หักจาก: กินใช้ส่วนตัว</div>
+                                </div>
+                                <span class="badge bg-blue-100 text-blue-700 h-fit">30-Wants</span>
+                            </div>
+                            <div class="flex justify-between items-center bg-emerald-50 p-2 rounded-lg border border-emerald-100">
+                                <div>
+                                    <div class="font-bold text-emerald-800 flex items-center gap-1">หัก กบข. <i class="fa-solid fa-bolt text-amber-500 text-xs"></i></div>
+                                    <div class="text-emerald-600 text-[10px] mt-1">Auto-Sync เพิ่ม Asset!</div>
+                                </div>
+                                <span class="badge bg-amber-100 text-amber-700 h-fit">20-Future</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-card flex flex-col">
+                <div class="bg-emerald-50 border-b border-emerald-100 p-6 flex items-center gap-4">
+                    <div class="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shadow-emerald-500/30">
+                        <i class="fa-solid fa-right-left"></i>
+                    </div>
+                    <div>
+                        <div class="text-emerald-600 font-bold text-sm tracking-wider">STEP 3</div>
+                        <h2 class="text-2xl font-bold text-slate-800">JOURNAL (ลงทุน/โอน)</h2>
+                    </div>
+                </div>
+                <div class="w-full mb-4 overflow-hidden rounded-xl border border-slate-700/50 shadow-inner">
+                    <img src="https://github.com/sthongkamoag-lang/wealth-remote/blob/main/change.webp?raw=true" alt="ภาพประกอบ" class="w-full h-auto max-h-48 md:max-h-64 object-cover transition-transform duration-500 hover:scale-105">
+                </div>
+
+                <div class="p-6 flex-grow flex flex-col">
+                    <div class="bg-slate-50 border-l-4 border-emerald-400 p-4 rounded-r-lg mb-6 italic text-slate-600 text-sm">
+                        <i class="fa-solid fa-lightbulb text-amber-500 mr-2"></i>"การย้ายเงินไม่ได้ทำให้เรารวยขึ้นหรือจนลง มันแค่เปลี่ยนรูปแบบของความมั่งคั่ง"
+                    </div>
+
+                    <h3 class="font-bold text-slate-800 mb-3 flex items-center"><i class="fa-solid fa-shield-halved text-emerald-500 mr-2"></i>กฎเหล็ก (Ironclad Rules)</h3>
+                    <ul class="space-y-3 text-sm text-slate-600 mb-8 flex-grow">
+                        <li class="flex items-start"><i class="fa-solid fa-link text-blue-500 mt-1 mr-2"></i><span><strong>ทำเป็นคู่เสมอ:</strong> เมื่อย้ายเงินระหว่างกระเป๋า ต้องบันทึกหักออกกระเป๋าเดิม (Transfer Out) และโอนเข้ากระเป๋าใหม่ (Transfer In) คู่กันเสมอ</span></li>
+                        <li class="flex items-start"><i class="fa-solid fa-piggy-bank text-emerald-500 mt-1 mr-2"></i><span><strong>ใช้เมื่อเป็น "เงินเก่า":</strong> หากสะสมเงินในพอร์ตลงทุน แล้วนำไปซื้อหุ้น ให้บันทึกที่นี่ (ห้ามไปลง Expense จะทำให้หลอด 50/30/20 รวน)</span></li>
+                    </ul>
+
+                    <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                        <div class="bg-slate-100 px-4 py-2 font-bold text-slate-700 text-sm border-b border-slate-200">
+                            <i class="fa-solid fa-list text-emerald-500 mr-2"></i>ตัวอย่างการบันทึก (การจัดสรรเงิน)
+                        </div>
+                        <div class="p-4 space-y-3 text-sm">
+                            <div class="bg-slate-50 p-3 rounded border border-slate-200">
+                                <div class="font-bold text-slate-800 mb-2">เอาเงินเก่าในพอร์ตไปซื้อหุ้น PTT</div>
+                                <div class="flex items-center justify-between text-xs mb-1">
+                                    <span class="text-slate-600">พอร์ตลงทุน</span>
+                                    <span class="badge bg-rose-100 text-rose-700">Transfer Out</span>
+                                </div>
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="text-emerald-700 font-bold">หุ้น PTT</span>
+                                    <span class="badge bg-emerald-100 text-emerald-700">Buy (ซื้อสินทรัพย์)</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-50 p-3 rounded border border-slate-200">
+                                <div class="font-bold text-slate-800 mb-2">โอนเงินจัดสรรเข้ากองทุนฉุกเฉิน</div>
+                                <div class="flex items-center justify-between text-xs mb-1">
+                                    <span class="text-slate-600">บัญชีหลัก KTB</span>
+                                    <span class="badge bg-rose-100 text-rose-700">Transfer Out</span>
+                                </div>
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="text-blue-700 font-bold">กองทุนฉุกเฉิน</span>
+                                    <span class="badge bg-blue-100 text-blue-700">Transfer In</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-2xl p-6 text-center shadow-sm">
+            <h4 class="font-bold text-blue-800 text-lg mb-2"><i class="fa-solid fa-bolt text-amber-500 mr-2"></i>The Budget Router (ระบบท่อส่งเงินอัจฉริยะ)</h4>
+            <p class="text-blue-600 text-sm">เมื่อนำเงินใหม่ไปบันทึกในหน้า <strong>EXPENSES</strong> แค่พิมพ์ <u>ชื่อหมวดหมู่ให้ตรงกับกระเป๋าเงิน</u> <br>ระบบจะหักเงิน, ขยับหลอด 50/30/20 และโอนเงินไปรอในกระเป๋าเป้าหมาย (Sinking Fund) ให้ทันที!</p>
+        </div>
+
+    </div>
+
+</body>
+</html>
