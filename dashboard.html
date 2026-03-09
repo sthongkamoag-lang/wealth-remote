@@ -1,642 +1,596 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wealth Master - Strategic Advisor</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- React & ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Babel -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  Activity, TrendingUp, Shield, Target, 
+  ArrowUpRight, ArrowDownRight, AlertTriangle, Zap,
+  Briefcase, LineChart, PieChart, Info, Heart, Layers, 
+  Wallet, BarChart3, Calculator, Snowflake, Flame,
+  LayoutDashboard, Map, RefreshCw
+} from 'lucide-react';
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Prompt', 'sans-serif'] },
-                }
-            }
-        }
-    </script>
-    <style>
-        body { background-color: #0a0f1d; color: #f8fafc; font-family: 'Prompt', sans-serif; overflow-x: hidden; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
-    </style>
-</head>
-<body>
-    <div id="root"></div>
+// ⚠️ ให้ระบุ Web App URL ของคุณที่นี่ (อันเดียวกับที่ใช้ในหน้า Tier 1)
+const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyEyXfYLmOI8i0o-jRB-ikO_MB0bc7Ft3mHo2Zdh3bvg9dqgxDig61lH60QFi70m1qCSw/exec";
 
-    <script type="text/babel">
-        const { useState, useEffect, useMemo } = React;
+// --- CUSTOM SVG LINE CHART COMPONENT (เหมือนเดิม) ---
+const LineChartSVG = ({ data, xKey, line1Key, line2Key, line1Color, line2Color, isLine2Dashed, legend1, legend2 }) => {
+  const width = 800;
+  const height = 300;
+  const padding = { top: 40, right: 20, bottom: 40, left: 60 };
 
-        // 🟢 Web App URL ของคุณ (Checkpoint 1)
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyEyXfYLmOI8i0o-jRB-ikO_MB0bc7Ft3mHo2Zdh3bvg9dqgxDig61lH60QFi70m1qCSw/exec"; 
+  const allValues = data.flatMap(d => [d[line1Key], d[line2Key]]);
+  const maxY = Math.max(...allValues, 10000) * 1.1;
 
-        // --- CUSTOM SVG LINE CHART COMPONENT ---
-        const LineChartSVG = ({ data, xKey, line1Key, line2Key, line1Color, line2Color, isLine2Dashed, legend1, legend2 }) => {
-          const width = 800;
-          const height = 300;
-          const padding = { top: 40, right: 20, bottom: 40, left: 60 };
+  const getX = (index) => padding.left + (index * ((width - padding.left - padding.right) / Math.max(data.length - 1, 1)));
+  const getY = (val) => height - padding.bottom - ((val / maxY) * (height - padding.top - padding.bottom));
 
-          const allValues = data.flatMap(d => [d[line1Key], d[line2Key]]);
-          const maxY = Math.max(...allValues, 10000) * 1.1;
+  const line1Points = data.map((d, i) => `${getX(i)},${getY(d[line1Key])}`).join(' ');
+  const line2Points = data.map((d, i) => `${getX(i)},${getY(d[line2Key])}`).join(' ');
 
-          const getX = (index) => padding.left + (index * ((width - padding.left - padding.right) / Math.max(data.length - 1, 1)));
-          const getY = (val) => height - padding.bottom - ((val / maxY) * (height - padding.top - padding.bottom));
+  const formatYAxis = (num) => new Intl.NumberFormat('en-US', { notation: 'compact', compactDisplay: 'short' }).format(num);
 
-          const line1Points = data.map((d, i) => `${getX(i)},${getY(d[line1Key])}`).join(' ');
-          const line2Points = data.map((d, i) => `${getX(i)},${getY(d[line2Key])}`).join(' ');
-
-          const formatYAxis = (num) => new Intl.NumberFormat('en-US', { notation: 'compact', compactDisplay: 'short' }).format(num);
-
+  return (
+    <div className="w-full overflow-x-auto hide-scrollbar relative">
+      <div className="flex justify-center gap-6 absolute top-0 w-full text-xs font-medium">
+        <div className="flex items-center gap-2 text-slate-300">
+          <div className="w-6 h-1 rounded" style={{ backgroundColor: line1Color }}></div> {legend1}
+        </div>
+        <div className="flex items-center gap-2 text-slate-300">
+          <div className={`w-6 h-1 rounded ${isLine2Dashed ? 'border-t-2 border-dashed' : ''}`} style={{ borderColor: line2Color, backgroundColor: isLine2Dashed ? 'transparent' : line2Color }}></div> {legend2}
+        </div>
+      </div>
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto min-w-[600px] mt-4 transition-all duration-500">
+        {[0, 0.25, 0.5, 0.75, 1].map(ratio => {
+          const y = padding.top + (ratio * (height - padding.top - padding.bottom));
+          const val = maxY - (ratio * maxY);
           return (
-            <div className="w-full overflow-x-auto hide-scrollbar relative">
-              <div className="flex justify-center gap-6 absolute top-0 w-full text-xs font-medium">
-                <div className="flex items-center gap-2 text-slate-300">
-                  <div className="w-6 h-1 rounded" style={{ backgroundColor: line1Color }}></div> {legend1}
+            <g key={ratio}>
+              <line x1={padding.left} y1={y} x2={width - padding.right} y2={y} stroke="#334155" strokeWidth="1" strokeOpacity="0.5" />
+              <text x={padding.left - 10} y={y + 4} fill="#64748b" fontSize="10" textAnchor="end">{formatYAxis(val)}</text>
+            </g>
+          );
+        })}
+        
+        <linearGradient id={`grad-${line1Key}`} x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor={line1Color} stopOpacity="0.2" />
+          <stop offset="100%" stopColor={line1Color} stopOpacity="0" />
+        </linearGradient>
+
+        <polygon points={`${padding.left},${height - padding.bottom} ${line1Points} ${getX(data.length - 1)},${height - padding.bottom}`} fill={`url(#grad-${line1Key})`} className="transition-all duration-500" />
+        <polyline points={line2Points} fill="none" stroke={line2Color} strokeWidth="2" strokeDasharray={isLine2Dashed ? "5,5" : "0"} className="transition-all duration-500" />
+        <polyline points={line1Points} fill="none" stroke={line1Color} strokeWidth="3" className="transition-all duration-500" />
+
+        {data.map((d, i) => (
+          <g key={i} className="transition-all duration-500">
+            <circle cx={getX(i)} cy={getY(d[line1Key])} r="4" fill="#0f172a" stroke={line1Color} strokeWidth="2" />
+            <circle cx={getX(i)} cy={getY(d[line2Key])} r="3" fill={line2Color} />
+            <text x={getX(i)} y={height - 15} fill="#64748b" fontSize="10" textAnchor="middle">{d[xKey]}</text>
+          </g>
+        ))}
+      </svg>
+    </div>
+  );
+};
+
+export default function App() {
+  const [data, setData] = useState(null); // เริ่มต้นเป็น null รอโหลด
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const [activeTab, setActiveTab] = useState('overview');
+  const [wealthTimeframe, setWealthTimeframe] = useState('monthly');
+  const [investTimeframe, setInvestTimeframe] = useState('monthly');
+  const [extraDebtPay, setExtraDebtPay] = useState(0);
+  const [debtStrategy, setDebtStrategy] = useState('avalanche');
+  const [customDebtId, setCustomDebtId] = useState(1);
+  const [reduceWantsVal, setReduceWantsVal] = useState(0);
+
+  // --- FETCH DATA FROM GOOGLE SHEETS ---
+  const fetchDashboardData = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE") {
+          throw new Error("ยังไม่ได้ระบุ Web App URL");
+      }
+
+      const response = await fetch(`${GAS_WEB_APP_URL}?action=getDashboardData`);
+      if (!response.ok) throw new Error("การเชื่อมต่อเครือข่ายมีปัญหา");
+      
+      const result = await response.json();
+      if (result.status === "success") {
+        setData(result.data);
+      } else {
+        throw new Error(result.message || "ดึงข้อมูลล้มเหลว");
+      }
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // โหลดข้อมูลเมื่อเปิดแอปครั้งแรก
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  // --- CALCULATIONS (รันเฉพาะเมื่อมี data แล้ว) ---
+  const totalAssets = data ? Object.values(data.assets).reduce((a, b) => a + b, 0) : 0;
+  const totalLiabilities = data ? Object.values(data.liabilities).reduce((a, b) => a + b, 0) : 0;
+  const totalIncome = data ? Object.values(data.income).reduce((a, b) => a + b, 0) : 0;
+  const totalExpenses = data ? Object.values(data.expenses).reduce((a, b) => a + b, 0) : 0;
+  
+  const activeIncome = data ? data.income.E + data.income.S : 0;
+  const passiveIncome = data ? data.income.B + data.income.I : 0;
+  const ffrPercent = totalExpenses > 0 ? ((passiveIncome / totalExpenses) * 100).toFixed(1) : 0;
+  
+  const needsTarget = totalIncome * 0.5;
+  const wantsTarget = totalIncome * 0.3;
+  const futureTarget = totalIncome * 0.2;
+
+  const needsPct = totalIncome > 0 ? ((data.expenses.needs / totalIncome) * 100).toFixed(1) : 0;
+  const wantsPct = totalIncome > 0 ? ((data.expenses.wants / totalIncome) * 100).toFixed(1) : 0;
+  const futurePct = totalIncome > 0 ? ((data.expenses.future / totalIncome) * 100).toFixed(1) : 0;
+
+  const totalEnvelopeBalance = data ? data.envelopes.reduce((sum, env) => sum + env.balance, 0) : 0;
+  const availableCash = data ? data.cashTotal - totalEnvelopeBalance : 0;
+
+  const criticalDebts = data ? data.debts.filter(d => d.rate > 7) : [];
+  const criticalDebtTotal = criticalDebts.reduce((sum, d) => sum + d.balance, 0);
+  const givingRatio = totalIncome > 0 ? ((data.expenses.giving / totalIncome) * 100).toFixed(1) : 0;
+
+  const calculateCompound = (monthlyContribution, years, rate) => {
+    if(monthlyContribution === 0) return 0;
+    const r = rate / 100 / 12;
+    const n = years * 12;
+    return monthlyContribution * ((Math.pow(1 + r, n) - 1) / r);
+  };
+  const compoundResult = calculateCompound(reduceWantsVal, 10, 8); 
+
+  const calculateDebtMetrics = (balance, rate, monthlyPay) => {
+    if (monthlyPay <= 0) return { months: Infinity, totalInterest: Infinity };
+    const monthlyRate = (rate / 100) / 12;
+    if (monthlyPay <= balance * monthlyRate) return { months: Infinity, totalInterest: Infinity }; 
+    const months = Math.log(monthlyPay / (monthlyPay - balance * monthlyRate)) / Math.log(1 + monthlyRate);
+    const roundedMonths = Math.ceil(months);
+    const totalPaid = roundedMonths * monthlyPay;
+    const totalInterest = totalPaid - balance;
+    return { months: roundedMonths, totalInterest };
+  };
+
+  const targetDebtId = useMemo(() => {
+    if (!data || data.debts.length === 0) return null;
+    if (debtStrategy === 'custom') return customDebtId;
+    let sorted = [...data.debts];
+    if (debtStrategy === 'avalanche') sorted.sort((a, b) => b.rate - a.rate);
+    else if (debtStrategy === 'snowball') sorted.sort((a, b) => a.balance - b.balance);
+    return sorted[0].id;
+  }, [debtStrategy, customDebtId, data]);
+
+  const formatMoney = (num) => new Intl.NumberFormat('th-TH', { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num);
+
+  const getBtnClass = (activeState, currentState) => 
+    `text-xs px-3 py-1 rounded-full font-bold transition-all ${activeState === currentState ? 'bg-blue-500 text-white' : 'text-slate-400 hover:text-slate-200 cursor-pointer'}`;
+
+  const getTimelineData = (timeframe) => {
+    if (!data) return [];
+    if (timeframe === 'yearly') return data.timelineYearly;
+    if (timeframe === 'quarterly') return data.timelineQuarterly;
+    return data.timelineMonthly;
+  };
+
+  const Card = ({ children, className = "", noPad=false }) => (
+    <div className={`bg-[#131b2f] border border-slate-700/50 rounded-2xl shadow-xl overflow-hidden ${noPad ? '' : 'p-5'} ${className}`}>
+      {children}
+    </div>
+  );
+
+  // --- UI: LOADING STATE ---
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#0a0f1d] flex flex-col items-center justify-center text-slate-300">
+        <Activity className="animate-spin text-blue-500 mb-4" size={48} />
+        <h2 className="text-xl font-bold">กำลังดึงข้อมูล...</h2>
+        <p className="text-sm mt-2">Connecting to Wealth Master API</p>
+      </div>
+    );
+  }
+
+  // --- UI: ERROR STATE ---
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#0a0f1d] flex flex-col items-center justify-center p-6 text-center">
+        <AlertTriangle className="text-red-500 mb-4" size={64} />
+        <h2 className="text-2xl font-bold text-red-400 mb-2">ไม่สามารถเชื่อมต่อข้อมูลได้</h2>
+        <p className="text-slate-400 mb-6 bg-slate-800 p-4 rounded-lg">{error}</p>
+        <button onClick={fetchDashboardData} className="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-bold flex items-center gap-2 transition-colors">
+          <RefreshCw size={18} /> ลองใหม่อีกครั้ง
+        </button>
+      </div>
+    );
+  }
+
+  // --- UI: MAIN DASHBOARD ---
+  return (
+    <div className="min-h-screen bg-[#0a0f1d] text-slate-100 p-4 md:p-6 font-sans selection:bg-blue-500/30">
+      
+      {/* HEADER & TABS */}
+      <header className="mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400 flex items-center gap-2">
+              <Shield className="text-blue-400" />
+              Strategic Advisor <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full border border-emerald-500/30 ml-2">Live Data</span>
+            </h1>
+          </div>
+          <button onClick={fetchDashboardData} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm flex items-center gap-2 text-slate-300 transition-colors">
+            <RefreshCw size={16} className="text-blue-400"/> ซิงค์ข้อมูลล่าสุด
+          </button>
+        </div>
+
+        <div className="flex gap-2 border-b border-slate-800 overflow-x-auto hide-scrollbar pb-px">
+          <button onClick={() => setActiveTab('overview')} className={`px-4 py-3 text-sm font-bold whitespace-nowrap transition-colors border-b-2 ${activeTab === 'overview' ? 'text-blue-400 border-blue-400' : 'text-slate-500 border-transparent hover:text-slate-300'}`}>
+            <LayoutDashboard size={16} className="inline mr-2"/> ภาพรวม (Overview)
+          </button>
+          <button onClick={() => setActiveTab('timeline')} className={`px-4 py-3 text-sm font-bold whitespace-nowrap transition-colors border-b-2 ${activeTab === 'timeline' ? 'text-blue-400 border-blue-400' : 'text-slate-500 border-transparent hover:text-slate-300'}`}>
+            <LineChart size={16} className="inline mr-2"/> ไทม์ไลน์ (Timelines)
+          </button>
+          <button onClick={() => setActiveTab('strategy')} className={`px-4 py-3 text-sm font-bold whitespace-nowrap transition-colors border-b-2 ${activeTab === 'strategy' ? 'text-blue-400 border-blue-400' : 'text-slate-500 border-transparent hover:text-slate-300'}`}>
+            <Map size={16} className="inline mr-2"/> กลยุทธ์ & หนี้สิน (Strategy)
+          </button>
+        </div>
+      </header>
+
+      {/* ================================================== */}
+      {/* TAB 1: OVERVIEW */}
+      {/* ================================================== */}
+      {activeTab === 'overview' && (
+        <div className="space-y-6 animate-[fadeIn_0.3s_ease-in-out]">
+          
+          {/* MACRO KPIs */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card className="border-l-4 border-l-blue-500">
+              <p className="text-slate-400 text-xs md:text-sm font-medium">Net Worth</p>
+              <h2 className="text-xl md:text-3xl font-bold text-white mt-1">฿{formatMoney(totalAssets - totalLiabilities)}</h2>
+            </Card>
+            <Card className="border-l-4 border-l-emerald-500">
+              <p className="text-slate-400 text-xs md:text-sm font-medium">FFR% (อิสรภาพ)</p>
+              <h2 className="text-xl md:text-3xl font-bold text-emerald-400 mt-1">{ffrPercent}%</h2>
+            </Card>
+            <Card className="border-l-4 border-l-cyan-500">
+              <p className="text-slate-400 text-xs md:text-sm font-medium">Available Cash</p>
+              <h2 className="text-xl md:text-3xl font-bold text-cyan-400 mt-1">฿{formatMoney(availableCash)}</h2>
+            </Card>
+            <Card className={`border-l-4 ${criticalDebtTotal > 0 ? 'border-l-red-500' : 'border-l-slate-500'}`}>
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-slate-400 text-xs md:text-sm font-medium">หนี้วิกฤต (ดบ.{'>'}7%)</p>
+                  <h2 className={`text-xl md:text-3xl font-bold mt-1 ${criticalDebtTotal > 0 ? 'text-red-400' : 'text-slate-300'}`}>
+                    {criticalDebtTotal > 0 ? `฿${formatMoney(criticalDebtTotal)}` : 'ไม่มี'}
+                  </h2>
                 </div>
-                <div className="flex items-center gap-2 text-slate-300">
-                  <div className={`w-6 h-1 rounded ${isLine2Dashed ? 'border-t-2 border-dashed' : ''}`} style={{ borderColor: line2Color, backgroundColor: isLine2Dashed ? 'transparent' : line2Color }}></div> {legend2}
+                {criticalDebtTotal > 0 && <AlertTriangle size={18} className="text-red-400 mt-1"/>}
+              </div>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            {/* VIVIAN RULE */}
+            <Card className="lg:col-span-1">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-bold flex items-center gap-2"><PieChart size={18} className="text-purple-400"/> Vivian Rule (50/30/20)</h3>
+                <span className="text-xs font-medium px-2 py-1 bg-slate-800 rounded text-slate-400">งบประมาณตามรายรับ ({formatMoney(totalIncome)})</span>
+              </div>
+              
+              <div className="space-y-6">
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="font-bold text-slate-200">50% Needs (จำเป็น)</span>
+                    <span className="text-slate-300">฿{formatMoney(data.expenses.needs)} / ฿{formatMoney(needsTarget)} ({needsPct}%)</span>
+                  </div>
+                  <div className="w-full bg-[#1e293b] h-3 rounded-full relative">
+                    <div className="h-full rounded-full bg-[#10b981] transition-all duration-1000" style={{ width: `${Math.min((data.expenses.needs/needsTarget)*50, 100)}%` }}></div>
+                    <div className="absolute top-0 bottom-0 left-[50%] w-[2px] bg-slate-500 z-10"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="font-bold text-slate-200">30% Wants (ความสุข)</span>
+                    <span className="text-slate-300">฿{formatMoney(data.expenses.wants)} / ฿{formatMoney(wantsTarget)} ({wantsPct}%)</span>
+                  </div>
+                  <div className="w-full bg-[#1e293b] h-3 rounded-full relative">
+                    <div className="h-full rounded-full bg-[#3b82f6] transition-all duration-1000" style={{ width: `${Math.min((data.expenses.wants/wantsTarget)*30, 100)}%` }}></div>
+                    <div className="absolute top-0 bottom-0 left-[30%] w-[2px] bg-slate-500 z-10"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="font-bold text-slate-200">20% Future (อนาคต)</span>
+                    <span className="text-amber-400 font-bold">฿{formatMoney(data.expenses.future)} / ฿{formatMoney(futureTarget)} ({futurePct}%)</span>
+                  </div>
+                  <div className="w-full bg-[#1e293b] h-3 rounded-full relative">
+                    <div className="h-full rounded-full bg-[#fbbf24] transition-all duration-1000" style={{ width: `${Math.min((data.expenses.future/futureTarget)*20, 100)}%` }}></div>
+                    <div className="absolute top-0 bottom-0 left-[20%] w-[2px] bg-slate-500 z-10"></div>
+                  </div>
+                  {futurePct < 20 && <p className="text-xs text-amber-400 mt-2 flex items-center gap-1"><Info size={12}/> ควรเพิ่มการออม/ลงทุนให้ถึง 20%</p>}
                 </div>
               </div>
-              <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto min-w-[600px] mt-4 transition-all duration-500">
-                {[0, 0.25, 0.5, 0.75, 1].map(ratio => {
-                  const y = padding.top + (ratio * (height - padding.top - padding.bottom));
-                  const val = maxY - (ratio * maxY);
-                  return (
-                    <g key={ratio}>
-                      <line x1={padding.left} y1={y} x2={width - padding.right} y2={y} stroke="#334155" strokeWidth="1" strokeOpacity="0.5" />
-                      <text x={padding.left - 10} y={y + 4} fill="#64748b" fontSize="10" textAnchor="end">{formatYAxis(val)}</text>
-                    </g>
-                  );
-                })}
+            </Card>
+
+            <div className="flex flex-col gap-6">
+              {/* ESBI JOURNEY */}
+              <Card>
+                <h3 className="text-lg font-bold flex items-center gap-2 mb-5"><Briefcase size={18} className="text-amber-400"/> ESBI Journey</h3>
                 
-                <linearGradient id={`grad-${line1Key}`} x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0%" stopColor={line1Color} stopOpacity="0.2" />
-                  <stop offset="100%" stopColor={line1Color} stopOpacity="0" />
-                </linearGradient>
+                <div className="grid grid-cols-2 gap-4 mb-5">
+                  <div className="bg-[#1a233a] p-4 rounded-xl border border-slate-700">
+                    <div className="text-sm text-slate-400 mb-1">Active Income</div>
+                    <div className="text-2xl font-bold text-white mb-2">฿{formatMoney(activeIncome)}</div>
+                    <div className="text-xs text-slate-500">E: ฿{formatMoney(data.income.E)} | S: ฿{formatMoney(data.income.S)}</div>
+                  </div>
+                  <div className="bg-[#0f2923] p-4 rounded-xl border border-emerald-500/30">
+                    <div className="text-sm text-emerald-400 mb-1">Passive Income</div>
+                    <div className="text-2xl font-bold text-emerald-400 mb-2">฿{formatMoney(passiveIncome)}</div>
+                    <div className="text-xs text-slate-500">B: ฿{formatMoney(data.income.B)} | I: ฿{formatMoney(data.income.I)}</div>
+                  </div>
+                </div>
 
-                <polygon points={`${padding.left},${height - padding.bottom} ${line1Points} ${getX(data.length - 1)},${height - padding.bottom}`} fill={`url(#grad-${line1Key})`} className="transition-all duration-500" />
-                <polyline points={line2Points} fill="none" stroke={line2Color} strokeWidth="2" strokeDasharray={isLine2Dashed ? "5,5" : "0"} className="transition-all duration-500" />
-                <polyline points={line1Points} fill="none" stroke={line1Color} strokeWidth="3" className="transition-all duration-500" />
+                <div>
+                  <p className="text-sm text-slate-300 mb-2">อัตราส่วนความมั่งคั่ง (Wealth Ratio)</p>
+                  <div className="flex h-8 rounded-lg overflow-hidden border border-slate-700">
+                    <div className="bg-[#475569] flex items-center justify-center text-sm font-bold transition-all duration-1000" style={{ width: `${(activeIncome/totalIncome)*100}%` }}>{((activeIncome/totalIncome)*100).toFixed(0)}%</div>
+                    <div className="bg-[#10b981] flex items-center justify-center text-sm font-bold text-slate-900 transition-all duration-1000" style={{ width: `${(passiveIncome/totalIncome)*100}%` }}>{((passiveIncome/totalIncome)*100).toFixed(0)}%</div>
+                  </div>
+                  <p className="text-xs text-slate-500 text-center mt-3">พยายามขยายพื้นที่สีเขียว (B, I) ให้เกิน 50%</p>
+                </div>
+              </Card>
 
-                {data.map((d, i) => (
-                  <g key={i} className="transition-all duration-500">
-                    <circle cx={getX(i)} cy={getY(d[line1Key])} r="4" fill="#0f172a" stroke={line1Color} strokeWidth="2" />
-                    <circle cx={getX(i)} cy={getY(d[line2Key])} r="3" fill={line2Color} />
-                    <text x={getX(i)} y={height - 15} fill="#64748b" fontSize="10" textAnchor="middle">{d[xKey]}</text>
-                  </g>
-                ))}
-              </svg>
+              {/* GENEROSITY */}
+              <Card>
+                <h3 className="text-sm font-bold flex items-center gap-2 mb-2"><Heart size={14} className="text-pink-400"/> The Generosity Meter</h3>
+                <div className="flex justify-between items-end mb-2">
+                  <span className="text-2xl font-bold text-pink-400">{givingRatio}%</span>
+                  <span className="text-xs text-slate-400">ของการให้เพื่อสังคม</span>
+                </div>
+                <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-pink-500 to-rose-400 transition-all duration-1000" style={{ width: `${Math.min(givingRatio, 10)}%` }}></div></div>
+              </Card>
             </div>
-          );
-        };
 
-        function App() {
-          const [data, setData] = useState(null); 
-          const [isLoading, setIsLoading] = useState(true);
-          const [error, setError] = useState(null);
-
-          const [activeTab, setActiveTab] = useState('overview');
-          const [wealthTimeframe, setWealthTimeframe] = useState('monthly');
-          const [investTimeframe, setInvestTimeframe] = useState('monthly');
-          const [extraDebtPay, setExtraDebtPay] = useState(0);
-          const [debtStrategy, setDebtStrategy] = useState('avalanche');
-          const [customDebtId, setCustomDebtId] = useState(1);
-          const [reduceWantsVal, setReduceWantsVal] = useState(0);
-
-          // --- FETCH DATA FROM GOOGLE SHEETS ---
-          const fetchDashboardData = async () => {
-            setIsLoading(true);
-            setError(null);
-            try {
-              if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE") {
-                throw new Error("กรุณาใส่ Web App URL ของคุณในโค้ดก่อนครับ");
-              }
-              const response = await fetch(`${GAS_WEB_APP_URL}?action=getDashboardData`);
-              if (!response.ok) throw new Error("การเชื่อมต่อเครือข่ายมีปัญหา");
-              
-              const result = await response.json();
-              if (result.status === "success") {
-                setData(result.data);
-              } else {
-                throw new Error(result.message || "ดึงข้อมูลล้มเหลว");
-              }
-            } catch (err) {
-              console.error(err);
-              setError(err.message);
-            } finally {
-              setIsLoading(false);
-            }
-          };
-
-          useEffect(() => {
-            fetchDashboardData();
-          }, []);
-
-          // --- CALCULATIONS ---
-          const totalAssets = data ? Object.values(data.assets).reduce((a, b) => a + b, 0) : 0;
-          const totalLiabilities = data ? Object.values(data.liabilities).reduce((a, b) => a + b, 0) : 0;
-          const totalIncome = data ? Object.values(data.income).reduce((a, b) => a + b, 0) : 0;
-          const totalExpenses = data ? Object.values(data.expenses).reduce((a, b) => a + b, 0) : 0;
-          
-          const activeIncome = data ? data.income.E + data.income.S : 0;
-          const passiveIncome = data ? data.income.B + data.income.I : 0;
-          
-          // FFR (Financial Freedom Ratio) คิดจาก Passive Income / Total Expenses (หรือปรับเป็นแค่ Needs ในอนาคตได้)
-          const ffrPercent = totalExpenses > 0 ? ((passiveIncome / totalExpenses) * 100).toFixed(1) : 0;
-          
-          // 🟢 WEALTH BUILDER MODE: คิด Vivian 50/30/20 จากฐาน Active Income เท่านั้น
-          const baseIncomeForBudget = activeIncome > 0 ? activeIncome : 1; 
-          
-          const needsTarget = baseIncomeForBudget * 0.5;
-          const wantsTarget = baseIncomeForBudget * 0.3;
-          const futureTarget = baseIncomeForBudget * 0.2;
-
-          const needsPct = activeIncome > 0 ? ((data.expenses.needs / baseIncomeForBudget) * 100).toFixed(1) : 0;
-          const wantsPct = activeIncome > 0 ? ((data.expenses.wants / baseIncomeForBudget) * 100).toFixed(1) : 0;
-          const futurePct = activeIncome > 0 ? ((data.expenses.future / baseIncomeForBudget) * 100).toFixed(1) : 0;
-
-          const totalEnvelopeBalance = data ? data.envelopes.reduce((sum, env) => sum + env.balance, 0) : 0;
-          const availableCash = data ? data.cashTotal - totalEnvelopeBalance : 0;
-
-          const criticalDebts = data ? data.debts.filter(d => d.rate > 7) : [];
-          const criticalDebtTotal = criticalDebts.reduce((sum, d) => sum + d.balance, 0);
-          const givingRatio = totalIncome > 0 ? ((data.expenses.giving / totalIncome) * 100).toFixed(1) : 0;
-
-          const calculateCompound = (monthlyContribution, years, rate) => {
-            if(monthlyContribution === 0) return 0;
-            const r = rate / 100 / 12;
-            const n = years * 12;
-            return monthlyContribution * ((Math.pow(1 + r, n) - 1) / r);
-          };
-          const compoundResult = calculateCompound(reduceWantsVal, 10, 8); 
-
-          const calculateDebtMetrics = (balance, rate, monthlyPay) => {
-            if (monthlyPay <= 0) return { months: Infinity, totalInterest: Infinity };
-            const monthlyRate = (rate / 100) / 12;
-            if (monthlyPay <= balance * monthlyRate) return { months: Infinity, totalInterest: Infinity }; 
-            const months = Math.log(monthlyPay / (monthlyPay - balance * monthlyRate)) / Math.log(1 + monthlyRate);
-            const roundedMonths = Math.ceil(months);
-            const totalPaid = roundedMonths * monthlyPay;
-            const totalInterest = totalPaid - balance;
-            return { months: roundedMonths, totalInterest };
-          };
-
-          const targetDebtId = useMemo(() => {
-            if (!data || data.debts.length === 0) return null;
-            if (debtStrategy === 'custom') return customDebtId;
-            let sorted = [...data.debts];
-            if (debtStrategy === 'avalanche') sorted.sort((a, b) => b.rate - a.rate);
-            else if (debtStrategy === 'snowball') sorted.sort((a, b) => a.balance - b.balance);
-            return sorted[0].id;
-          }, [debtStrategy, customDebtId, data]);
-
-          const formatMoney = (num) => new Intl.NumberFormat('th-TH', { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num);
-
-          const getBtnClass = (activeState, currentState) => 
-            `text-xs px-3 py-1 rounded-full font-bold transition-all ${activeState === currentState ? 'bg-blue-500 text-white' : 'text-slate-400 hover:text-slate-200 cursor-pointer'}`;
-
-          const getTimelineData = (timeframe) => {
-            if (!data) return [];
-            if (timeframe === 'yearly') return data.timelineYearly;
-            if (timeframe === 'quarterly') return data.timelineQuarterly;
-            return data.timelineMonthly;
-          };
-
-          const Card = ({ children, className = "", noPad=false }) => (
-            <div className={`bg-[#131b2f] border border-slate-700/50 rounded-2xl shadow-xl overflow-hidden ${noPad ? '' : 'p-5'} ${className}`}>
-              {children}
-            </div>
-          );
-
-          // --- UI: LOADING STATE ---
-          if (isLoading) {
-            return (
-              <div className="min-h-screen bg-[#0a0f1d] flex flex-col items-center justify-center text-slate-300">
-                <i className="fa-solid fa-spinner fa-spin text-blue-500 mb-4" style={{fontSize: 48}}></i>
-                <h2 className="text-xl font-bold">กำลังดึงข้อมูลจาก Google Sheets...</h2>
-                <p className="text-sm mt-2 text-slate-500">Connecting to Wealth Master API</p>
+            {/* BALANCE SHEET */}
+            <Card className="lg:col-span-2">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-bold flex items-center gap-2"><LineChart size={18} className="text-blue-400"/> งบดุล (Balance Sheet)</h3>
+                <span className="text-xs font-medium px-3 py-1 bg-slate-800 rounded text-slate-400">แบบสรุป</span>
               </div>
-            );
-          }
 
-          // --- UI: ERROR STATE ---
-          if (error) {
-            return (
-              <div className="min-h-screen bg-[#0a0f1d] flex flex-col items-center justify-center p-6 text-center">
-                <i className="fa-solid fa-triangle-exclamation text-red-500 mb-4" style={{fontSize: 64}}></i>
-                <h2 className="text-2xl font-bold text-red-400 mb-2">ไม่สามารถเชื่อมต่อข้อมูลได้</h2>
-                <p className="text-slate-400 mb-6 bg-slate-800 p-4 rounded-lg">{error}</p>
-                <button onClick={fetchDashboardData} className="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-bold flex items-center gap-2 transition-colors">
-                  <i className="fa-solid fa-rotate" style={{fontSize: 18}}></i> ลองใหม่อีกครั้ง
-                </button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                <div>
+                  <h4 className="text-sm font-bold text-emerald-400 border-b border-emerald-500/30 pb-2 mb-4">ทรัพย์สิน (Assets)</h4>
+                  <ul className="space-y-3 text-sm">
+                    <li className="flex justify-between"><span className="text-slate-300">เงินสด</span> <span>฿{formatMoney(data.assets.cash)}</span></li>
+                    <li className="flex justify-between"><span className="text-slate-300">การลงทุน</span> <span>฿{formatMoney(data.assets.investments)}</span></li>
+                    <li className="flex justify-between"><span className="text-slate-300">อสังหาฯ</span> <span>฿{formatMoney(data.assets.realEstate)}</span></li>
+                    <li className="flex justify-between"><span className="text-slate-300">ลูกหนี้</span> <span>฿{formatMoney(data.assets.receivables)}</span></li>
+                  </ul>
+                  <div className="mt-4 pt-3 border-t border-slate-700 flex justify-between font-bold text-lg">
+                    <span className="text-slate-100">รวม</span> <span className="text-emerald-400">฿{formatMoney(totalAssets)}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-bold text-red-400 border-b border-red-500/30 pb-2 mb-4">หนี้สิน (Liabilities)</h4>
+                  <ul className="space-y-3 text-sm">
+                    <li className="flex justify-between"><span className="text-slate-300">บ้าน</span> <span>฿{formatMoney(data.liabilities.mortgage)}</span></li>
+                    <li className="flex justify-between"><span className="text-slate-300">รถยนต์</span> <span>฿{formatMoney(data.liabilities.car)}</span></li>
+                    <li className="flex justify-between"><span className="text-slate-300">บัตรเครดิต</span> <span>฿{formatMoney(data.liabilities.creditCards)}</span></li>
+                    <li className="flex justify-between"><span className="text-slate-300">สินเชื่อบุคคล</span> <span>฿{formatMoney(data.liabilities.personalLoan)}</span></li>
+                  </ul>
+                  <div className="mt-4 pt-3 border-t border-slate-700 flex justify-between font-bold text-lg">
+                    <span className="text-slate-100">รวม</span> <span className="text-red-400">฿{formatMoney(totalLiabilities)}</span>
+                  </div>
+                </div>
               </div>
-            );
-          }
+            </Card>
 
-          // --- UI: MAIN DASHBOARD ---
-          return (
-            <div className="min-h-screen bg-[#0a0f1d] text-slate-100 p-4 md:p-6 font-sans selection:bg-blue-500/30">
+          </div>
+        </div>
+      )}
+
+      {/* ================================================== */}
+      {/* TAB 2: TIMELINES */}
+      {/* ================================================== */}
+      {activeTab === 'timeline' && (
+        <div className="space-y-6 animate-[fadeIn_0.3s_ease-in-out]">
+          
+          {/* WEALTH TIMELINE (Interactive) */}
+          <Card>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-bold flex items-center gap-2"><TrendingUp size={18} className="text-blue-300"/> Wealth Timeline</h3>
+              <div className="flex gap-1 bg-[#1a233a] rounded-full p-1 border border-slate-700">
+                <button onClick={() => setWealthTimeframe('yearly')} className={getBtnClass(wealthTimeframe, 'yearly')}>รายปี</button>
+                <button onClick={() => setWealthTimeframe('quarterly')} className={getBtnClass(wealthTimeframe, 'quarterly')}>รายไตรมาส</button>
+                <button onClick={() => setWealthTimeframe('monthly')} className={getBtnClass(wealthTimeframe, 'monthly')}>รายเดือน</button>
+              </div>
+            </div>
+            
+            <LineChartSVG 
+              data={getTimelineData(wealthTimeframe)} 
+              xKey="label" 
+              line1Key="income" line2Key="expense" 
+              line1Color="#0ea5e9" line2Color="#ef4444" 
+              isLine2Dashed={true}
+              legend1="รายรับ" legend2="รายจ่าย"
+            />
+          </Card>
+
+          {/* INVESTMENT TIMELINE (Interactive) */}
+          <Card>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-bold flex items-center gap-2"><Briefcase size={18} className="text-slate-300"/> Investment Timeline</h3>
+              <div className="flex gap-1 bg-[#1a233a] rounded-full p-1 border border-slate-700">
+                <button onClick={() => setInvestTimeframe('yearly')} className={getBtnClass(investTimeframe, 'yearly')}>รายปี</button>
+                <button onClick={() => setInvestTimeframe('quarterly')} className={getBtnClass(investTimeframe, 'quarterly')}>รายไตรมาส</button>
+                <button onClick={() => setInvestTimeframe('monthly')} className={getBtnClass(investTimeframe, 'monthly')}>รายเดือน</button>
+              </div>
+            </div>
+            
+            <LineChartSVG 
+              data={getTimelineData(investTimeframe)} 
+              xKey="label" 
+              line1Key="assets" line2Key="debt" 
+              line1Color="#10b981" line2Color="#eab308" 
+              isLine2Dashed={true}
+              legend1="ทรัพย์สินสะสม" legend2="หนี้สินคงเหลือ"
+            />
+          </Card>
+        </div>
+      )}
+
+      {/* ================================================== */}
+      {/* TAB 3: STRATEGY & DEBT */}
+      {/* ================================================== */}
+      {activeTab === 'strategy' && (
+        <div className="space-y-6 animate-[fadeIn_0.3s_ease-in-out]">
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            {/* VIRTUAL ENVELOPES */}
+            <Card>
+              <h3 className="text-lg font-bold flex items-center gap-2 mb-6"><Layers size={18} className="text-blue-400"/> ระบบเงินหลายถัง (Virtual Envelopes)</h3>
+              <div className="space-y-5">
+                {data.envelopes.length > 0 ? data.envelopes.map((env, i) => (
+                  <div key={i} className="bg-slate-800/40 p-4 rounded-xl border border-slate-700/50">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-bold flex items-center gap-2 text-slate-200">
+                        <div className={`w-3 h-3 rounded-full ${env.color}`}></div>{env.name}
+                      </span>
+                      <span className="text-sm font-mono text-slate-300">{formatMoney(env.balance)} / {formatMoney(env.target)}</span>
+                    </div>
+                    <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                      <div className={`h-full ${env.color} transition-all duration-1000`} style={{ width: `${Math.min((env.balance/env.target)*100, 100)}%` }}></div>
+                    </div>
+                  </div>
+                )) : <p className="text-slate-500 text-sm">ยังไม่มีข้อมูลกระเป๋าเงิน</p>}
+              </div>
+              <div className="mt-6 p-4 bg-cyan-500/10 border border-cyan-500/20 rounded-xl flex justify-between items-center">
+                <span className="text-sm font-bold text-cyan-400">เงินลอยตัว (ยังไม่จัดสรร)</span>
+                <span className="text-lg font-bold text-cyan-400">฿{formatMoney(availableCash)}</span>
+              </div>
+            </Card>
+
+            {/* WHAT-IF COMPOUND SIMULATOR */}
+            <Card className="relative overflow-hidden">
+              <div className="absolute top-0 right-0 opacity-5 pointer-events-none"><Target size={150}/></div>
+              <h3 className="text-lg font-bold flex items-center gap-2 mb-2 text-amber-400"><TrendingUp size={18}/> What-If Simulator (The Compound Effect)</h3>
+              <p className="text-sm text-slate-400 mb-6">หากคุณลดรายจ่ายหมวด Wants แล้วนำมาลงทุนใน Future (ผลตอบแทน 8% ต่อปี)</p>
               
-              {/* HEADER & TABS */}
-              <header className="mb-6">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                  <div>
-                    <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400 flex items-center gap-2">
-                      <i className="fa-solid fa-shield-halved text-blue-400" style={{fontSize: 24}}></i>
-                      Strategic Advisor <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full border border-emerald-500/30 ml-2">Wealth Builder</span>
-                    </h1>
-                  </div>
-                  <button onClick={fetchDashboardData} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm flex items-center gap-2 text-slate-300 transition-colors">
-                    <i className="fa-solid fa-rotate text-blue-400" style={{fontSize: 16}}></i> ซิงค์ข้อมูลล่าสุด
+              <div className="mb-8 relative z-10">
+                <div className="flex justify-between text-sm text-slate-200 mb-2">
+                  <span>หักเงินมาลงทุนเพิ่มเดือนละ:</span>
+                  <span className="font-bold text-amber-400 text-lg">฿{formatMoney(reduceWantsVal)}</span>
+                </div>
+                <input type="range" min="0" max="20000" step="1000" value={reduceWantsVal} onChange={(e) => setReduceWantsVal(Number(e.target.value))} className="w-full accent-amber-500 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"/>
+                <div className="flex justify-between text-xs text-slate-500 mt-2">
+                  <span>0</span><span>10,000</span><span>20,000</span>
+                </div>
+              </div>
+              
+              <div className="p-5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-xl text-center relative z-10">
+                <p className="text-sm text-amber-200 mb-1">ใน 10 ปี เงินก้อนนี้จะเติบโตกลายเป็น:</p>
+                <p className="text-4xl font-bold text-amber-400">฿{formatMoney(compoundResult)}</p>
+                <p className="text-xs text-amber-200/70 mt-2">พลังของดอกเบี้ยทบต้น (Compound Interest)</p>
+              </div>
+            </Card>
+
+          </div>
+
+          {/* DEBT SIMULATOR */}
+          <Card>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-bold flex items-center gap-2"><Flame size={18} className="text-red-400"/> Debt Simulator (ระบบจำลองวันหมดหนี้)</h3>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              
+              {/* Control Panel */}
+              <div className="lg:col-span-1 border-r border-slate-700/50 pr-0 lg:pr-6">
+                <p className="text-sm text-slate-400 mb-3">1. เลือกกลยุทธ์การโปะหนี้</p>
+                <div className="flex flex-col gap-2 mb-6">
+                  <button onClick={()=>setDebtStrategy('avalanche')} className={`p-3 text-sm rounded-xl transition-all border text-left flex justify-between ${debtStrategy==='avalanche' ? 'bg-red-500/10 border-red-500/50 text-red-400 font-bold' : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-800'}`}>
+                    <span>Avalanche</span> <span className="text-xs font-normal opacity-70">เน้นดอกแพงสุด</span>
+                  </button>
+                  <button onClick={()=>setDebtStrategy('snowball')} className={`p-3 text-sm rounded-xl transition-all border text-left flex justify-between ${debtStrategy==='snowball' ? 'bg-blue-500/10 border-blue-500/50 text-blue-400 font-bold' : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-800'}`}>
+                    <span>Snowball</span> <span className="text-xs font-normal opacity-70">เน้นยอดน้อยสุด</span>
+                  </button>
+                  <button onClick={()=>setDebtStrategy('custom')} className={`p-3 text-sm rounded-xl transition-all border text-left flex justify-between ${debtStrategy==='custom' ? 'bg-amber-500/10 border-amber-500/50 text-amber-400 font-bold' : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-800'}`}>
+                    <span>Custom</span> <span className="text-xs font-normal opacity-70">เลือกคลิกเอง</span>
                   </button>
                 </div>
 
-                <div className="flex gap-2 border-b border-slate-800 overflow-x-auto hide-scrollbar pb-px">
-                  <button onClick={() => setActiveTab('overview')} className={`px-4 py-3 text-sm font-bold whitespace-nowrap transition-colors border-b-2 ${activeTab === 'overview' ? 'text-blue-400 border-blue-400' : 'text-slate-500 border-transparent hover:text-slate-300'}`}>
-                    <i className="fa-solid fa-border-all inline mr-2" style={{fontSize: 16}}></i> ภาพรวม (Overview)
-                  </button>
-                  <button onClick={() => setActiveTab('timeline')} className={`px-4 py-3 text-sm font-bold whitespace-nowrap transition-colors border-b-2 ${activeTab === 'timeline' ? 'text-blue-400 border-blue-400' : 'text-slate-500 border-transparent hover:text-slate-300'}`}>
-                    <i className="fa-solid fa-chart-line inline mr-2" style={{fontSize: 16}}></i> ไทม์ไลน์ (Timelines)
-                  </button>
-                  <button onClick={() => setActiveTab('strategy')} className={`px-4 py-3 text-sm font-bold whitespace-nowrap transition-colors border-b-2 ${activeTab === 'strategy' ? 'text-blue-400 border-blue-400' : 'text-slate-500 border-transparent hover:text-slate-300'}`}>
-                    <i className="fa-solid fa-map-location-dot inline mr-2" style={{fontSize: 16}}></i> กลยุทธ์ & หนี้สิน (Strategy)
-                  </button>
+                <p className="text-sm text-slate-400 mb-3">2. มีเงินสดโปะเพิ่มเดือนละ</p>
+                <div className="mb-2">
+                  <div className="text-2xl font-bold text-amber-400 mb-2">+{formatMoney(extraDebtPay)} ฿</div>
+                  <input type="range" min="0" max="50000" step="1000" value={extraDebtPay} onChange={(e) => setExtraDebtPay(Number(e.target.value))} className="w-full h-2 bg-slate-700 rounded-lg appearance-none accent-amber-500" />
                 </div>
-              </header>
+              </div>
 
-              {/* ================================================== */}
-              {/* TAB 1: OVERVIEW */}
-              {/* ================================================== */}
-              {activeTab === 'overview' && (
-                <div className="space-y-6 animate-fade-in">
+              {/* Debt List Results */}
+              <div className="lg:col-span-2 space-y-3">
+                <p className="text-sm text-slate-400 mb-2">ผลลัพธ์การจำลอง (เป้าหมาย: กรอบสีส้ม)</p>
+                {data.debts && data.debts.length > 0 ? data.debts.map(debt => {
+                  const isTarget = debt.id === targetDebtId;
+                  const appliedExtra = isTarget ? extraDebtPay : 0;
                   
-                  {/* MACRO KPIs */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <Card className="border-l-4 border-l-blue-500">
-                      <p className="text-slate-400 text-xs md:text-sm font-medium">Net Worth</p>
-                      <h2 className="text-xl md:text-3xl font-bold text-white mt-1">฿{formatMoney(totalAssets - totalLiabilities)}</h2>
-                    </Card>
-                    <Card className="border-l-4 border-l-emerald-500">
-                      <p className="text-slate-400 text-xs md:text-sm font-medium">FFR% (อิสรภาพ)</p>
-                      <h2 className="text-xl md:text-3xl font-bold text-emerald-400 mt-1">{ffrPercent}%</h2>
-                    </Card>
-                    <Card className="border-l-4 border-l-cyan-500">
-                      <p className="text-slate-400 text-xs md:text-sm font-medium">Available Cash</p>
-                      <h2 className="text-xl md:text-3xl font-bold text-cyan-400 mt-1">฿{formatMoney(availableCash)}</h2>
-                    </Card>
-                    <Card className={`border-l-4 ${criticalDebtTotal > 0 ? 'border-l-red-500' : 'border-l-slate-500'}`}>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="text-slate-400 text-xs md:text-sm font-medium">หนี้วิกฤต (ดบ.{'>'}7%)</p>
-                          <h2 className={`text-xl md:text-3xl font-bold mt-1 ${criticalDebtTotal > 0 ? 'text-red-400' : 'text-slate-300'}`}>
-                            {criticalDebtTotal > 0 ? `฿${formatMoney(criticalDebtTotal)}` : 'ไม่มี'}
-                          </h2>
-                        </div>
-                        {criticalDebtTotal > 0 && <i className="fa-solid fa-triangle-exclamation text-red-400 mt-1" style={{fontSize: 18}}></i>}
-                      </div>
-                    </Card>
-                  </div>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    
-                    {/* VIVIAN RULE (WEALTH BUILDER MODE) */}
-                    <Card className="lg:col-span-1">
-                      <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-lg font-bold flex items-center gap-2"><i className="fa-solid fa-chart-pie text-purple-400" style={{fontSize: 18}}></i> Vivian Rule (50/30/20)</h3>
-                        <span className="text-[10px] md:text-xs font-medium px-2 py-1 bg-slate-800 rounded text-slate-400 border border-slate-700">
-                          งบประมาณตามรายรับ Active (฿{formatMoney(activeIncome)})
-                        </span>
-                      </div>
-                      
-                      <div className="space-y-6">
-                        <div>
-                          <div className="flex justify-between text-sm mb-2">
-                            <span className="font-bold text-slate-200">50% Needs (จำเป็น)</span>
-                            <span className="text-slate-300">฿{formatMoney(data.expenses.needs)} / ฿{formatMoney(needsTarget)} ({needsPct}%)</span>
-                          </div>
-                          <div className="w-full bg-[#1e293b] h-3 rounded-full relative">
-                            <div className="h-full rounded-full bg-[#10b981] transition-all duration-1000" style={{ width: `${Math.min((data.expenses.needs/needsTarget)*50, 100)}%` }}></div>
-                            <div className="absolute top-0 bottom-0 left-[50%] w-[2px] bg-slate-500 z-10"></div>
-                          </div>
-                        </div>
-
-                        <div>
-                          <div className="flex justify-between text-sm mb-2">
-                            <span className="font-bold text-slate-200">30% Wants (ความสุข)</span>
-                            <span className="text-slate-300">฿{formatMoney(data.expenses.wants)} / ฿{formatMoney(wantsTarget)} ({wantsPct}%)</span>
-                          </div>
-                          <div className="w-full bg-[#1e293b] h-3 rounded-full relative">
-                            <div className="h-full rounded-full bg-[#3b82f6] transition-all duration-1000" style={{ width: `${Math.min((data.expenses.wants/wantsTarget)*30, 100)}%` }}></div>
-                            <div className="absolute top-0 bottom-0 left-[30%] w-[2px] bg-slate-500 z-10"></div>
-                          </div>
-                        </div>
-
-                        <div>
-                          <div className="flex justify-between text-sm mb-2">
-                            <span className="font-bold text-slate-200">20% Future (อนาคต)</span>
-                            <span className="text-amber-400 font-bold">฿{formatMoney(data.expenses.future)} / ฿{formatMoney(futureTarget)} ({futurePct}%)</span>
-                          </div>
-                          <div className="w-full bg-[#1e293b] h-3 rounded-full relative">
-                            <div className="h-full rounded-full bg-[#fbbf24] transition-all duration-1000" style={{ width: `${Math.min((data.expenses.future/futureTarget)*20, 100)}%` }}></div>
-                            <div className="absolute top-0 bottom-0 left-[20%] w-[2px] bg-slate-500 z-10"></div>
-                          </div>
-                          {futurePct < 20 && <p className="text-xs text-amber-400 mt-2 flex items-center gap-1"><i className="fa-solid fa-circle-info" style={{fontSize: 12}}></i> ควรเพิ่มการออม/ลงทุนให้ถึง 20% ของ Active Income</p>}
-                        </div>
-                      </div>
-                    </Card>
-
-                    <div className="flex flex-col gap-6">
-                      {/* ESBI JOURNEY */}
-                      <Card>
-                        <h3 className="text-lg font-bold flex items-center gap-2 mb-5"><i className="fa-solid fa-briefcase text-amber-400" style={{fontSize: 18}}></i> ESBI Journey</h3>
-                        
-                        <div className="grid grid-cols-2 gap-4 mb-5">
-                          <div className="bg-[#1a233a] p-4 rounded-xl border border-slate-700">
-                            <div className="text-sm text-slate-400 mb-1">Active Income</div>
-                            <div className="text-2xl font-bold text-white mb-2">฿{formatMoney(activeIncome)}</div>
-                            <div className="text-xs text-slate-500">E: ฿{formatMoney(data.income.E)} | S: ฿{formatMoney(data.income.S)}</div>
-                          </div>
-                          <div className="bg-[#0f2923] p-4 rounded-xl border border-emerald-500/30">
-                            <div className="text-sm text-emerald-400 mb-1">Passive Income</div>
-                            <div className="text-2xl font-bold text-emerald-400 mb-2">฿{formatMoney(passiveIncome)}</div>
-                            <div className="text-xs text-slate-500">B: ฿{formatMoney(data.income.B)} | I: ฿{formatMoney(data.income.I)}</div>
-                          </div>
-                        </div>
-
-                        <div>
-                          <p className="text-sm text-slate-300 mb-2">อัตราส่วนความมั่งคั่ง (Wealth Ratio)</p>
-                          <div className="flex h-8 rounded-lg overflow-hidden border border-slate-700">
-                            <div className="bg-[#475569] flex items-center justify-center text-sm font-bold transition-all duration-1000" style={{ width: `${(activeIncome/totalIncome)*100}%` }}>{((activeIncome/totalIncome)*100).toFixed(0)}%</div>
-                            <div className="bg-[#10b981] flex items-center justify-center text-sm font-bold text-slate-900 transition-all duration-1000" style={{ width: `${(passiveIncome/totalIncome)*100}%` }}>{((passiveIncome/totalIncome)*100).toFixed(0)}%</div>
-                          </div>
-                          <p className="text-xs text-slate-500 text-center mt-3">พยายามขยายพื้นที่สีเขียว (B, I) ให้เกิน 50%</p>
-                        </div>
-                      </Card>
-
-                      {/* GENEROSITY */}
-                      <Card>
-                        <h3 className="text-sm font-bold flex items-center gap-2 mb-2"><i className="fa-solid fa-heart text-pink-400" style={{fontSize: 14}}></i> The Generosity Meter</h3>
-                        <div className="flex justify-between items-end mb-2">
-                          <span className="text-2xl font-bold text-pink-400">{givingRatio}%</span>
-                          <span className="text-xs text-slate-400">ของการให้เพื่อสังคม</span>
-                        </div>
-                        <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-pink-500 to-rose-400 transition-all duration-1000" style={{ width: `${Math.min(givingRatio, 10)}%` }}></div></div>
-                      </Card>
-                    </div>
-
-                    {/* BALANCE SHEET */}
-                    <Card className="lg:col-span-2">
-                      <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-lg font-bold flex items-center gap-2"><i className="fa-solid fa-chart-line text-blue-400" style={{fontSize: 18}}></i> งบดุล (Balance Sheet)</h3>
-                        <span className="text-xs font-medium px-3 py-1 bg-slate-800 rounded text-slate-400">แบบสรุป</span>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-                        <div>
-                          <h4 className="text-sm font-bold text-emerald-400 border-b border-emerald-500/30 pb-2 mb-4">ทรัพย์สิน (Assets)</h4>
-                          <ul className="space-y-3 text-sm">
-                            <li className="flex justify-between"><span className="text-slate-300">เงินสด</span> <span>฿{formatMoney(data.assets.cash)}</span></li>
-                            <li className="flex justify-between"><span className="text-slate-300">การลงทุน</span> <span>฿{formatMoney(data.assets.investments)}</span></li>
-                            <li className="flex justify-between"><span className="text-slate-300">อสังหาฯ</span> <span>฿{formatMoney(data.assets.realEstate)}</span></li>
-                            <li className="flex justify-between"><span className="text-slate-300">ลูกหนี้</span> <span>฿{formatMoney(data.assets.receivables)}</span></li>
-                          </ul>
-                          <div className="mt-4 pt-3 border-t border-slate-700 flex justify-between font-bold text-lg">
-                            <span className="text-slate-100">รวม</span> <span className="text-emerald-400">฿{formatMoney(totalAssets)}</span>
-                          </div>
-                        </div>
-
-                        <div>
-                          <h4 className="text-sm font-bold text-red-400 border-b border-red-500/30 pb-2 mb-4">หนี้สิน (Liabilities)</h4>
-                          <ul className="space-y-3 text-sm">
-                            <li className="flex justify-between"><span className="text-slate-300">บ้าน</span> <span>฿{formatMoney(data.liabilities.mortgage)}</span></li>
-                            <li className="flex justify-between"><span className="text-slate-300">รถยนต์</span> <span>฿{formatMoney(data.liabilities.car)}</span></li>
-                            <li className="flex justify-between"><span className="text-slate-300">บัตรเครดิต</span> <span>฿{formatMoney(data.liabilities.creditCards)}</span></li>
-                            <li className="flex justify-between"><span className="text-slate-300">สินเชื่อบุคคล</span> <span>฿{formatMoney(data.liabilities.personalLoan)}</span></li>
-                          </ul>
-                          <div className="mt-4 pt-3 border-t border-slate-700 flex justify-between font-bold text-lg">
-                            <span className="text-slate-100">รวม</span> <span className="text-red-400">฿{formatMoney(totalLiabilities)}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-
-                  </div>
-                </div>
-              )}
-
-              {/* ================================================== */}
-              {/* TAB 2: TIMELINES */}
-              {/* ================================================== */}
-              {activeTab === 'timeline' && (
-                <div className="space-y-6 animate-fade-in">
+                  const base = calculateDebtMetrics(debt.balance, debt.rate, debt.minPay);
+                  const newCalc = calculateDebtMetrics(debt.balance, debt.rate, debt.minPay + appliedExtra);
                   
-                  {/* WEALTH TIMELINE (Interactive) */}
-                  <Card>
-                    <div className="flex justify-between items-center mb-6">
-                      <h3 className="text-lg font-bold flex items-center gap-2"><i className="fa-solid fa-arrow-trend-up text-blue-300" style={{fontSize: 18}}></i> Wealth Timeline</h3>
-                      <div className="flex gap-1 bg-[#1a233a] rounded-full p-1 border border-slate-700">
-                        <button onClick={() => setWealthTimeframe('yearly')} className={getBtnClass(wealthTimeframe, 'yearly')}>รายปี</button>
-                        <button onClick={() => setWealthTimeframe('quarterly')} className={getBtnClass(wealthTimeframe, 'quarterly')}>รายไตรมาส</button>
-                        <button onClick={() => setWealthTimeframe('monthly')} className={getBtnClass(wealthTimeframe, 'monthly')}>รายเดือน</button>
-                      </div>
-                    </div>
-                    
-                    <LineChartSVG 
-                      data={getTimelineData(wealthTimeframe)} 
-                      xKey="label" 
-                      line1Key="income" line2Key="expense" 
-                      line1Color="#0ea5e9" line2Color="#ef4444" 
-                      isLine2Dashed={true}
-                      legend1="รายรับ" legend2="รายจ่าย"
-                    />
-                  </Card>
+                  const savedMonths = base.months - newCalc.months;
+                  const savedInterest = base.totalInterest - newCalc.totalInterest;
 
-                  {/* INVESTMENT TIMELINE (Interactive) */}
-                  <Card>
-                    <div className="flex justify-between items-center mb-6">
-                      <h3 className="text-lg font-bold flex items-center gap-2"><i className="fa-solid fa-briefcase text-slate-300" style={{fontSize: 18}}></i> Investment Timeline</h3>
-                      <div className="flex gap-1 bg-[#1a233a] rounded-full p-1 border border-slate-700">
-                        <button onClick={() => setInvestTimeframe('yearly')} className={getBtnClass(investTimeframe, 'yearly')}>รายปี</button>
-                        <button onClick={() => setInvestTimeframe('quarterly')} className={getBtnClass(investTimeframe, 'quarterly')}>รายไตรมาส</button>
-                        <button onClick={() => setInvestTimeframe('monthly')} className={getBtnClass(investTimeframe, 'monthly')}>รายเดือน</button>
-                      </div>
-                    </div>
-                    
-                    <LineChartSVG 
-                      data={getTimelineData(investTimeframe)} 
-                      xKey="label" 
-                      line1Key="assets" line2Key="debt" 
-                      line1Color="#10b981" line2Color="#eab308" 
-                      isLine2Dashed={true}
-                      legend1="ทรัพย์สินสะสม" legend2="หนี้สินคงเหลือ"
-                    />
-                  </Card>
-                </div>
-              )}
-
-              {/* ================================================== */}
-              {/* TAB 3: STRATEGY & DEBT */}
-              {/* ================================================== */}
-              {activeTab === 'strategy' && (
-                <div className="space-y-6 animate-fade-in">
-                  
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    
-                    {/* VIRTUAL ENVELOPES */}
-                    <Card>
-                      <h3 className="text-lg font-bold flex items-center gap-2 mb-6"><i className="fa-solid fa-layer-group text-blue-400" style={{fontSize: 18}}></i> ระบบเงินหลายถัง (Virtual Envelopes)</h3>
-                      <div className="space-y-5">
-                        {data.envelopes.length > 0 ? data.envelopes.map((env, i) => (
-                          <div key={i} className="bg-slate-800/40 p-4 rounded-xl border border-slate-700/50">
-                            <div className="flex justify-between items-center mb-2">
-                              <span className="font-bold flex items-center gap-2 text-slate-200">
-                                <div className={`w-3 h-3 rounded-full ${env.color}`}></div>{env.name}
-                              </span>
-                              <span className="text-sm font-mono text-slate-300">{formatMoney(env.balance)} / {formatMoney(env.target)}</span>
-                            </div>
-                            <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
-                              <div className={`h-full ${env.color} transition-all duration-1000`} style={{ width: `${Math.min((env.balance/env.target)*100, 100)}%` }}></div>
-                            </div>
+                  return (
+                    <div 
+                      key={debt.id} 
+                      onClick={() => { if(debtStrategy==='custom') setCustomDebtId(debt.id) }}
+                      className={`p-4 rounded-xl border transition-all ${debtStrategy==='custom' ? 'cursor-pointer hover:border-slate-500' : ''} ${isTarget ? 'bg-amber-500/10 border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.05)]' : 'bg-[#1a233a] border-slate-700/50'}`}
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <div className="font-bold text-slate-200 text-base flex items-center gap-2">
+                            {debt.name} 
+                            {debt.rate > 7 && <span className="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded border border-red-500/30">หนี้วิกฤต</span>}
                           </div>
-                        )) : <p className="text-slate-500 text-sm">ยังไม่มีข้อมูลกระเป๋าเงิน</p>}
-                      </div>
-                      <div className="mt-6 p-4 bg-cyan-500/10 border border-cyan-500/20 rounded-xl flex justify-between items-center">
-                        <span className="text-sm font-bold text-cyan-400">เงินลอยตัว (ยังไม่จัดสรร)</span>
-                        <span className="text-lg font-bold text-cyan-400">฿{formatMoney(availableCash)}</span>
-                      </div>
-                    </Card>
-
-                    {/* WHAT-IF COMPOUND SIMULATOR */}
-                    <Card className="relative overflow-hidden">
-                      <div className="absolute top-0 right-0 opacity-5 pointer-events-none"><i className="fa-solid fa-bullseye" style={{fontSize: 150}}></i></div>
-                      <h3 className="text-lg font-bold flex items-center gap-2 mb-2 text-amber-400"><i className="fa-solid fa-arrow-trend-up" style={{fontSize: 18}}></i> What-If Simulator (The Compound Effect)</h3>
-                      <p className="text-sm text-slate-400 mb-6">หากคุณลดรายจ่ายหมวด Wants แล้วนำมาลงทุนใน Future (ผลตอบแทน 8% ต่อปี)</p>
-                      
-                      <div className="mb-8 relative z-10">
-                        <div className="flex justify-between text-sm text-slate-200 mb-2">
-                          <span>หักเงินมาลงทุนเพิ่มเดือนละ:</span>
-                          <span className="font-bold text-amber-400 text-lg">฿{formatMoney(reduceWantsVal)}</span>
+                          <div className="text-xs text-slate-400 mt-1">ยอดค้าง: ฿{formatMoney(debt.balance)} | ดอกเบี้ย: {debt.rate}%</div>
                         </div>
-                        <input type="range" min="0" max="20000" step="1000" value={reduceWantsVal} onChange={(e) => setReduceWantsVal(Number(e.target.value))} className="w-full accent-amber-500 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"/>
-                        <div className="flex justify-between text-xs text-slate-500 mt-2">
-                          <span>0</span><span>10,000</span><span>20,000</span>
-                        </div>
-                      </div>
-                      
-                      <div className="p-5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-xl text-center relative z-10">
-                        <p className="text-sm text-amber-200 mb-1">ใน 10 ปี เงินก้อนนี้จะเติบโตกลายเป็น:</p>
-                        <p className="text-4xl font-bold text-amber-400">฿{formatMoney(compoundResult)}</p>
-                        <p className="text-xs text-amber-200/70 mt-2">พลังของดอกเบี้ยทบต้น (Compound Interest)</p>
-                      </div>
-                    </Card>
-
-                  </div>
-
-                  {/* DEBT SIMULATOR */}
-                  <Card>
-                    <div className="flex justify-between items-center mb-6">
-                      <h3 className="text-lg font-bold flex items-center gap-2"><i className="fa-solid fa-fire text-red-400" style={{fontSize: 18}}></i> Debt Simulator (ระบบจำลองวันหมดหนี้)</h3>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                      
-                      {/* Control Panel */}
-                      <div className="lg:col-span-1 border-r border-slate-700/50 pr-0 lg:pr-6">
-                        <p className="text-sm text-slate-400 mb-3">1. เลือกกลยุทธ์การโปะหนี้</p>
-                        <div className="flex flex-col gap-2 mb-6">
-                          <button onClick={()=>setDebtStrategy('avalanche')} className={`p-3 text-sm rounded-xl transition-all border text-left flex justify-between ${debtStrategy==='avalanche' ? 'bg-red-500/10 border-red-500/50 text-red-400 font-bold' : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-800'}`}>
-                            <span>Avalanche</span> <span className="text-xs font-normal opacity-70">เน้นดอกแพงสุด</span>
-                          </button>
-                          <button onClick={()=>setDebtStrategy('snowball')} className={`p-3 text-sm rounded-xl transition-all border text-left flex justify-between ${debtStrategy==='snowball' ? 'bg-blue-500/10 border-blue-500/50 text-blue-400 font-bold' : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-800'}`}>
-                            <span>Snowball</span> <span className="text-xs font-normal opacity-70">เน้นยอดน้อยสุด</span>
-                          </button>
-                          <button onClick={()=>setDebtStrategy('custom')} className={`p-3 text-sm rounded-xl transition-all border text-left flex justify-between ${debtStrategy==='custom' ? 'bg-amber-500/10 border-amber-500/50 text-amber-400 font-bold' : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-800'}`}>
-                            <span>Custom</span> <span className="text-xs font-normal opacity-70">เลือกคลิกเอง</span>
-                          </button>
-                        </div>
-
-                        <p className="text-sm text-slate-400 mb-3">2. มีเงินสดโปะเพิ่มเดือนละ</p>
-                        <div className="mb-2">
-                          <div className="text-2xl font-bold text-amber-400 mb-2">+{formatMoney(extraDebtPay)} ฿</div>
-                          <input type="range" min="0" max="50000" step="1000" value={extraDebtPay} onChange={(e) => setExtraDebtPay(Number(e.target.value))} className="w-full h-2 bg-slate-700 rounded-lg appearance-none accent-amber-500" />
-                        </div>
-                      </div>
-
-                      {/* Debt List Results */}
-                      <div className="lg:col-span-2 space-y-3">
-                        <p className="text-sm text-slate-400 mb-2">ผลลัพธ์การจำลอง (เป้าหมาย: กรอบสีส้ม)</p>
-                        {data.debts && data.debts.length > 0 ? data.debts.map(debt => {
-                          const isTarget = debt.id === targetDebtId;
-                          const appliedExtra = isTarget ? extraDebtPay : 0;
-                          
-                          const base = calculateDebtMetrics(debt.balance, debt.rate, debt.minPay);
-                          const newCalc = calculateDebtMetrics(debt.balance, debt.rate, debt.minPay + appliedExtra);
-                          
-                          const savedMonths = base.months - newCalc.months;
-                          const savedInterest = base.totalInterest - newCalc.totalInterest;
-
-                          return (
-                            <div 
-                              key={debt.id} 
-                              onClick={() => { if(debtStrategy==='custom') setCustomDebtId(debt.id) }}
-                              className={`p-4 rounded-xl border transition-all ${debtStrategy==='custom' ? 'cursor-pointer hover:border-slate-500' : ''} ${isTarget ? 'bg-amber-500/10 border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.05)]' : 'bg-[#1a233a] border-slate-700/50'}`}
-                            >
-                              <div className="flex justify-between items-start mb-2">
-                                <div>
-                                  <div className="font-bold text-slate-200 text-base flex items-center gap-2">
-                                    {debt.name} 
-                                    {debt.rate > 7 && <span className="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded border border-red-500/30">หนี้วิกฤต</span>}
-                                  </div>
-                                  <div className="text-xs text-slate-400 mt-1">ยอดค้าง: ฿{formatMoney(debt.balance)} | ดอกเบี้ย: {debt.rate}%</div>
-                                </div>
-                                <div className="text-right">
-                                  <div className="text-sm font-medium text-slate-300">จ่ายปกติ: {base.months === Infinity ? 'ไม่จบ' : `${base.months} งวด`}</div>
-                                  {isTarget && extraDebtPay > 0 && newCalc.months !== Infinity && (
-                                    <div className="text-sm font-bold text-amber-400 mt-1">
-                                      จบแบบใหม่: {newCalc.months} งวด
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                              
-                              {isTarget && savedMonths > 0 && newCalc.months !== Infinity && (
-                                <div className="mt-3 p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex justify-between text-sm">
-                                  <span className="text-emerald-400 font-bold"><i className="fa-solid fa-bolt inline mr-1" style={{fontSize: 14}}></i> เร็วขึ้น {savedMonths} งวด!</span>
-                                  <span className="text-emerald-400">ประหยัดดอกเบี้ย: ฿{formatMoney(savedInterest)}</span>
-                                </div>
-                              )}
+                        <div className="text-right">
+                          <div className="text-sm font-medium text-slate-300">จ่ายปกติ: {base.months === Infinity ? 'ไม่จบ' : `${base.months} งวด`}</div>
+                          {isTarget && extraDebtPay > 0 && newCalc.months !== Infinity && (
+                            <div className="text-sm font-bold text-amber-400 mt-1">
+                              จบแบบใหม่: {newCalc.months} งวด
                             </div>
-                          );
-                        }) : <p className="text-slate-500">ไม่มีข้อมูลหนี้สิน</p>}
+                          )}
+                        </div>
                       </div>
-
+                      
+                      {isTarget && savedMonths > 0 && newCalc.months !== Infinity && (
+                        <div className="mt-3 p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex justify-between text-sm">
+                          <span className="text-emerald-400 font-bold"><Zap size={14} className="inline mr-1"/> เร็วขึ้น {savedMonths} งวด!</span>
+                          <span className="text-emerald-400">ประหยัดดอกเบี้ย: ฿{formatMoney(savedInterest)}</span>
+                        </div>
+                      )}
                     </div>
-                  </Card>
-
-                </div>
-              )}
+                  );
+                }) : <p className="text-slate-500">ไม่มีข้อมูลหนี้สิน</p>}
+              </div>
 
             </div>
-          );
-        }
+          </Card>
 
-        // --- RENDER APP ---
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
-</body>
-</html>
+        </div>
+      )}
+
+    </div>
+  );
+}
